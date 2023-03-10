@@ -10,6 +10,8 @@
 \setlength{\marginparwidth}{2cm}
 \usepackage{todonotes}
 \usepackage{soul}
+\usepackage{pdflscape}
+
 
 % Set page size and margins Replace `letterpaper' with `a4paper' for UK/EU
 % standard size
@@ -325,14 +327,13 @@ We computed 30 perturbed results for each of the 8 subjects and each of the 3
 perturbations (RR, RS, RR+RS). We also computed a reference, unperturbed IEEE
 result for each subject using a random seed of 42. For each perturbation we
 measured the uncertainty of fMRIPrep in terms of significant digits, and we
-built 5 versions of the non-regression test using different multiple-comparison
-corrections.
+built the non-regression test using different values of FWHM smoothing and confidence level.
 
 \subsection{Measured uncertainty}
 
 Overall, the three types of perturbations (RR, RS, RR+RS) created uncertainties
 of comparable magnitude (Figure~\ref{fig:numerical-uncertainty}), with intensity
-standard deviations ranging from 0 to 45 and significant bits ranging from 4
+standard deviations ranging from 0 to 45 and significant bits ranging from 3
 bits to 10 bits. In all configurations, smoothing reduced uncertainty
 substantially as seen by the decreasing trend of the standard deviation and the
 increasing trend of the significant bits. Two subjects (\texttt{adult15} and
@@ -380,9 +381,130 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
     \label{fig:numerical-uncertainty}
 \end{figure}
 
+\begin{landscape}
 \begin{figure}
     \centering
+    %% sub 1
     \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mean.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+       \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+    %% sub 2
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mean.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+       \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+    %% sub 3
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mean.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+       \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+    %% sub 4
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mean.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+       \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+      %% sub 1
+    \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mean.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+       \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+    %% sub 2
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mean.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+       \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+    %% sub 3
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mean.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+       \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+    %% sub 4
+        \begin{subfigure}[t]{0.24\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/mean.pdf}
     \end{subfigure}
@@ -402,7 +524,9 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
         Rounding (RR) samples. Uncertainty measured for RS and RR+RS look similar
         \TG{Check that}. }
     \label{fig:uncertainty_sub_1}
+
 \end{figure}
+    \end{landscape}
 
 \subsection{Non-regression test evaluations}
 
