@@ -282,17 +282,17 @@ subject in the dataset.
 
 \begin{table}
     \begin{center}
-        \begin{tabular}{ c|l|c|c|c|c|c}
-            Dataset  & Subject     & Dimension ($x,y,z$)         & Voxel resolution $mm^3$ ($x,y,z$) & Data type & Age  & Sex \\
+        \begin{tabular}{ c|c|l|c|c|c|c|c}
+            Index & Dataset  & Subject     & Dimension ($x,y,z$)         & Voxel resolution $mm^3$ ($x,y,z$) & Data type & Age  & Sex \\
             \hline
-            ds000256 & sub-CTS201  & $256 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$       & int16     & 8.68 & M   \\
-            ds000256 & sub-CTS210  & $224 \times 256 \times 256$ & $0.8 \times 0.8 \times 0.8$       & int16     & 7.63 & F   \\
-            ds001748 & sub-adult15 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$       & float32   & 21   & M   \\
-            ds001748 & sub-adult16 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$       & float32   & 21   & F   \\
-            ds002338 & sub-xp201   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$       & int16     & 41   & F   \\
-            ds002338 & sub-xp207   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$       & int16     & 39   & M   \\
-            ds001600 & sub-1       & $176 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$       & int16     & -    & -   \\
-            ds001771 & sub-36      & $256 \times 320 \times 320$ & $0.8 \times 0.8 \times 0.8$       & int16     & 22   & F
+            1     & ds001600 & sub-1       & $176 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$       & int16     & -    & -   \\
+            2     & ds001771 & sub-36      & $256 \times 320 \times 320$ & $0.8 \times 0.8 \times 0.8$       & int16     & 22   & F   \\
+            3     & ds000256 & sub-CTS201  & $256 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$       & int16     & 8.68 & M   \\
+            4     & ds000256 & sub-CTS210  & $224 \times 256 \times 256$ & $0.8 \times 0.8 \times 0.8$       & int16     & 7.63 & F   \\
+            5     & ds001748 & sub-adult15 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$       & float32   & 21   & M   \\
+            6     & ds001748 & sub-adult16 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$       & float32   & 21   & F   \\
+            7     & ds002338 & sub-xp201   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$       & int16     & 41   & F   \\
+            8     & ds002338 & sub-xp207   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$       & int16     & 39   & M   \\
         \end{tabular}
     \end{center}
     \caption{Dimension, voxels resolutions, age and sex of each subject in the dataset.}
@@ -369,7 +369,7 @@ significant bits across samples, $\hat{s_b}$, we determine the maximal index
 \(k\) for which the first \(k\) bits of all \(n\) sampled results coincide with
 the reference:
 \[\hat{s_{b}} = \textnormal{max} \left\{ k \in \{1,2,...,p\} \textnormal{ such
-        that } \forall i \in \{1,2,...,n\},\  S^{k}_{i}=\mathds{1}\right\} \]
+        that } \forall i \in \{1,2,...,n\},\  S^{k}_{i} \textnormal{ is true } \right\} \]
 where $p$ is the precision of the format ($p=16$ for int16, $p=24$ for float32).
 According to~\cite{sohier2021confidence}, taking $n=30$ samples
 corresponds to a confidence of 95\% and a probability of 0.9 on the estimation of $\hat{s_b}$.
@@ -382,151 +382,151 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
 \end{figure}
 
 \begin{landscape}
-\begin{figure}
-    \centering
-    %% sub 1
-    \begin{subfigure}[t]{0.24\textwidth}
+    \begin{figure}
+        \vspace*{-2cm}
         \centering
-        \includegraphics[width=\textwidth]{figures/mean.pdf}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-       \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-    %% sub 2
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/mean.pdf}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-       \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-    %% sub 3
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/mean.pdf}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-       \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-    %% sub 4
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/mean.pdf}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-       \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-      %% sub 1
-    \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/mean.pdf}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-       \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-    %% sub 2
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/mean.pdf}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-       \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-    %% sub 3
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/mean.pdf}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-       \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-    %% sub 4
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/mean.pdf}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-       \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-        \begin{subfigure}[t]{0.24\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/sig.pdf}
-    \end{subfigure}
-    \caption{Uncertainty measured in subject \texttt{sub-1} across n=30 Random
-        Rounding (RR) samples. Uncertainty measured for RS and RR+RS look similar
-        \TG{Check that}. }
-    \label{fig:uncertainty_sub_1}
+        %% sub 1
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/ieee_T1/ds001600_sub-1_ieee_mean.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001600_sub-1_rr_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001600_sub-1_rs_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001600_sub-1_rr.rs_sig.pdf}
+        \end{subfigure}
+        %% sub 2
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/ieee_T1/ds001771_sub-36_ieee_mean.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001771_sub-36_rr_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001771_sub-36_rs_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001771_sub-36_rr.rs_sig.pdf}
+        \end{subfigure}
+        %% sub 3
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/ieee_T1/ds000256_sub-CTS201_ieee_mean.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS201_rr_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS201_rs_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS201_rr.rs_sig.pdf}
+        \end{subfigure}
+        %% sub 4
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/ieee_T1/ds000256_sub-CTS210_ieee_mean.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS210_rr_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS210_rs_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS210_rr.rs_sig.pdf}
+        \end{subfigure}
+        %% sub 5
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/ieee_T1/ds001748_sub-adult15_ieee_mean.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult15_rr_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult15_rs_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult15_rr.rs_sig.pdf}
+        \end{subfigure}
+        %% sub 6
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/ieee_T1/ds001748_sub-adult16_ieee_mean.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult16_rr_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult16_rs_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult16_rr.rs_sig.pdf}
+        \end{subfigure}
+        %% sub 7
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/ieee_T1/ds002338_sub-xp201_ieee_mean.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp201_rr_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp201_rs_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp201_rr.rs_sig.pdf}
+        \end{subfigure}
+        %% sub 8 
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/ieee_T1/ds002338_sub-xp207_ieee_mean.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp207_rr_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp207_rs_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.2\paperheight}
+            \centering
+            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp207_rr.rs_sig.pdf}
+        \end{subfigure}
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 for
+            (from right to left) IEEE, RR, RS and RR+RS samples without spatial smoothing applied (FWHM=0mm). }
+        \label{fig:uncertainty_sub_1}
 
-\end{figure}
-    \end{landscape}
+    \end{figure}
+\end{landscape}
 
 \subsection{Non-regression test evaluations}
 
@@ -535,21 +535,55 @@ evaluation by constructing the non-regression test for $n-1$ perturbed results
 and applying it to the remaining perturbed result. To be usable, non-regression
 tests should pass this evaluation. We applied leave-one-out validation for
 different  confidence values (1-$\alpha$) and different sizes of image smoothing
-kernels (Full Width at Half Maximum --- FWHM).
+kernels (Full Width at Half Maximum --- FWHM). Therefore, for each pair of
+confidence level and FWHM, the LOO gives $n$ test results.
 
-For each pair of confidence level and FWHM, the LOO gives $n$ tests (following Equations~\ref{eq:pce} and~\ref{eq:bonferroni})
+For the uncorrected tests (Equation~\ref{eq:pce}), the fraction of positive
+z-tests $V_P$ among the $v$ voxels should be close to the nomimal value $\alpha$
+in average. To assess the validity of our LOO test, we ensure that the average
+of the $n$ $V_P$ fractions measured is contained in the confidence interval
+around the nomimal value $\alpha$. To do so, we use a two-tailed one sample
+t-test with $n-1$ degree of freedom at a level of significance $\alpha_0=0.05$:
+\[
+    \left[
+    \bar{V_p} -t_{29,0.025} \frac{\tilde{\sigma}_{V_P}}{\sqrt{30}}
+    \; ; \;
+    \bar{V_p}  + t_{29,0.025} \frac{\tilde{\sigma}_{V_P}}{\sqrt{30}}
+    \right]
+\]
+obtained from
+\[
+    \mathbb{P}
+    \left(
+    -t_{n-1,\alpha_0/2}
+    <
+    \dfrac{\bar{V_p} - \alpha}{\tilde{\sigma}_{V_P} / \sqrt{n}}
+    <
+    t_{n-1,\alpha_0/2}
+    \right)
+    = 1 - \alpha_0
+\]
+with
+$t_{k,\gamma}$ the $(1-\gamma)$quantile of the Student law with $k$ degree of freedom,
+$\overline{V_P}_n$ the estimated mean and $\tilde{\sigma}_{V_P}$ the estimated standard-deviation
+of $n$ $V_P$ measured.
 
-For the uncorrected tests (Equation~\ref{eq:pce}), the fraction of positive z-tests $V_P$ among the $v$ voxels should be close to the nomimal value
-$\alpha$. To assess the validity of our LOO test, we ensure that the mean of the $n$ $V_P$ fractions measured is contained
-in the confidence interval around the nomimal value $\alpha$. To do so, we use a two-tailed one sample t-test at a level
-of significance 0.05.
+For the corrected tests with bonferroni correction
+(Equation~\ref{eq:bonferroni}), the probability of falsy detect one or more
+false positive among the $v$ voxels is equal to nomimal value $\alpha$
+considered. Hence, we should falsy reject a fraction $\alpha$ of the $n$ tests
+performed for one pair (confidence, FHWM). We model a LOO test
+by a random variable $X$ following a Binomial law of
+parameters $B(n,1-\alpha)$ where $n$ is the number of trials and $1-\alpha$ is
+the probability of success for each trial. We consider a LOO test pass if the
+estimated probability of success is higher than the lower bound of the
+lower-tailed binomial confidence interval at a level of significance
+$\alpha_0=0.05$:
+\[
+    \mathbb{P}(X > 1-\alpha) = 1 - F(1-\alpha;n,\alpha) \leq \alpha_0
+\]
+where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$.
 
-For the corrected tests with bonferroni correction (Equation~\ref{eq:bonferroni}), the probability of falsy detect
-one or more false positive among the $v$ voxels is equal to nomimal value $\alpha$ considered.
-Hence, we should falsy reject a fraction $\alpha$ of the $n$ tests performed for one pair (confidence,FHWM).
-We model this by Binomial law of parameter $B(n,1-\alpha)$ where $n$ is the number of trials and $1-\alpha$ is the
-probability of success for each trial. We consider a LOO test pass if the estimated probability of success is higher
-than the lower bound of the lower-tailed binomial proportion confidence interval at a level of significance 0.05.
 
 Figure~\ref{fig:loo_bonferroni} shows leave-one-out evaluation results
 for the 3 tested perturbation types (RR, RS and RR+RS). As expected, tests
