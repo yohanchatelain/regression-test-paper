@@ -382,20 +382,21 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
 
 \begin{figure}
     \centering
-    \begin{subfigure}[t]{\textwidth}
+    \begin{subfigure}[t]{0.24\textwidth}
         \centering
-        \includegraphics[width=0.8\textwidth]{figures/mean.pdf}
-        \caption{\centering Mean}
-    \end{subfigure}\\
-    \begin{subfigure}[t]{\textwidth}
-        \centering
-        \includegraphics[width=0.8\textwidth]{figures/std.pdf}
-        \caption{\centering Standard deviation (log)}
-    \end{subfigure}\\
-    \begin{subfigure}[t]{0.8\textwidth}
+        \includegraphics[width=\textwidth]{figures/mean.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.24\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/sig.pdf}
-        \caption{\centering Significant bits}
+    \end{subfigure}
+       \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
+    \end{subfigure}
+        \begin{subfigure}[t]{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/sig.pdf}
     \end{subfigure}
     \caption{Uncertainty measured in subject \texttt{sub-1} across n=30 Random
         Rounding (RR) samples. Uncertainty measured for RS and RR+RS look similar
@@ -495,17 +496,17 @@ tested methods for multiple comparison corrections led to similar conclusions.
           \textbf{Expected result}: 100\% of the observations should not pass the test.
 \end{itemize}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/ieee_pce.pdf}
-    \caption{IEEE check for uncorrected $\alpha$ threshold.}
-\end{figure}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/ieee_pce.pdf}
+%     \caption{IEEE check for uncorrected $\alpha$ threshold.}
+% \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/ieee_mct_fwe_bonferroni.pdf}
-    \caption{IEEE check for bonferroni correction.}
-\end{figure}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/ieee_mct_fwe_bonferroni.pdf}
+%     \caption{IEEE check for bonferroni correction.}
+% \end{figure}
 
 % \begin{figure}
 %     \centering
