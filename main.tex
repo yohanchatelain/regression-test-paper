@@ -136,7 +136,7 @@ hypothesis $H_{0,i}$ that the value produced by the tested fMRIPrep version
 belongs to the reference distribution:
 \begin{equation}
     \label{eqn:pval}
-    p_i(z_i) = 2 \left(1-\Phi(z_i)\right) ,
+    p_i(z_i) = 2 \left(1-\Phi(z_i)\right),
 \end{equation}
 where $\Phi$ is the cumulative distribution function of the normal centered
 Gaussian and:
@@ -211,13 +211,14 @@ incurs a substantial performance overhead whereas RS does not.
 \subsection{fMRIprep results preprocessing}
 
 The non-regression test applies to the main structural derivative produced by
-\fmriprep: the T1 image corrected for intensity non-uniformity and transformed
-to template space \TG{check what exactly happened to this image}, named
-\texttt{desc-preproc\_T1w} in the \fmriprep outputs and $X_k$ ($k < n$)
-in the remainder of this paper. In addition to the pre-processed T1 image $X_k$,
-\fmriprep produces a brain mask ($B_k$), a segmentation into grey matter, white
-matter and cerebro-spinal fluid tissues, as well as probability maps for each of
-these tissues.
+\fmriprep: the T1 image corrected for intensity non-uniformity using
+\texttt{N4BiasFieldCorrection} from \texttt{ANTS} and transformed to template
+space \TG{check what exactly happened to this image} using
+\texttt{antsRegistration}, named \texttt{desc-preproc\_T1w} in the \fmriprep
+outputs and $X_k$ ($k < n$) in the remainder of this paper. In addition to the
+pre-processed T1 image $X_k$, \fmriprep produces a brain mask ($B_k$), a
+segmentation into grey matter, white matter and cerebro-spinal fluid tissues, as
+well as probability maps for each of these tissues.
 
 Before computing the p-values in Equation~\ref{eqn:pval}, we apply the following
 pre-processing steps to $X_k$: brain masking, smoothing, and intensity
@@ -241,7 +242,8 @@ the per-comparison error rate (PCER). To account for the PCER, we measure the
 fraction of positive z-tests $V_P$ among the $v$ voxels in the image and the
 tested \fmriprep result is considered part of the reference distribution iif:
 \begin{equation}
-    V_{P} \leq \alpha
+    \label{eq:pce}
+    V_{P} \leq \alpha.
 \end{equation}
 
 Another approach is to correct for multiple comparisons by adjusting the p-value
@@ -249,7 +251,8 @@ threshold. We use the classical Bonferroni correction that simply divides
 $\alpha$ by the number of multiple comparisons performed. As a result, the
 tested \fmriprep result is considered part of the reference distribution iif:
 \begin{equation}
-    \forall i, \quad i < v, \quad p_i < \frac{\alpha}{v}. \label{eq:bonferroni}
+    \label{eq:bonferroni}
+    \forall i, \quad i < v, \quad p_i < \frac{\alpha}{v}.
 \end{equation}
 
 % \begin{table}[] \centering \begin{tabular}{c|c|c|c} & Negatives & Positives &
@@ -406,11 +409,21 @@ tests should pass this evaluation. We applied leave-one-out validation for
 different  confidence values (1-$\alpha$) and different sizes of image smoothing
 kernels (Full Width at Half Maximum --- FWHM).
 
-Applying LOO on one subject and one ($\alpha$/$\fwhm$) configuration pair gives $n$ results.
-We accept
+For each pair of confidence level and FWHM, the LOO gives $n$ tests (following Equations~\ref{eq:pce} and~\ref{eq:bonferroni})
 
+For the uncorrected tests (Equation~\ref{eq:pce}), the fraction of positive z-tests $V_P$ among the $v$ voxels should be close to the nomimal value
+$\alpha$. To assess the validity of our LOO test, we ensure that the mean of the $n$ $V_P$ fractions measured is contained
+in the confidence interval around the nomimal value $\alpha$. To do so, we use a two-tailed one sample t-test at a level
+of significance 0.05.
 
-Figure~\ref{fig:evaluation-rr-rs-rr+rs} shows leave-one-out evaluation results
+For the corrected tests with bonferroni correction (Equation~\ref{eq:bonferroni}), the probability of falsy detect
+one or more false positive among the $v$ voxels is equal to nomimal value $\alpha$ considered.
+Hence, we should falsy reject a fraction $\alpha$ of the $n$ tests performed for one pair (confidence,FHWM).
+We model this by Binomial law of parameter $B(n,1-\alpha)$ where $n$ is the number of trials and $1-\alpha$ is the
+probability of success for each trial. We consider a LOO test pass if the estimated probability of success is higher
+than the lower bound of the lower-tailed binomial proportion confidence interval at a level of significance 0.05.
+
+Figure~\ref{fig:loo_bonferroni} shows leave-one-out evaluation results
 for the 3 tested perturbation types (RR, RS and RR+RS). As expected, tests
 become increasingly permissive for increasing values of $\alpha$ (reduced
 confidence) and increasing values of FWHM. For each type of perturbation, we
@@ -425,7 +438,10 @@ order on $A \times F$ where $A$ is the set of all $\alpha$ values and $F$ is the
 set of all FWHM values. $\alpha^\star$ is the minimum value of $\alpha$ for which
 the maximal number of subjects pass the test, and $\fwhm^\star$ is the minimal
 smoothing kernel size such that the maximal number of subjects pass the test
-with $\alpha^\star$. \TG{comment on $\alpha^\star$ and $\fwhm^\star$ values.} It can be
+with $\alpha^\star$. \TG{comment on $\alpha^\star$ and $\fwhm^\star$ values.} 
+
+
+It can be
 noted that among the 8 tested subjects, subject 210 never passes the test for RR
 or RS perturbations, and only passed the test for $\alpha^\star=0.2$ and
 $\fwhm^\star=20mm$ for the RR+RS perturbation. This is due to the fact that for
@@ -441,7 +457,7 @@ tested methods for multiple comparison corrections led to similar conclusions.
     \centering
     \includegraphics[width=\linewidth]{figures/exclude_pce.pdf}
     \caption{PCE}
-    \label{fig:pce}
+    \label{fig:loo_pce}
 \end{figure}
 
 \begin{figure}
@@ -453,7 +469,7 @@ tested methods for multiple comparison corrections led to similar conclusions.
         (RR) $\alpha^\star=0.15$, $\fwhm^\star=19$mm,
         (RS) $\alpha^\star=0.15$, $\fwhm^\star=19$mm,
         (RR+RS) $\alpha^\star=0.15$, $\fwhm^\star=19$mm}
-    \label{fig:mct}
+    \label{fig:loo_bonferroni}
 \end{figure}
 
 
@@ -476,40 +492,76 @@ tested methods for multiple comparison corrections led to similar conclusions.
           \textbf{Expected result}: 100\% of the observations should not pass the test.
 \end{itemize}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/ieee_pce.pdf}
-    \caption{IEEE check for uncorrected $\alpha$ threshold.}
-\end{figure}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/ieee_pce.pdf}
+%     \caption{IEEE check for uncorrected $\alpha$ threshold.}
+% \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/ieee_mct_fwe_bonferroni.pdf}
-    \caption{IEEE check for bonferroni correction.}
-\end{figure}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/ieee_mct_fwe_bonferroni.pdf}
+%     \caption{IEEE check for bonferroni correction.}
+% \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.3\linewidth]{figures/cross.pdf}
-    \caption{Subjects posititon in inter-subject check}
-\end{figure}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.3\linewidth]{figures/cross.pdf}
+%     \caption{Subjects posititon in inter-subject check}
+% \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__RR.pdf}
-    \caption{Inter-subject check for RR mode}
+    \caption{Inter-subject check for RR mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__RS.pdf}
-    \caption{Inter-subject check for RS mode}
+    \caption{Inter-subject check for RS mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__RR+RS.pdf}
-    \caption{Inter-subject check for RR+RS mode}
+    \caption{Inter-subject check for RR+RS mode (bonferroni)}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/one_pce_template_RR.pdf}
+    \caption{Corrupted template check for RR mode (PCE)}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/one_pce_template_RR.pdf}
+    \caption{Corrupted template check for RS mode (PCE)}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/one_pce_template_RR.pdf}
+    \caption{Corrupted template check for RR+RS mode (PCE)}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__template_RR.pdf}
+    \caption{Corrupted template check for RR mode (bonferroni)}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__template_RS.pdf}
+    \caption{Corrupted template check for RS mode (bonferroni)}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__template_RR+RS.pdf}
+    \caption{Corrupted template check for RR+RS mode (bonferroni)}
 \end{figure}
 
 
