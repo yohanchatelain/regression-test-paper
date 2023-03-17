@@ -333,14 +333,17 @@ built the non-regression test using different values of FWHM smoothing and confi
 
 Overall, the three types of perturbations (RR, RS, RR+RS) created uncertainties
 of comparable magnitude (Figure~\ref{fig:numerical-uncertainty}), with intensity
-standard deviations ranging from 0 to 45 and significant bits ranging from 3
-bits to 10 bits. In all configurations, smoothing reduced uncertainty
-substantially as seen by the decreasing trend of the standard deviation and the
-increasing trend of the significant bits. Two subjects (\texttt{adult15} and
-\texttt{adult16}) showed a substantially larger mean and standard deviation as
-for the other subjects, however, these subjects had a mean number of significant
-bits comparable to the other subjects, which shows that the relative magnitude
-of their mean and standard deviation did not stand out. Subject \texttt{CTS210}
+standard deviations ranging from 0 to 0.04 and significant bits ranging from 3
+bits to 10 bits.
+\begin{itemize}
+    \item Moyenne des chiffres significatifs est basse overall (6 bits out of 12 bits available). Donc l'incertitude est forte.
+    \item Discrepancy importante entre sujets, avec des valeurs de sigbits allant du simple au double.
+    \item Meme si le lissage tend en general a reduire l'incertitude, ce comportement n'est pas monotone, on observe des maximum locaux de sigbits en fonction du FWHM.
+\end{itemize}
+
+In all configurations, smoothing reduced uncertainty
+substantially as seen by the overall decreasing trend of the standard deviation and the
+increasing trend of the significant bits. Subject \texttt{CTS210}
 had a number of significant bits lower than the other subjects for all
 perturbation types and most smoothing values, although subject \texttt{1} also
 stood out for RS and subject \texttt{xp201} stood out for RR+RS, which suggests
@@ -377,7 +380,7 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/stats.pdf}
-    \caption{Voxel-wise statistics measured across 3 types of perturbations for 8 subjects. Each perturbation was repeated n=30 times. For each subject, we computed statistics in the union of the brain masks among the n=30 samples.}
+    \caption{Voxel-wise means of mean, standard deviation and significant bits measured across n=30 perturbed samples for 3 types of perturbations and 8 subjects. For each subject, we computed statistics in the union of the brain masks among the n=30 samples. \todo{add sigbit histogram }}
     \label{fig:numerical-uncertainty}
 \end{figure}
 
@@ -528,6 +531,7 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
 \end{figure}
     \end{landscape}
 
+ 
 \subsection{Non-regression test evaluations}
 
 \paragraph{Leave-one-out evaluation.} We implemented a "leave-one-out" (LOO)
