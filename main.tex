@@ -27,6 +27,7 @@
 \usepackage{hyperref}
 \usepackage{colortbl}
 \usepackage{dsfont}
+\usepackage{todonotes}
 
 \newcommand{\TODO}[1]{\color{red}\textsc{TODO:} #1\color{black}\xspace}
 \newcommand{\TG}[1]{\color{blue}\textsc{From Tristan:} #1\color{black}\xspace}
@@ -534,61 +535,62 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
  
 \subsection{Non-regression test evaluations}
 
-\paragraph{Leave-one-out evaluation.} We implemented a "leave-one-out" (LOO)
-evaluation by constructing the non-regression test for $n-1$ perturbed results
-and applying it to the remaining perturbed result. To be usable, non-regression
-tests should pass this evaluation. We applied leave-one-out validation for
-different  confidence values (1-$\alpha$) and different sizes of image smoothing
-kernels (Full Width at Half Maximum --- FWHM). Therefore, for each pair of
-confidence level and FWHM, the LOO gives $n$ test results.
+\paragraph{Leave-one-out evaluation.} We implemented a ``leave-one-out" (LOO)
+evaluation by constructing the non-regression test $n$ times for $n-1$ perturbed results
+and applying it to the remaining perturbed result. For each of the $n$ repetitions, 
+we measured $V_P$, the fraction of
+positive z-tests among the $v$ voxels as well as $\mathds{1}_n$, the number of repetitions 
+that passed the test with Bonferroni correction. 
 
-For the uncorrected tests (Equation~\ref{eq:pce}), the fraction of positive
-z-tests $V_P$ among the $v$ voxels should be close to the nomimal value $\alpha$
-in average. To assess the validity of our LOO test, we ensure that the average
-of the $n$ $V_P$ fractions measured is contained in the confidence interval
-around the nomimal value $\alpha$. To do so, we use a two-tailed one sample
-t-test with $n-1$ degree of freedom at a level of significance $\alpha_0=0.05$:
+For the uncorrected tests (Equation~\ref{eq:pce}), we expect $\overline{V_P}$ to have
+the following upper bound:
 \[
-    \left[
-    \bar{V_p} -t_{29,0.025} \frac{\tilde{\sigma}_{V_P}}{\sqrt{30}}
-    \; ; \;
-    \bar{V_p}  + t_{29,0.025} \frac{\tilde{\sigma}_{V_P}}{\sqrt{30}}
-    \right]
+    \overline{V_P} \leq
+    \alpha  + t_{29,0.05} \frac{\tilde{\sigma}_{V_P}}{\sqrt{30}}
 \]
-obtained from
+with
+$t_{k,\gamma}$ the $(1-\gamma)$quantile of the Student distribution with $k$ degrees of freedom,
+and $\overline{V_P}$ and $\tilde{\sigma}_{V_P}$ the mean and standard-deviation estimated from
+$n$ $V_P$ measures.
+This confidence interval is obtained from a two-tailed one sample
+t-test with $n-1$ degrees of freedom at a level of significance $\alpha_0=0.05$:
 \[
     \mathbb{P}
     \left(
     -t_{n-1,\alpha_0/2}
     <
-    \dfrac{\bar{V_p} - \alpha}{\tilde{\sigma}_{V_P} / \sqrt{n}}
+    \dfrac{\overline{V_p} - \alpha}{\tilde{\sigma}_{V_P} / \sqrt{n}}
     <
     t_{n-1,\alpha_0/2}
     \right)
     = 1 - \alpha_0
 \]
-with
-$t_{k,\gamma}$ the $(1-\gamma)$quantile of the Student law with $k$ degree of freedom,
-$\overline{V_P}_n$ the estimated mean and $\tilde{\sigma}_{V_P}$ the estimated standard-deviation
-of $n$ $V_P$ measured.
 
-For the corrected tests with bonferroni correction
-(Equation~\ref{eq:bonferroni}), the probability of falsy detect one or more
-false positive among the $v$ voxels is equal to nomimal value $\alpha$
-considered. Hence, we should falsy reject a fraction $\alpha$ of the $n$ tests
-performed for one pair (confidence, FHWM). We model a LOO test
-by a random variable $X$ following a Binomial law of
-parameters $B(n,1-\alpha)$ where $n$ is the number of trials and $1-\alpha$ is
-the probability of success for each trial. We consider a LOO test pass if the
-estimated probability of success is higher than the lower bound of the
-lower-tailed binomial confidence interval at a level of significance
+% fraction of positive
+% z-tests $V_P$ among the $v$ voxels should be close to the nomimal value $\alpha$
+% on average. To assess the validity of our LOO test, we test that the average
+% of the $n$ $V_P$ fractions measured belongs to a confidence interval
+% around the nomimal value $\alpha$. To do so, we use  resulting in the 
+% following confidence interval for $V_P$:
+
+% obtained from:
+
+
+For the corrected test
+(Equation~\ref{eq:bonferroni}), we model the LOO test
+as a random variable following a binomial distribution $B(n,1-\alpha)$ 
+where $n$ is the number of repetitions and $1-\alpha$ is
+the probability of success of a repetition. Therefore, we expect the following 
+bound to be verified with a level of significance
 $\alpha_0=0.05$:
 \[
-    \mathbb{P}(X > 1-\alpha) = 1 - F(1-\alpha;n,\alpha) \leq \alpha_0
+    1 - F(\mathds{1}_n;n,1-\alpha) \leq \alpha_0
 \]
 where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$.
 
-
+We applied leave-one-out validation for
+different  confidence values (1-$\alpha$) and different sizes of image smoothing
+kernels (Full Width at Half Maximum --- FWHM).
 Figure~\ref{fig:loo_bonferroni} shows leave-one-out evaluation results
 for the 3 tested perturbation types (RR, RS and RR+RS). As expected, tests
 become increasingly permissive for increasing values of $\alpha$ (reduced
