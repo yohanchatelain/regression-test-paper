@@ -9,6 +9,7 @@
 \usepackage[toc,page]{appendix}
 \setlength{\marginparwidth}{2cm}
 \usepackage{todonotes}
+\usepackage{todo}
 \usepackage{soul}
 \usepackage{pdflscape}
 
@@ -542,15 +543,15 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
     \end{figure}
 \end{landscape}
 
- 
+
 \subsection{Non-regression test evaluations}
 
 \paragraph{Leave-one-out evaluation.} We implemented a ``leave-one-out" (LOO)
 evaluation by constructing the non-regression test $n$ times for $n-1$ perturbed results
-and applying it to the remaining perturbed result. For each of the $n$ repetitions, 
+and applying it to the remaining perturbed result. For each of the $n$ repetitions,
 we measured $V_P$, the fraction of
-positive z-tests among the $v$ voxels as well as $\mathds{1}_n$, the number of repetitions 
-that passed the test with Bonferroni correction. 
+positive z-tests among the $v$ voxels as well as $\mathds{1}_n$, the number of repetitions
+that passed the test with Bonferroni correction.
 
 For the uncorrected tests (Equation~\ref{eq:pce}), we expect $\overline{V_P}$ to have
 the following upper bound:
@@ -588,9 +589,9 @@ t-test with $n-1$ degrees of freedom at a level of significance $\alpha_0=0.05$:
 
 For the corrected test
 (Equation~\ref{eq:bonferroni}), we model the LOO test
-as a random variable following a binomial distribution $B(n,1-\alpha)$ 
+as a random variable following a binomial distribution $B(n,1-\alpha)$
 where $n$ is the number of repetitions and $1-\alpha$ is
-the probability of success of a repetition. Therefore, we expect the following 
+the probability of success of a repetition. Therefore, we expect the following
 bound to be verified with a level of significance
 $\alpha_0=0.05$:
 \[
@@ -824,6 +825,6 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 
 
 \bibliographystyle{alpha}
-\bibliography{name}
+\bibliography{main}
 
 \end{document}
