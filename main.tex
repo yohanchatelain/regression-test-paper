@@ -406,25 +406,30 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
         \centering
         %% sub 1
         \begin{subfigure}[b][][c]{0.01\paperwidth} 1 \vspace*{-45pt} \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
+        \begin{subfigure}[t]{0.16\paperheight}
             \centering
             IEEE (T1 intensity)
             \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds001600_sub-1.pdf}
         \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
+        \begin{subfigure}[t]{0.16\paperheight}
             \centering
             RR (significant bits)
             \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds001600_sub-1_sig.pdf}
         \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
+        \begin{subfigure}[t]{0.16\paperheight}
             \centering
             RS (significant bits)
             \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds001600_sub-1_sig.pdf}
         \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
+        \begin{subfigure}[t]{0.16\paperheight}
             \centering
-            RR+RS (significant bits)
-            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr.rs_ds001600_sub-1_sig.pdf}
+            RS (significant bits)
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds001600_sub-1_sig.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.16\paperheight}
+            \centering
+            Significant bits distribution
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/dist_ds001600_sub-1.pdf}
         \end{subfigure} \\
         %% sub 2
         \begin{subfigure}[b][][c]{0.01\paperwidth} 2 \vspace*{15pt} \end{subfigure}
@@ -660,13 +665,10 @@ tested methods for multiple comparison corrections led to similar conclusions.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/exclude_mct.pdf}
+    \includegraphics[width=\linewidth]{figures/exclude_mct_fwe_bonferroni.pdf}
     \caption{Leave-one-out evaluation for non-regression tests.
         Binomial one-tailed test with confidence level at 95\%.
-        Red: failed test. Green: passed test.
-        (RR) $\alpha^\star=0.15$, $\fwhm^\star=19$mm,
-        (RS) $\alpha^\star=0.15$, $\fwhm^\star=19$mm,
-        (RR+RS) $\alpha^\star=0.15$, $\fwhm^\star=19$mm}
+        Red: failed test. Green: passed test.}
     \label{fig:loo_bonferroni}
 \end{figure}
 
@@ -710,56 +712,32 @@ tested methods for multiple comparison corrections led to similar conclusions.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__RR.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR.pdf}
     \caption{Inter-subject check for RR mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__RS.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RS.pdf}
     \caption{Inter-subject check for RS mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__RR+RS.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR-RS.pdf}
     \caption{Inter-subject check for RR+RS mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_template_RR.pdf}
-    \caption{Corrupted template check for RR mode (PCE)}
+    \includegraphics[width=\linewidth]{figures/template/one_mct_fwe_bonferroni__template_annotated.pdf}
+    \caption{Corrupted template check for RR, RS and RR+RS mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_template_RR.pdf}
-    \caption{Corrupted template check for RS mode (PCE)}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_template_RR.pdf}
-    \caption{Corrupted template check for RR+RS mode (PCE)}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__template_RR.pdf}
-    \caption{Corrupted template check for RR mode (bonferroni)}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__template_RS.pdf}
-    \caption{Corrupted template check for RS mode (bonferroni)}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__template_RR+RS.pdf}
-    \caption{Corrupted template check for RR+RS mode (bonferroni)}
+    \includegraphics[width=\linewidth]{figures/template/one_pce__template_annotated.pdf}
+    \caption{Corrupted template check for RR, RS and RR+RS mode (pce)}
 \end{figure}
 
 
