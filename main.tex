@@ -9,7 +9,6 @@
 \usepackage[toc,page]{appendix}
 \setlength{\marginparwidth}{2cm}
 \usepackage{todonotes}
-\usepackage{todo}
 \usepackage{soul}
 \usepackage{pdflscape}
 
@@ -28,6 +27,8 @@
 \usepackage{hyperref}
 \usepackage{colortbl}
 \usepackage{dsfont}
+
+\setlength{\marginparwidth}{2cm}
 \usepackage{todonotes}
 
 \newcommand{\TODO}[1]{\color{red}\textsc{TODO:} #1\color{black}\xspace}
@@ -35,21 +36,15 @@
 \newcommand{\fmriprep}{fMRIPrep \xspace}
 \newcommand{\fwhm}{\textsc{FWHM}}
 
+\newcommand\Mark[2][8.4]{%
+  \rlap{\tikz[baseline=(current bounding box.south)]{
+        \shade[left color=\color{red}, right color=\color{green}, middle color=\color{yellow}]
+               (0,0) rectangle ++(#1*#2/100,0.3);}%
+  }%
+}
+
 % Cluster failure: Why fMRI inferences for spatial extent have inflated
-% false-positive https://www.pnas.org/doi/pdf/10.1073/pnas.1602413113              
-
-            
-            
-
-              
-                0 comments on PubPeer (by: )
-              
-            
-
-          
-            
-
-          
+% false-positive https://www.pnas.org/doi/pdf/10.1073/pnas.1602413113                       
 
 \title{Non-regression tests for structural MRI analysis: towards a numerical uncertainty approach}
 \author{Yohan Chatelain, Loic Tetrel, Christopher J. Markiewicz, Gregory Kiar,\\ Oscar Esteban,  Pierre Bellec, Tristan Glatard}
@@ -98,6 +93,10 @@ Non-regression testing in neuroimaging:
     \item We measure this uncertainty using random rounding (references,
           summarize principle).
 \end{itemize}
+
+\begin{figure}
+
+\end{figure}
 
 The same method could be applied to other domains where ground truth is not
 available or acceptable variation bounds cannot be easily defined.
@@ -392,152 +391,171 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/stats.pdf}
-    \caption{Voxel-wise means of mean, standard deviation and significant bits measured across n=30 perturbed samples for 3 types of perturbations and 8 subjects. For each subject, we computed statistics in the union of the brain masks among the n=30 samples. \todo{add sigbit histogram }}
+    \caption{Voxel-wise means of mean, standard deviation and significant bits
+        measured across n=30 perturbed samples for 3 types of perturbations and 8
+        subjects. For each subject, we computed statistics in the union of the brain
+        masks among the n=30 samples. \TODO{add sigbit histogram }}
     \label{fig:numerical-uncertainty}
 \end{figure}
 
 \begin{landscape}
     \begin{figure}
+
         \vspace*{-2cm}
         \centering
         %% sub 1
+        \begin{subfigure}[b][][c]{0.01\paperwidth} 1 \vspace*{-45pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/ieee_T1/ds001600_sub-1_ieee_mean.pdf}
+            IEEE (T1 intensity)
+            \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds001600_sub-1.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001600_sub-1_rr_sig.pdf}
+            RR (significant bits)
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds001600_sub-1_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001600_sub-1_rs_sig.pdf}
+            RS (significant bits)
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds001600_sub-1_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001600_sub-1_rr.rs_sig.pdf}
-        \end{subfigure}
+            RR+RS (significant bits)
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr.rs_ds001600_sub-1_sig.pdf}
+        \end{subfigure} \\
         %% sub 2
+        \begin{subfigure}[b][][c]{0.01\paperwidth} 2 \vspace*{15pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/ieee_T1/ds001771_sub-36_ieee_mean.pdf}
+            \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds001771_sub-36.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001771_sub-36_rr_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds001771_sub-36_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001771_sub-36_rs_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds001771_sub-36_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001771_sub-36_rr.rs_sig.pdf}
-        \end{subfigure}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr.rs_ds001771_sub-36_sig.pdf}
+        \end{subfigure} \\
         %% sub 3
+        \begin{subfigure}[b][][c]{0.01\paperwidth} 3 \vspace*{15pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/ieee_T1/ds000256_sub-CTS201_ieee_mean.pdf}
+            \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds000256_sub-CTS201.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS201_rr_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds000256_sub-CTS201_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS201_rs_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds000256_sub-CTS201_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS201_rr.rs_sig.pdf}
-        \end{subfigure}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr.rs_ds000256_sub-CTS201_sig.pdf}
+        \end{subfigure} \\
         %% sub 4
+        \begin{subfigure}[b][][c]{0.01\paperwidth} 4 \vspace*{15pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/ieee_T1/ds000256_sub-CTS210_ieee_mean.pdf}
+            \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds000256_sub-CTS210.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS210_rr_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds000256_sub-CTS210_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS210_rs_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds000256_sub-CTS210_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds000256_sub-CTS210_rr.rs_sig.pdf}
-        \end{subfigure}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr.rs_ds000256_sub-CTS210_sig.pdf}
+        \end{subfigure} \\
         %% sub 5
+        \begin{subfigure}[b][][c]{0.01\paperwidth} 5 \vspace*{15pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/ieee_T1/ds001748_sub-adult15_ieee_mean.pdf}
+            \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds001748_sub-adult15.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult15_rr_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds001748_sub-adult15_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult15_rs_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds001748_sub-adult15_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult15_rr.rs_sig.pdf}
-        \end{subfigure}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr.rs_ds001748_sub-adult15_sig.pdf}
+        \end{subfigure} \\
         %% sub 6
+        \begin{subfigure}[b][][c]{0.01\paperwidth} 6 \vspace*{15pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/ieee_T1/ds001748_sub-adult16_ieee_mean.pdf}
+            \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds001748_sub-adult16.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult16_rr_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds001748_sub-adult16_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult16_rs_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds001748_sub-adult16_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds001748_sub-adult16_rr.rs_sig.pdf}
-        \end{subfigure}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr.rs_ds001748_sub-adult16_sig.pdf}
+        \end{subfigure} \\
         %% sub 7
+        \begin{subfigure}[b][][c]{0.01\paperwidth} 7 \vspace*{15pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/ieee_T1/ds002338_sub-xp201_ieee_mean.pdf}
+            \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds002338_sub-xp201.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp201_rr_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds002338_sub-xp201_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp201_rs_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds002338_sub-xp201_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp201_rr.rs_sig.pdf}
-        \end{subfigure}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr.rs_ds002338_sub-xp201_sig.pdf}
+        \end{subfigure} \\
         %% sub 8 
+        \begin{subfigure}[b][][c]{0.01\paperwidth} 8 \vspace*{15pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/ieee_T1/ds002338_sub-xp207_ieee_mean.pdf}
+            \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds002338_sub-xp207.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp207_rr_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds002338_sub-xp207_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp207_rs_sig.pdf}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds002338_sub-xp207_sig.pdf}
         \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
-            \includegraphics[width=\textwidth]{figures/sig/ds002338_sub-xp207_rr.rs_sig.pdf}
-        \end{subfigure}
+            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr.rs_ds002338_sub-xp207_sig.pdf}
+        \end{subfigure} \\
+        \hspace*{6cm} 0 \tikz[baseline=(current bounding box.south)]{
+            \draw[left color=red, right color=green!50!black, middle color=yellow]
+            (0,0) rectangle (8,0.3);} 12 bits
         \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 for
-            (from right to left) IEEE, RR, RS and RR+RS samples without spatial smoothing applied (FWHM=0mm). }
+            (from right to left) IEEE, RR, RS and RR+RS perturbed samples with a spatial smoothing applied (FWHM=5mm). }
         \label{fig:uncertainty_sub_1}
 
     \end{figure}
@@ -691,55 +709,55 @@ tested methods for multiple comparison corrections led to similar conclusions.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__RR.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__RR.pdf}
     \caption{Inter-subject check for RR mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__RS.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__RS.pdf}
     \caption{Inter-subject check for RS mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__RR+RS.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__RR+RS.pdf}
     \caption{Inter-subject check for RR+RS mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/one_pce_template_RR.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_template_RR.pdf}
     \caption{Corrupted template check for RR mode (PCE)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/one_pce_template_RR.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_template_RR.pdf}
     \caption{Corrupted template check for RS mode (PCE)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/one_pce_template_RR.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_template_RR.pdf}
     \caption{Corrupted template check for RR+RS mode (PCE)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__template_RR.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__template_RR.pdf}
     \caption{Corrupted template check for RR mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__template_RS.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__template_RS.pdf}
     \caption{Corrupted template check for RS mode (bonferroni)}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/one_mct_fwe_bonferroni__template_RR+RS.pdf}
+    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni__template_RR+RS.pdf}
     \caption{Corrupted template check for RR+RS mode (bonferroni)}
 \end{figure}
 
