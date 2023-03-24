@@ -173,7 +173,7 @@ perform this test on a representative set of brain structural images.
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/stat_test_procedure.pdf}
-    \caption{Test workflow. \TODO{update image}}
+    \caption{Test workflow.}
     \label{fig:test_workflow}
 \end{figure}
 
@@ -208,7 +208,8 @@ of GNU libmath~\cite{fevotte2019debugging}, and it does so by relying on
 quadruple precision, which is not scalable to the entire fMRIPrep pipeline.
 Therefore, we implemented a fast, approximate RR method by randomly adding or
 removing 1 ulp (unit in the last place) to the outputs of GNU libmath functions.
-Our implementation is available on \href{...}{GitHub \TODO{add link}}. It only
+Our implementation is available on \href{https://github.com/verificarlo/fuzzy}{GitHub}. 
+It only
 approximates RR as it applies the random perturbation to an already rounded
 result instead of to the exact result as done in rigorous implementations. In
 practice, computing the exact result returned by GNU libmath functions is too
@@ -217,7 +218,8 @@ expensive for our use case.
 Random Seeds (RS) define pseudo-random number sequences involved in various
 numerical procedures such as algorithm initialization (e.g., in k-means) or
 stochastic optimization (e.g., stochastic gradient descent). In fMRIPrep, random
-seeds are used in skull stripping, ANTs on-linear registration, \TODO{to check}.
+seeds are used in skull stripping, ANTs on linear registration, \TODO{to check}.
+\TODO{https://github.com/ANTsX/ANTs/wiki/Anatomy-of-an-antsRegistration-call}
 fMRIPrep provides an interface to set the random seed for all the pipeline
 components except skull stripping, which we used in our experiments. RS and RR
 trigger different types of variability. RR can be applied transparently to any
@@ -229,7 +231,7 @@ incurs a substantial performance overhead whereas RS does not.
 The non-regression test applies to the main structural derivative produced by
 \fmriprep: the T1 image corrected for intensity non-uniformity using
 \texttt{N4BiasFieldCorrection} from \texttt{ANTS} and transformed to template
-space \TG{check what exactly happened to this image} using
+space using
 \texttt{antsRegistration}, named \texttt{desc-preproc\_T1w} in the \fmriprep
 outputs and $X_k$ ($k < n$) in the remainder of this paper. In addition to the
 pre-processed T1 image $X_k$, \fmriprep produces a brain mask ($B_k$), a
@@ -311,12 +313,12 @@ subject in the dataset.
 \end{table}
 
 
-\TG{report on resolution and data types}
+% \TG{report on resolution and data types}
 
-\begin{itemize}
-    \item \st{Describe Openneuro project}
-    \item \st{Describe each dataset}
-\end{itemize}
+% \begin{itemize}
+%     \item \st{Describe Openneuro project}
+%     \item \st{Describe each dataset}
+% \end{itemize}
 
 \subsection{Computing infrastructure}
 
@@ -324,10 +326,10 @@ We processed the dataset using the Narval cluster managed by Calcul Qu\'ebec and
 Compute Canada. With our job submission parameters, we could access 1,145
 computing nodes with 64 cores per node and 2 $\times$ AMD Rome 7532 @ 2.40 GHz
 256M cache L3. We executed \fmriprep in a Singularity container built from a
-Dockerfile available on
-\href{https://github.com/SIMEXP/fmriprep-reproducibility/blob/master/fmriprep-reproducibility/containers/Dockerfile}{GitHub}
-\TODO{update link with new version}. The container image used Ubuntu \texttt{16.04.6 LTS}, GNU
-libc/libmath \texttt{2.23}, kernel \texttt{4.18.0-372.19.1.el8\_6.x86\_64}, and fMRIPrep version \texttt{20.2.1}. We disabled
+Docker image available on dockerhub \texttt{yohanchatelain/fmriprep-fuzzy:20.2.1}.
+The container image used Ubuntu \texttt{16.04.6 LTS}, GNU
+libc/libmath \texttt{2.23}, kernel \texttt{4.18.0-372.19.1}
+\texttt{.el8\_6.x86\_64}, and fMRIPrep version \texttt{20.2.1}. We disabled
 multi-threading in fMRIPrep, fixed the random seed for skull stripping as well
 as in fMRIPrep (RR condition only), and verified that in these conditions
 fMRIPrep results were bit-to-bit reproducible.
@@ -395,7 +397,7 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
     \caption{Voxel-wise means of mean, standard deviation and significant bits
         measured across n=30 perturbed samples for 3 types of perturbations and 8
         subjects. For each subject, we computed statistics in the union of the brain
-        masks among the n=30 samples. \TODO{add sigbit histogram }}
+        masks among n=30 perturbed samples.}
     \label{fig:numerical-uncertainty}
 \end{figure}
 
@@ -406,31 +408,26 @@ corresponds to a confidence of 95\% and a probability of 0.9 on the estimation o
         \centering
         %% sub 1
         \begin{subfigure}[b][][c]{0.01\paperwidth} 1 \vspace*{-45pt} \end{subfigure}
-        \begin{subfigure}[t]{0.16\paperheight}
+        \begin{subfigure}[t]{0.2\paperheight}
             \centering
             IEEE (T1 intensity)
             \includegraphics[width=\textwidth]{figures/ieee_T1/fwhm_5/ieee_ds001600_sub-1.pdf}
         \end{subfigure}
-        \begin{subfigure}[t]{0.16\paperheight}
+        \begin{subfigure}[t]{0.2\paperheight}
             \centering
             RR (significant bits)
             \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rr_ds001600_sub-1_sig.pdf}
         \end{subfigure}
-        \begin{subfigure}[t]{0.16\paperheight}
+        \begin{subfigure}[t]{0.2\paperheight}
             \centering
             RS (significant bits)
             \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds001600_sub-1_sig.pdf}
         \end{subfigure}
-        \begin{subfigure}[t]{0.16\paperheight}
+        \begin{subfigure}[t]{0.2\paperheight}
             \centering
             RS (significant bits)
             \includegraphics[width=\textwidth]{figures/sig/fwhm_5/rs_ds001600_sub-1_sig.pdf}
         \end{subfigure}
-        \begin{subfigure}[t]{0.16\paperheight}
-            \centering
-            Significant bits distribution
-            \includegraphics[width=\textwidth]{figures/sig/fwhm_5/dist_ds001600_sub-1.pdf}
-        \end{subfigure} \\
         %% sub 2
         \begin{subfigure}[b][][c]{0.01\paperwidth} 2 \vspace*{15pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
@@ -587,7 +584,7 @@ with
 $t_{k,\gamma}$ the $(1-\gamma)$quantile of the Student distribution with $k$ degrees of freedom,
 and $\overline{V_P}$ and $\tilde{\sigma}_{V_P}$ the mean and standard-deviation estimated from
 $n$ $V_P$ measures.
-This confidence interval is obtained from a two-tailed one sample
+This confidence interval is obtained from a two-tailed one-sample
 t-test with $n-1$ degrees of freedom at a level of significance $\alpha_0=0.05$:
 \[
     \mathbb{P}
@@ -619,7 +616,7 @@ the probability of success of a repetition. Therefore, we expect the following
 bound to be verified with a level of significance
 $\alpha_0=0.05$:
 \[
-    1 - F(\mathds{1}_n;n,1-\alpha) \leq \alpha_0
+    1-F(\mathds{1}_n;n,1-\alpha) \leq \alpha_0
 \]
 where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$.
 
@@ -629,39 +626,35 @@ kernels (Full Width at Half Maximum --- FWHM).
 Figure~\ref{fig:loo_bonferroni} shows leave-one-out evaluation results
 for the 3 tested perturbation types (RR, RS and RR+RS). As expected, tests
 become increasingly permissive for increasing values of $\alpha$ (reduced
-confidence) and increasing values of FWHM. For each type of perturbation, we
-define "best operating values" $\alpha^\star$ and $\fwhm^\star$ for these parameters
-such that:
-\begin{equation}
-    (\alpha^\star, \fwhm^\star) = \min\left(\underset{(\alpha, \fwhm)}{\mathrm{argmax}}\left( S(\alpha,\fwhm)\right)\right),
-\end{equation}
-where $S(\alpha, \fwhm)$ is the number of subjects that pass the test for
-$\alpha$ and $\fwhm$ and the minimum is determined using the lexicographic
-order on $A \times F$ where $A$ is the set of all $\alpha$ values and $F$ is the
-set of all FWHM values. $\alpha^\star$ is the minimum value of $\alpha$ for which
-the maximal number of subjects pass the test, and $\fwhm^\star$ is the minimal
-smoothing kernel size such that the maximal number of subjects pass the test
-with $\alpha^\star$. \TG{comment on $\alpha^\star$ and $\fwhm^\star$ values.}
+confidence) and increasing values of FWHM. 
+
+% For each type of perturbation, we
+% define "best operating values" $\alpha^\star$ and $\fwhm^\star$ for these parameters
+% such that:
+% \begin{equation}
+%     (\alpha^\star, \fwhm^\star) = \min\left(\underset{(\alpha, \fwhm)}{\mathrm{argmax}}\left( S(\alpha,\fwhm)\right)\right),
+% \end{equation}
+% where $S(\alpha, \fwhm)$ is the number of subjects that pass the test for
+% $\alpha$ and $\fwhm$ and the minimum is determined using the lexicographic
+% order on $A \times F$ where $A$ is the set of all $\alpha$ values and $F$ is the
+% set of all FWHM values. $\alpha^\star$ is the minimum value of $\alpha$ for which
+% the maximal number of subjects pass the test, and $\fwhm^\star$ is the minimal
+% smoothing kernel size such that the maximal number of subjects pass the test
+% with $\alpha^\star$. \TG{comment on $\alpha^\star$ and $\fwhm^\star$ values.}
+
+% It can be
+% noted that among the 8 tested subjects, subject 210 never passes the test for RR
+% or RS perturbations, and only passed the test for $\alpha^\star=0.2$ and
+% $\fwhm^\star=20mm$ for the RR+RS perturbation. This is due to the fact that for
+% many voxels in this subject's image, the confidence interval resulting from a
+% Gaussian fit of the intensity distribution across perturbed samples does not
+% properly reflect the distribution. A visual inspection of the image did not
+% show any particular image artifact (e.g., motion) or atypical anatomical feature
+% (e.g., unusually large ventricles) that could explain such variations. Finally,
+% as detailed in Appendix~\ref{appendix:multiple-comparison-tests}, the other
+% tested methods for multiple comparison corrections led to similar conclusions.
 
 
-It can be
-noted that among the 8 tested subjects, subject 210 never passes the test for RR
-or RS perturbations, and only passed the test for $\alpha^\star=0.2$ and
-$\fwhm^\star=20mm$ for the RR+RS perturbation. This is due to the fact that for
-many voxels in this subject's image, the confidence interval resulting from a
-Gaussian fit of the intensity distribution across perturbed samples does not
-properly reflect the distribution. A visual inspection of the image did not
-show any particular image artifact (e.g., motion) or atypical anatomical feature
-(e.g., unusually large ventricles) that could explain such variations. Finally,
-as detailed in Appendix~\ref{appendix:multiple-comparison-tests}, the other
-tested methods for multiple comparison corrections led to similar conclusions.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/exclude_pce.pdf}
-    \caption{PCE}
-    \label{fig:loo_pce}
-\end{figure}
 
 \begin{figure}
     \centering
@@ -673,24 +666,12 @@ tested methods for multiple comparison corrections led to similar conclusions.
 \end{figure}
 
 
-\paragraph{IEEE check.}
+\paragraph{IEEE check.} We check that the result computed without random perturbations
+passes the corrected and uncorrected tests. 
+Figure~\ref{fig:ieee-check}.
 
-\begin{itemize}
-    \item \textbf{IEEE check}: checks that result computed within IEEE-754 original
-          format passes the test (for one subject). The statistical test is built using N
-          RR samples.
+\paragraph{Corrupted template check.}
 
-          \textbf{Expected result}: 100\% of the observations should pass the test.
-    \item \textbf{Inter-Subject check}: checks that one subject should not pass the
-          test built for another subject.
-
-          \textbf{Expected result}: 100\% of the observations should not pass the test.
-
-    \item \textbf{Corrupted template check}: checks that result computed with
-          corrupted templates should be rejected by the test.
-
-          \textbf{Expected result}: 100\% of the observations should not pass the test.
-\end{itemize}
 
 % \begin{figure}
 %     \centering
@@ -710,22 +691,23 @@ tested methods for multiple comparison corrections led to similar conclusions.
 %     \caption{Subjects posititon in inter-subject check}
 % \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR.pdf}
-    \caption{Inter-subject check for RR mode (bonferroni)}
-\end{figure}
+
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RS.pdf}
-    \caption{Inter-subject check for RS mode (bonferroni)}
-\end{figure}
+    \begin{subfigure}[t]{0.7\linewidth}
+        \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR.pdf}
+    \end{subfigure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR-RS.pdf}
-    \caption{Inter-subject check for RR+RS mode (bonferroni)}
+    \begin{subfigure}[t]{0.7\linewidth}
+        \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RS.pdf}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.7\linewidth}
+        \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR-RS.pdf}
+    \end{subfigure}
+    \label{fig:ieee-check}
+    \caption{Inter-subject check for from top to bottom RR, RS and RR+RS modes (bonferroni)}
 \end{figure}
 
 \begin{figure}
@@ -734,11 +716,6 @@ tested methods for multiple comparison corrections led to similar conclusions.
     \caption{Corrupted template check for RR, RS and RR+RS mode (bonferroni)}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/template/one_pce__template_annotated.pdf}
-    \caption{Corrupted template check for RR, RS and RR+RS mode (pce)}
-\end{figure}
 
 
 Conclude this section by selecting 1 test among all and use this test in the
@@ -816,8 +793,22 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 
 
 \begin{appendices}
-    \section{Results for FDR and other corrections for multiple comparisons}
+    \section{Results}
     \label{appendix:multiple-comparison-tests}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/exclude_pce.pdf}
+    \caption{PCE}
+    \label{fig:loo_pce}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/template/one_pce__template_annotated.pdf}
+    \caption{Corrupted template check for RR, RS and RR+RS mode (pce)}
+\end{figure}
+
 \end{appendices}
 
 
