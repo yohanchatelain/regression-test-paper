@@ -208,7 +208,7 @@ of GNU libmath~\cite{fevotte2019debugging}, and it does so by relying on
 quadruple precision, which is not scalable to the entire fMRIPrep pipeline.
 Therefore, we implemented a fast, approximate RR method by randomly adding or
 removing 1 ulp (unit in the last place) to the outputs of GNU libmath functions.
-Our implementation is available on \href{https://github.com/verificarlo/fuzzy}{GitHub}. 
+Our implementation is available on \href{https://github.com/verificarlo/fuzzy}{GitHub}.
 It only
 approximates RR as it applies the random perturbation to an already rounded
 result instead of to the exact result as done in rigorous implementations. In
@@ -359,15 +359,15 @@ Overall, the three types of perturbations (RR, RS, RR+RS) created uncertainties
 of comparable magnitude (Figure~\ref{fig:numerical-uncertainty}), with intensity
 standard deviations ranging from 0 to 0.04 and significant bits ranging from 3
 bits to 10 bits. Overall the measured uncertainty is high, with mean significant bits
-ranging from 3 bits to 10 bits out of the 12 bits available in the data. Numerically, \fmriprep 
-appears to be highly sensitive to the numerical or random seed perturbation. We also observe 
-substantial discrepancies among subjects. For a given smoothing kernel size, 
-the number of significant bits frequently varies in the ratio of 1 to 3 among subjects. 
+ranging from 3 bits to 10 bits out of the 12 bits available in the data. Numerically, \fmriprep
+appears to be highly sensitive to the numerical or random seed perturbation. We also observe
+substantial discrepancies among subjects. For a given smoothing kernel size,
+the number of significant bits frequently varies in the ratio of 1 to 3 among subjects.
 Overall, smoothing tends to reduce numerical uncertainty, however, this behavior is in general not monotonous
-and varies across subjects. 
+and varies across subjects.
 
 The uncertainty measured across perturbed samples showed regional variations
-compatible with anatomical features (Figure~\ref{fig:uncertainty_sub_1}). 
+compatible with anatomical features (Figure~\ref{fig:uncertainty_sub_1}).
 In
 particular, uncertainty was maximal at the border of the brain mask, and it was
 overall higher in the gray matter than in the white matter. This is consistent
@@ -559,27 +559,27 @@ evaluation by constructing the non-regression test $n$ times for $n-1$ perturbed
 and applying it to the remaining perturbed result. We model the LOO test
 using a binomial variable $B(n,1-\alpha)$
 where $n$ is the number of repetitions and $1-\alpha$ is
-the probability of success of a repetition. Under $H_0$ for all voxels, we 
+the probability of success of a repetition. Under $H_0$ for all voxels, we
 expect the following
 bound to be verified:
 \[
     1-F(\mathds{1}_n;n,1-\alpha) \leq \alpha_0
 \]
-where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$, and 
+where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$, and
 $\alpha_0=0.05$.
 
 We applied leave-one-out validation for
 different  confidence values (1-$\alpha$) and different FWHM  values for the
 3 types of perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, tests
 become increasingly permissive for increasing values of $\alpha$ (reduced
-confidence) and increasing values of FWHM. As previously observed, the 3 perturbation types 
-behave similarly. For each subject, $\alpha$ and FWHM values exist such that 
+confidence) and increasing values of FWHM. As previously observed, the 3 perturbation types
+behave similarly. For each subject, $\alpha$ and FWHM values exist such that
 the LOO test passes. However, these values importantly vary across subjects, presumably
 due to heterogeneous data quality. To pass the LOO
-test with $\alpha=0.05$ for RR perturbations,  
+test with $\alpha=0.05$ for RR perturbations,
 subjects 2, 6, 7 and 8 require a smoothing size of FWHM=\TODO{10}mm and
-subjects 3, 5 require FWHM=15mm. Subjects 1 and 4 never pass the LOO test 
-at this confidence level.   
+subjects 3, 5 require FWHM=15mm. Subjects 1 and 4 never pass the LOO test
+at this confidence level.
 
 % For each type of perturbation, we
 % define "best operating values" $\alpha^\star$ and $\fwhm^\star$ for these parameters
@@ -620,7 +620,7 @@ at this confidence level.
 
 
 \paragraph{IEEE check.} We check that the result computed without random perturbations
-passes the corrected and uncorrected tests. 
+passes the corrected and uncorrected tests.
 Figure~\ref{fig:ieee-check}.
 
 \paragraph{Corrupted template check.}
@@ -701,8 +701,8 @@ of the largest processing pipeline in neuroimaging.
 Conclusion
 \begin{itemize}
     \item From a software engineering point of view, the non-regression test is usable
-    ($\alpha=0.15$ and FWHM=10mm) for a well-chosen database of test subjects. Do we want 
-    to build the test with a different value of alpha and FWHM for each subject?
+          ($\alpha=0.15$ and FWHM=10mm) for a well-chosen database of test subjects. Do we want
+          to build the test with a different value of alpha and FWHM for each subject?
     \item discuss sensitivity (to template corruption, subject change) vs specificity (LOO, IEEE)
 \end{itemize}
 
@@ -761,7 +761,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
     we measured $V_P$, the fraction of
     positive z-tests among the $v$ voxels as well as $\mathds{1}_n$, the number of repetitions
     that passed the test with Bonferroni correction.
-    
+
     For the uncorrected tests (Equation~\ref{eq:pce}), we expect $\overline{V_P}$ to have
     the following upper bound:
     \[
@@ -785,28 +785,28 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
         \right)
         = 1 - \alpha_0
     \]
-    
+
     % fraction of positive
     % z-tests $V_P$ among the $v$ voxels should be close to the nomimal value $\alpha$
     % on average. To assess the validity of our LOO test, we test that the average
     % of the $n$ $V_P$ fractions measured belongs to a confidence interval
     % around the nomimal value $\alpha$. To do so, we use  resulting in the 
     % following confidence interval for $V_P$:
-    
+
     % obtained from:
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/exclude_pce.pdf}
-    \caption{PCE}
-    \label{fig:loo_pce}
-\end{figure}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\linewidth]{figures/exclude_pce.pdf}
+        \caption{PCE}
+        \label{fig:loo_pce}
+    \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/template/one_pce__template_annotated.pdf}
-    \caption{Corrupted template check for RR, RS and RR+RS mode (pce)}
-\end{figure}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\linewidth]{figures/template/one_pce__template_annotated.pdf}
+        \caption{Corrupted template check for RR, RS and RR+RS mode (pce)}
+    \end{figure}
 
 \end{appendices}
 
