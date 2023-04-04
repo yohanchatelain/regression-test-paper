@@ -44,7 +44,7 @@
 }
 
 % Cluster failure: Why fMRI inferences for spatial extent have inflated
-% false-positive https://www.pnas.org/doi/pdf/10.1073/pnas.1602413113                       
+% false-positive https://www.pnas.org/doi/pdf/10.1073/pnas.1602413113
 
 \title{Non-regression tests for structural MRI analysis: towards a numerical uncertainty approach}
 \author{Yohan Chatelain, Loic Tetrel, Christopher J. Markiewicz, Gregory Kiar,\\ Oscar Esteban,  Pierre Bellec, Tristan Glatard}
@@ -274,24 +274,27 @@ tested \fmriprep result is considered part of the reference distribution iif:
 
 \subsection*{Numerical variability measure}
 
-We computed significant bits using the \texttt{significant\_digits} package
+We compute the significant bits $\hat{s}$ with probability $p$ and confidence $1-\alpha$
+using the \texttt{significant\_digits} package
 v0.1.2 available at \url{https://github.com/verificarlo/significantdigits} that
-implements the non-parametric approach described in~\cite{sohier2021confidence}.
-For each bit, this method defines the significance $S^k_i$ where \(k\) is the
-position of the bit in the mantissa and $X_i$ is a perturbed sample  ($i \leq
-    n$). Given $Z_i=X_i/\overline{x}-1$, where $\overline{x}$ is the voxelwise average
-over the perturbed results, the bit is considered significant if the absolute value of $Z_i$ is less
-than $2^{-k}$:
-\[S^k_i = \mathds{1}_{|Z_i |<2^{-k}}\] Then, to calculate the number of
-significant bits across samples, $\hat{s_b}$, we determine the maximal index
-\(k\) for which the first \(k\) bits of all \(n\) sampled results coincide with
-the reference:
-\[\hat{s_{b}} = \textnormal{max} \left\{ k \in \{1,2,...,p\} \textnormal{ such
-        that } \forall i \in \{1,2,...,n\},\  S^{k}_{i} \textnormal{ is true } \right\} \]
-where $p$ is the precision of the format ($p=16$ for int16, $p=24$ for float32).
-According to~\cite{sohier2021confidence}, taking $n=30$ samples
-corresponds to a confidence of 95\% and a probability of 0.9 on the estimation of $\hat{s_b}$.
+implements the Centered Normality Hypothesis approach described in~\cite{sohier2021confidence}:
 
+\[
+    \hat{s} = -\log_2 \left| \frac{\hat{\sigma}}{\hat{\mu}} \right| - \delta(n, \alpha, p)
+\]
+where $\hat{\sigma}$ and $\hat{\mu}$ are the voxelwise average and standard
+deviation over the $X_i$ perturbed results ($i \leq n$),
+and
+\[
+    \delta(n, \alpha, p) =
+    \left[
+        \frac{1}{2} \log_2 \left( \frac{n-1}{\chi^2_{1-\alpha/2}} \right) +
+        \log_2 \left( \Phi^{-1} \left( \frac{p+1}{2} \right) \right)
+        \right]
+\]
+is a penalty value to have an estimator of $s$ with a probability $p$, a confidence level $1-\alpha$ and
+having a sample size $n$ where $\Phi^{-1}$ is the inverse cumulative distribution of the standard normal distribution
+and $\chi^2$ is the Chi-2 distribution with n-1 degrees of freedom.
 
 \subsection{Datasets}
 
@@ -367,7 +370,7 @@ Overall, smoothing tends to reduce numerical uncertainty, however, this behavior
 and varies across subjects.
 
 The uncertainty measured across perturbed samples showed regional variations
-compatible with anatomical features (Figure~\ref{fig:uncertainty_maps}).
+compatible with anatomical features (Figure~\ref{fig:uncertainty_sub_1}).
 In
 particular, uncertainty was maximal at the border of the brain mask, and it was
 overall higher in the gray matter than in the white matter. This is consistent
@@ -375,7 +378,7 @@ with previous observations of numerical uncertainty in structural brain image
 analysis~\cite{salari2021accurate}. In addition, uncertainty was also maximal in
 some cortical regions, suggesting that non-linear registration may be unstable
 in these regions. Our non-regression test will therefore be more tolerant in
-these regions. \TODO{use Gaussian sigbits and update text accordingly}
+these regions.
 
 
 \begin{figure}
@@ -523,7 +526,7 @@ these regions. \TODO{use Gaussian sigbits and update text accordingly}
             \centering
             \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds002338_sub-xp201_sig.pdf}
         \end{subfigure} \\
-        %% sub 8 
+        %% sub 8
         \begin{subfigure}[b][][c]{0.01\paperwidth} 8 \vspace*{15pt} \end{subfigure}
         \begin{subfigure}[t]{0.2\paperheight}
             \centering
@@ -790,7 +793,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
     % z-tests $V_P$ among the $v$ voxels should be close to the nomimal value $\alpha$
     % on average. To assess the validity of our LOO test, we test that the average
     % of the $n$ $V_P$ fractions measured belongs to a confidence interval
-    % around the nomimal value $\alpha$. To do so, we use  resulting in the 
+    % around the nomimal value $\alpha$. To do so, we use  resulting in the
     % following confidence interval for $V_P$:
 
     % obtained from:
