@@ -292,8 +292,8 @@ and
         \log_2 \left( \Phi^{-1} \left( \frac{p+1}{2} \right) \right)
         \right]
 \]
-is a penalty value to have an estimator of $s$ with a probability $p$, a confidence level $1-\alpha$ and
-having a sample size $n$ where $\Phi^{-1}$ is the inverse cumulative distribution of the standard normal distribution
+is a penalty value to have an estimator of $s$ with a probability $p$ and a confidence level $1-\alpha$ for
+a sample size $n$. $\Phi^{-1}$ is the inverse cumulative distribution of the standard normal distribution
 and $\chi^2$ is the Chi-2 distribution with n-1 degrees of freedom.
 
 \subsection{Datasets}
@@ -351,27 +351,25 @@ fMRIPrep results were bit-to-bit reproducible.
 \section{Results}
 
 We computed 30 perturbed results for each of the 8 subjects and each of the 3
-perturbations (RR, RS, RR+RS). We also computed a reference, unperturbed IEEE
-result for each subject using a random seed of 42. For each perturbation we
+perturbations (RR, RS, RR+RS). We also computed an unperturbed IEEE
+result for each subject using the random seed (42) as RR. For each perturbation we
 measured the uncertainty of fMRIPrep in terms of significant bits, and we
 built the non-regression test using different values of FWHM smoothing and confidence level.
 
 \subsection{Measured uncertainty}
 
 Overall, the three types of perturbations (RR, RS, RR+RS) created uncertainties
-of comparable magnitude (Figure~\ref{fig:numerical-uncertainty}), with intensity
-standard deviations ranging from 0 to 0.04 and significant bits ranging from 3
-bits to 10 bits. Overall the measured uncertainty is high, with mean significant bits
-ranging from 3 bits to 10 bits out of the 12 bits available in the data. Numerically, \fmriprep
-appears to be highly sensitive to the numerical or random seed perturbation. We also observe
-substantial discrepancies among subjects. For a given smoothing kernel size,
-the number of significant bits frequently varies in the ratio of 1 to 3 among subjects.
-Overall, smoothing tends to reduce numerical uncertainty, however, this behavior is in general not monotonous
-and varies across subjects.
+of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured
+uncertainty is high, with mean significant bits ranging from 3 bits to 10 bits
+out of the 12 bits available in the data. Numerically, \fmriprep appears to be
+highly sensitive to the numerical and random seed perturbation. We also observe
+substantial discrepancies among subjects. For a given smoothing kernel size, the
+number of significant bits frequently varies in the ratio of 1 to 3 among
+subjects. Overall, smoothing tends to reduce numerical uncertainty, however,
+this behavior is in general not monotonous and varies across subjects.
 
 The uncertainty measured across perturbed samples showed regional variations
-compatible with anatomical features (Figure~\ref{fig:uncertainty_sub_1}).
-In
+compatible with anatomical features (Figure~\ref{fig:uncertainty-maps}). In
 particular, uncertainty was maximal at the border of the brain mask, and it was
 overall higher in the gray matter than in the white matter. This is consistent
 with previous observations of numerical uncertainty in structural brain image
@@ -388,7 +386,7 @@ these regions.
         measured across n=30 perturbed samples for 3 types of perturbations and 8
         subjects. For each subject, we computed statistics in the union of the brain
         masks among n=30 perturbed samples.}
-    \label{fig:numerical-uncertainty}
+    \label{fig:significant-digits}
 \end{figure}
 
 \begin{landscape}
@@ -549,7 +547,7 @@ these regions.
             (0,0) rectangle (8,0.3);} 12 bits
         \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 for
             (from right to left) IEEE, RR, RS and RR+RS perturbed samples with a spatial smoothing applied (FWHM=15mm). }
-        \label{fig:uncertainty_maps}
+        \label{fig:uncertainty-maps}
 
     \end{figure}
 \end{landscape}
@@ -580,7 +578,7 @@ behave similarly. For each subject, $\alpha$ and FWHM values exist such that
 the LOO test passes. However, these values importantly vary across subjects, presumably
 due to heterogeneous data quality. To pass the LOO
 test with $\alpha=0.05$ for RR perturbations,
-subjects 2, 6, 7 and 8 require a smoothing size of FWHM=\TODO{10}mm and
+subjects 2, 6, 7 and 8 require a smoothing size of FWHM=12mm and
 subjects 3, 5 require FWHM=15mm. Subjects 1 and 4 never pass the LOO test
 at this confidence level.
 
@@ -622,9 +620,23 @@ at this confidence level.
 \end{figure}
 
 
-\paragraph{IEEE check.} We check that the result computed without random perturbations
-passes the corrected and uncorrected tests.
-Figure~\ref{fig:ieee-check}.
+\paragraph{IEEE check.} We check that the IEEE results (computed without random perturbations)
+are correclty captured by our non-regression test. The IEEE check constructs the non-regression test from the
+$n$ perturbed results and applies it to each of the 8 IEEE results (one per subject).
+The purpose of this test is twofolds:
+(1) be able to capture the IEEE results considered as part of the reference distribution and
+(2) be able to correclty reject an observation not comming from the reference distribution (here from an other subject).
+
+Figure~\ref{fig:ieee-check} shows the result for increasing values of $\alpha$ and $FWHM$ for the 3 types of perturbations.
+Each cell is a comparison matrix with the subject used as reference on the row
+and the subject used as target on the colum, following the subject indexing in Table~\ref{table:dataset_info}.
+The transparent black line highlights the diagonal corresponding to the tests using the same subject for the reference and
+the target. We expect the cell to have green values on its diagonal and red values outside.
+
+We first observe that none of the inter-subject tests fail which means that our test is sufficiently
+specific to detect the inter-subject variability even with high smoothing kernel size. However, the test lacks sensitivity for low FWHM sizes, suggesting
+that the learning sample is too small. But most importantly, it exists a $\alpha$ and FWHM pair for each subject such that
+the IEEE check passes. Hence, the IEEE check passes with FWHM=15mm for all subjects and $\alpha$ values in RR pertubations.
 
 \paragraph{Corrupted template check.}
 
@@ -662,8 +674,8 @@ Figure~\ref{fig:ieee-check}.
     \begin{subfigure}[t]{0.7\linewidth}
         \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR-RS.pdf}
     \end{subfigure}
-    \label{fig:ieee-check}
     \caption{Inter-subject check for from top to bottom RR, RS and RR+RS modes (bonferroni)}
+    \label{fig:ieee-check}
 \end{figure}
 
 \begin{figure}
