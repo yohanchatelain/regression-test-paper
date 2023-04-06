@@ -640,27 +640,6 @@ the IEEE check passes. Hence, the IEEE check passes with FWHM=15mm for all subje
 
 \paragraph{Corrupted template check.}
 
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{figures/ieee_pce.pdf}
-%     \caption{IEEE check for uncorrected $\alpha$ threshold.}
-% \end{figure}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{figures/ieee_mct_fwe_bonferroni.pdf}
-%     \caption{IEEE check for bonferroni correction.}
-% \end{figure}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=0.3\linewidth]{figures/cross.pdf}
-%     \caption{Subjects posititon in inter-subject check}
-% \end{figure}
-
-
-
 \begin{figure}
     \centering
     \begin{subfigure}[t]{0.7\linewidth}
@@ -684,8 +663,6 @@ the IEEE check passes. Hence, the IEEE check passes with FWHM=15mm for all subje
     \caption{Corrupted template check for RR, RS and RR+RS mode (bonferroni)}
 \end{figure}
 
-
-
 Conclude this section by selecting 1 test among all and use this test in the
 next section.
 
@@ -700,6 +677,15 @@ next section.
     \item fMRIPRep: test non-LTS versions of fMRIPrep.
 \end{itemize}
 
+\paragraph*{Architectures}
+
+\paragraph*{\fmriprep versions}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/fmriprep-versions/bonferroni.pdf}
+    \caption{Bonferroni corrected test applications on different \fmriprep versions.}
+\end{figure}
 
 Then show and discuss some failed subjects.
 
@@ -768,8 +754,8 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
     fraction of positive z-tests $V_P$ among the $v$ voxels in the image and the
     tested \fmriprep result is considered part of the reference distribution iif:
     \begin{equation}
-        \label{eq:pce}
         V_{P} \leq \alpha.
+        \label{eqn:pce}
     \end{equation}
 
     For each of the $n$ repetitions,
@@ -777,7 +763,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
     positive z-tests among the $v$ voxels as well as $\mathds{1}_n$, the number of repetitions
     that passed the test with Bonferroni correction.
 
-    For the uncorrected tests (Equation~\ref{eq:pce}), we expect $\overline{V_P}$ to have
+    For the uncorrected tests (Equation~\ref{eqn:pce}), we expect $\overline{V_P}$ to have
     the following upper bound:
     \[
         \overline{V_P} \leq
@@ -809,6 +795,15 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
     % following confidence interval for $V_P$:
 
     % obtained from:
+
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\linewidth]{figures/fmriprep-versions/pce.pdf}
+        \caption{Uncorrected test applications on different \fmriprep versions.}
+    \end{figure}
+
+    \section{Uncertainty maps for others FWHM}
 
     \begin{figure}
         \centering
@@ -1640,6 +1635,63 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
         \end{figure}
     \end{landscape}
 
+
+    \section*{Summary \fmriprep versions}
+
+    \begin{itemize}
+        \item 20.2.0: first fMRIPrep LTS (long-term support)
+        \item 20.2.1:
+              \begin{itemize}
+                  \item ENH: Output TaskName and timing metadata for all resampled BOLD series (2320)
+                  \item ENH: Add --output-layout CLI option to enable BIDS (YODA) mode (2303)
+                  \item ENH: Add Docker authentication to increase pull rate limit (2316)
+                  \item FIX: Specify logger for warning (2298)
+              \end{itemize}
+        \item 20.2.2:
+              \begin{itemize}
+                  \item FIX: Feed NiTransforms with LTAs of type RAS2RAS (2444)
+                  \item FIX: Add some clarity to BrokenProcessPool failures (2436)
+                  \item FIX: Fall-back to initializing workflow in main process (2435)
+                  \item FIX: Raise informative error when duplicate subworkflows are added (2434)
+                  \item FIX: Non-existing path or JSON syntax error for --bids-filter-file should raise on error (2331)
+                  \item FIX: Ignore SBRef files if --ignore sbref is passed (2370)
+                  \item ENH: Relax requirement for PyBIDS databases to exist (2429)
+                  \item ENH: Improve \_get\_series\_len performance (2406)
+                  \item ENH: Set and track NumPy's random seed (2400)
+                  \item DOC: Skull-stripping is forced by default (2430)
+                  \item MAINT: Pin nilearn==0.6.2 (2427)
+                  \item MAINT: Pin tedana==0.0.9a1 for LTS branch (2403)
+                  \item MAINT: Failing CI (2401)
+              \end{itemize}
+        \item 20.2.3:
+              \begin{itemize}
+                  \item FIX: Address the problems of a sloppy merge (2468)
+                  \item FIX: DerivativesDataSink nondeterministic checksums fixed with niworkflows=~1.3.4 (2458)
+                  \item FIX: Address dependency incompatibilities by pinning specific packages (2463)
+                  \item FIX: Unprotected import of sentry\_sdk, which is not a dependency (2460)
+                  \item ENH: Detect 3D Acknowledgments too-short BOLD series, warn and skip run's workflow building (2461)
+                  \item DOC: Transfer duplicated documentation to www.nipreps.org (2469)
+                  \item DOC: Better explanation on how spike regressors are generated (2465)
+                  \item DOC: Clarify that res-2 entity does not mean 2mm (2466)
+                  \item MAINT: Containers - remove /root/.npm (2464)
+                  \item MAINT: Back port CircleCI configuration from dev branch (2456)
+              \end{itemize}
+        \item 20.2.4:
+              \begin{itemize}
+                  \item FIX: Avoid unnecessary connections based on branching logic (2508)
+                  \item FIX: Permit missing TR to show PyBIDS error at workflow construction time (2513)
+                  \item FIX: Catch FreeSurfer error related to FIPS being enabled (2490)
+                  \item ENH: Use BIDSLayoutIndexer and do not index unnecessary modalities (2494)
+                  \item ENH: Slice-timing correction improvements (2565)
+              \end{itemize}
+        \item 20.2.5:
+              \begin{itemize}
+                  \item FIX: --slice-time-ref option parsing (2573)
+                  \item CI: Add style checks (missing since Travis got throttled) (2570)
+                  \item FIX: Resample aseg with nearest-neighbor interpolation (nipreps/smriprep268)
+                  \item FIX: Revert to FAST for tissue probability maps (nipreps/smriprep264)
+              \end{itemize}
+    \end{itemize}
 
 \end{appendices}
 
