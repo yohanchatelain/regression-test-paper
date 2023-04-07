@@ -33,7 +33,7 @@
 
 \newcommand{\TODO}[1]{\color{red}\textsc{TODO:} #1\color{black}\xspace}
 \newcommand{\TG}[1]{\color{blue}\textsc{From Tristan:} #1\color{black}\xspace}
-\newcommand{\fmriprep}{fMRIPrep \xspace}
+\newcommand{\fmriprep}{fMRIPrep\xspace}
 \newcommand{\fwhm}{\textsc{FWHM}}
 
 \newcommand\Mark[2][8.4]{%
@@ -309,7 +309,7 @@ subject in the dataset.
 
 \begin{table}
     \begin{center}
-        \begin{tabular}{ c|c|l|c|c|c|c|c}
+        \begin{tabular}{c|c|l|c|c|c|c|c}
             Index & Dataset  & Subject     & Dimension ($x,y,z$)         & Voxel resolution $mm^3$ ($x,y,z$) & Data type & Age  & Sex \\
             \hline
             1     & ds001600 & sub-1       & $176 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$       & int16     & -    & -   \\
@@ -638,18 +638,14 @@ specific to detect the inter-subject variability even with high smoothing kernel
 that the learning sample is too small. But most importantly, it exists a $\alpha$ and FWHM pair for each subject such that
 the IEEE check passes. Hence, the IEEE check passes with FWHM=15mm for all subjects and $\alpha$ values in RR pertubations.
 
-\paragraph{Corrupted template check.}
-
 \begin{figure}
     \centering
     \begin{subfigure}[t]{0.7\linewidth}
         \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR.pdf}
     \end{subfigure}
-
     \begin{subfigure}[t]{0.7\linewidth}
         \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RS.pdf}
     \end{subfigure}
-
     \begin{subfigure}[t]{0.7\linewidth}
         \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR-RS.pdf}
     \end{subfigure}
@@ -657,64 +653,117 @@ the IEEE check passes. Hence, the IEEE check passes with FWHM=15mm for all subje
     \label{fig:ieee-check}
 \end{figure}
 
+\paragraph{Corrupted template check.}
+
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/template/one_mct_fwe_bonferroni__template_annotated.pdf}
+    \includegraphics[width=\linewidth]{figures/template/template_fwe_bonferroni.pdf}
     \caption{Corrupted template check for RR, RS and RR+RS mode (bonferroni)}
+    \label{fig:template_bonferroni}
 \end{figure}
 
-Conclude this section by selecting 1 test among all and use this test in the
-next section.
+Image registration is a fundamental step during the pre-preprocessing to enable
+statistical analyses. This step consists on realigning an input image (user
+space) to a common space (template space). To do so, it exists several templates
+representing a normal structural brain and \fmriprep uses the
+MNI152NLin2009cAsym template from ... (REF) by default. The quality of the template will
+condition the quality of the registred image. Hence, errors in the template
+should lead to substential differences in the registred images. We use this
+principle to build this check and to determine that our non-regression correctly
+captures these variabilities induced.
+
+To do so, we generated 13 noised versions of the MNI152NLin2009cAsym template where
+we simulate "dead voxels" by setting the voxels intensity to 0 for a fraction of the intracranial voxels.
+Each voxels had the same probability to be drawn no matter its localization or tissue type in the brain.
+We then executed \fmriprep in IEEE mode (without random perturbations) for each "corrupted template" on each subjects.
+
+Figures~\ref{fig:template_bonferroni} shows the results for increasing values of
+$\alpha$ and FWHM for the 3 types of pertubations. On the left is the percentage
+of "dead voxels" introduced inside the masked brain. First, the sensitivity of
+the test to the "dead voxels" in not the same following the subjects. On one
+hand, the test rejects the subjects 1, 2, 5 and 6 for small percentages of noise
+($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 3, 4, 7 and
+8 require a high percentage of noise (80\% for highest level of smoothing) to be
+rejected by the test. This distinction between the two groups of subjects is
+correlated to the average number of significant bits
+(Figure~\ref{fig:significant-digits}), the first group being the one with the
+highest average number of significant bits. This distinction is also clearly
+visible when we look at the uncertainty maps at FMWH=5mm
+(Figure~\ref{fig:uncertainty_5mm}). This correlation may mean that
+the test is more permissive to high percentage of "dead voxels" for
+subject having the highest uncertainty (or lowest number of significant bits).
 
 \subsection{Non-regression test application to environment updates}
 
-\begin{itemize}
-    \item NumPy: pip upgrade numpy in existing container.
-    \item Python: check if updating all or most packages works.
-    \item OS: Install fmriprep in more recent Ubuntu versions. Test with Fedora
-          too.
-    \item Arch: narval is AMD. Check on Intel (Beluga, lab cluster).
-    \item fMRIPRep: test non-LTS versions of fMRIPrep.
-\end{itemize}
+In this section, we explore the result of the non-regression test in different environements.
+The goal is to detect factors causing results to outside accepted variability bounds.
+We executed \fmriprep in IEEE mode by varying two factors: the CPU architecture to execute on and the \fmriprep version.
 
-\paragraph*{Architectures}
+\paragraph*{Architecture.} Figure~\ref{fig:arch_bonferroni} shows the results of
+the non-regression test with the Bonferroni correction for increasing $\alpha$
+and FWHM values for the 3 types of perturbations. Table~\ref{tab:index-arch-map}
+gives the mapping between the architecture used and the letter present on the
+left y-axis. We see that the architecture used has no impact on the
+non-regression test since results are identical accross architecture for a
+subject and a perturbation mode given. For subject 1, we see that the
+variability of the non-regression test results is more important. In conclusion,
+the perturbation mode used to build the test is more important than the
+architecture used.
 
-\paragraph*{\fmriprep versions}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/arch/arch_mct_fwe_bonferroni_.pdf}
+    \caption{Bonferroni corrected test application on different CPU architectures}
+    \label{fig:arch_bonferroni}
+\end{figure}
+
+\begin{table}
+    \begin{center}
+        \begin{tabular}{c|l}
+            Index & Architecture                   \\
+            \hline
+            A     & AMD Rome 7532                  \\
+            B     & Intel E5-2683 v4 Broadwell     \\
+            C     & Intel Silver 4216 Cascade Lake \\
+            D     & Intel Platinum 8160F Skylake   \\
+            E     & Intel Gold 5120 Skylake        \\
+            F     & Intel Gold 6238 Cascade Lake
+        \end{tabular}
+    \end{center}
+    \caption{Index of CPU architectures for Figure~\ref{fig:arch_bonferroni}. We use architecture A as reference.}
+    \label{tab:index-arch-map}
+\end{table}
+
+\paragraph*{\fmriprep versions.} Figure~\ref{fig:version_bonferroni} shows the results of the non-regression test
+with the Bonferroni correction for increasing $\alpha$ and FWHM values for the 3 types of perturbations.
+On the left y-axis is the number of \fmriprep version used to compute the target image.
+Overall, we see two oberserved two groups delimited by the version \texttt{20.2.5}.
+From version \texttt{20.2.0} to \texttt{20.2.4}, results are identical for a given subject and perturbation mode.
+Subject 4 passes for some confidence level and FWHM configurations. For the other major versions (21, 22 and 23)
+the test reject all the subjects. This result suggests that code modifications introduced with version \texttt{20.2.5}
+have modified the nature of the results produced by \fmriprep.
+\TODO{find modifications and why it can explain the results}.
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/fmriprep-versions/bonferroni.pdf}
     \caption{Bonferroni corrected test applications on different \fmriprep versions.}
+    \label{fig:version_bonferroni}
 \end{figure}
-
-Then show and discuss some failed subjects.
 
 
 \section{Discussion}
 
 % summary of results
-Starting from the neuroimaging use case, we have proposed an original approach
-to non-regression tests in the absence of ground truth (reference) and
-acceptable bounds of variation. We have applied this approach to fMRIPrep, one
-of the largest processing pipeline in neuroimaging.
+We have proposed the first approach to build non-regression tests for numerical analysis
+in the abscence of an exact solution, a reference solution and even a acceptable bound of variation around computed solution.
+We have applied this approach to \fmriprep, one of the largest processing pipeline in neuroimaging and we have
+demonstrated that our approach is able to detect variabilities comming from different \fmriprep versions.
 
-% conclusion
-Conclusion
-\begin{itemize}
-    \item From a software engineering point of view, the non-regression test is usable
-          ($\alpha=0.15$ and FWHM=10mm) for a well-chosen database of test subjects. Do we want
-          to build the test with a different value of alpha and FWHM for each subject?
-    \item discuss sensitivity (to template corruption, subject change) vs specificity (LOO, IEEE)
-\end{itemize}
-
-
-This approach requires reasonable numerical stability. It also requires normal
-(Gaussian) distributions of uncertainty.
-
+This approach requires reasonable numerical stability. It also requires Gaussian distributions of uncertainty.
 On smaller examples, we could do non-parametric tests.
-
 Discuss extension to functional pipeline.
-
 
 % limitations
 The Bonferroni correction assumes that all comparisons are independent, which is
@@ -734,6 +783,12 @@ It would be interesting to investigate this approach on other use cases
 including test cases as in pytracer.
 
 \section{Conclusion}
+\begin{itemize}
+    \item From a software engineering point of view, the non-regression test is usable
+          ($\alpha=0.15$ and FWHM=10mm) for a well-chosen database of test subjects. Do we want
+          to build the test with a different value of alpha and FWHM for each subject?
+    \item discuss sensitivity (to template corruption, subject change) vs specificity (LOO, IEEE)
+\end{itemize}
 \section{Acknowledgments}
 
 Computations were made on the Narval supercomputer from \'Ecole de Technologie
@@ -801,7 +856,16 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
         \centering
         \includegraphics[width=\linewidth]{figures/fmriprep-versions/pce.pdf}
         \caption{Uncorrected test applications on different \fmriprep versions.}
+        \label{fig:versions_pce}
     \end{figure}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\linewidth]{figures/arch/arch_pce_.pdf}
+        \caption{Uncorrected test applications on CPU architectures.}
+        \label{fig:arch_pce}
+    \end{figure}
+
 
     \section{Uncertainty maps for others FWHM}
 
@@ -814,7 +878,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 
     \begin{figure}
         \centering
-        \includegraphics[width=\linewidth]{figures/template/one_pce__template_annotated.pdf}
+        \includegraphics[width=\linewidth]{figures/template/template_pce.pdf}
         \caption{Corrupted template check for RR, RS and RR+RS mode (pce)}
     \end{figure}
 
