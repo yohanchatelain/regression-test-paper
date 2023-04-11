@@ -360,7 +360,7 @@ built the non-regression test using different values of FWHM smoothing and confi
 
 Overall, the three types of perturbations (RR, RS, RR+RS) created uncertainties
 of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured
-uncertainty is high, with mean significant bits ranging from 3 bits to 10 bits
+uncertainty is high, with mean significant bits ranging from 2 bits to 10 bits
 out of the 12 bits available in the data. Numerically, \fmriprep appears to be
 highly sensitive to the numerical and random seed perturbation. We also observe
 substantial discrepancies among subjects. For a given smoothing kernel size, the
@@ -620,23 +620,29 @@ at this confidence level.
 \end{figure}
 
 
-\paragraph{IEEE check.} We check that the IEEE results (computed without random perturbations)
-are correclty captured by our non-regression test. The IEEE check constructs the non-regression test from the
-$n$ perturbed results and applies it to each of the 8 IEEE results (one per subject).
-The purpose of this test is twofolds:
-(1) be able to capture the IEEE results considered as part of the reference distribution and
-(2) be able to correclty reject an observation not comming from the reference distribution (here from an other subject).
+\paragraph{IEEE check.} We check that the IEEE results (computed without random
+perturbations) are correclty captured by our non-regression test. The IEEE check
+constructs the non-regression test from the $n$ perturbed results and applies it
+to each of the 8 IEEE results (one per subject). The purpose of this test is
+twofolds: (1) be able to capture the IEEE results considered as part of the
+reference distribution and (2) be able to correclty reject an observation not
+comming from the reference distribution (here from an other subject).
 
-Figure~\ref{fig:ieee-check} shows the result for increasing values of $\alpha$ and $FWHM$ for the 3 types of perturbations.
-Each cell is a comparison matrix with the subject used as reference on the row
-and the subject used as target on the colum, following the subject indexing in Table~\ref{table:dataset_info}.
-The transparent black line highlights the diagonal corresponding to the tests using the same subject for the reference and
-the target. We expect the cell to have green values on its diagonal and red values outside.
+Figure~\ref{fig:ieee-check} shows the result for increasing values of $\alpha$
+and FWHM for the 3 types of perturbations. Each cell is a comparison matrix
+with the subject used as reference on the row and the subject used as target on
+the colum, following the subject indexing in Table~\ref{table:dataset_info}. The
+transparent black line highlights the diagonal corresponding to the tests using
+the same subject for the reference and the target. We expect the cell to have
+green values on its diagonal and red values outside.
 
-We first observe that none of the inter-subject tests fail which means that our test is sufficiently
-specific to detect the inter-subject variability even with high smoothing kernel size. However, the test lacks sensitivity for low FWHM sizes, suggesting
-that the learning sample is too small. But most importantly, it exists a $\alpha$ and FWHM pair for each subject such that
-the IEEE check passes. Hence, the IEEE check passes with FWHM=15mm for all subjects and $\alpha$ values in RR pertubations.
+We first observe that none of the inter-subject tests fail which means that our
+test is sufficiently specific to detect the inter-subject variability even with
+high smoothing kernel size. However, the test lacks sensitivity for low FWHM
+sizes, suggesting that the learning sample is too small. But most importantly,
+it exists a $\alpha$ and FWHM pair for each subject such that the IEEE check
+passes. Hence, the IEEE check passes with FWHM=15mm for all subjects and
+$\alpha$ values in RR pertubations.
 
 \begin{figure}
     \centering
@@ -672,10 +678,12 @@ should lead to substential differences in the registred images. We use this
 principle to build this check and to determine that our non-regression correctly
 captures these variabilities induced.
 
-To do so, we generated 13 noised versions of the MNI152NLin2009cAsym template where
-we simulate "dead voxels" by setting the voxels intensity to 0 for a fraction of the intracranial voxels.
-Each voxels had the same probability to be drawn no matter its localization or tissue type in the brain.
-We then executed \fmriprep in IEEE mode (without random perturbations) for each "corrupted template" on each subjects.
+To do so, we generated 13 noised versions of the MNI152NLin2009cAsym template
+where we simulate "dead voxels" by setting the voxels intensity to 0 for a
+fraction of the intracranial voxels. Each voxels had the same probability to be
+drawn no matter its localization or tissue type in the brain. We then executed
+\fmriprep in IEEE mode (without random perturbations) for each "corrupted
+template" on each subjects.
 
 Figures~\ref{fig:template_bonferroni} shows the results for increasing values of
 $\alpha$ and FWHM for the 3 types of pertubations. On the left is the percentage
@@ -695,9 +703,10 @@ subject having the highest uncertainty (or lowest number of significant bits).
 
 \subsection{Non-regression test application to environment updates}
 
-In this section, we explore the result of the non-regression test in different environements.
-The goal is to detect factors causing results to outside accepted variability bounds.
-We executed \fmriprep in IEEE mode by varying two factors: the CPU architecture to execute on and the \fmriprep version.
+In this section, we explore the result of the non-regression test in different
+environements. The goal is to detect factors causing results to outside accepted
+variability bounds. We executed \fmriprep in IEEE mode by varying two factors:
+the CPU architecture to execute on and the \fmriprep version.
 
 \paragraph*{Architecture.} Figure~\ref{fig:arch_bonferroni} shows the results of
 the non-regression test with the Bonferroni correction for increasing $\alpha$
@@ -756,39 +765,131 @@ have modified the nature of the results produced by \fmriprep.
 \section{Discussion}
 
 % summary of results
-We have proposed the first approach to build non-regression tests for numerical analysis
-in the abscence of an exact solution, a reference solution and even a acceptable bound of variation around computed solution.
-We have applied this approach to \fmriprep, one of the largest processing pipeline in neuroimaging and we have
-demonstrated that our approach is able to detect variabilities comming from different \fmriprep versions.
+We have proposed the first approach to build non-regression tests for numerical
+analysis in the abscence of an exact solution, a reference solution and even a
+acceptable bound of variation around the computed solution. We have applied this
+approach to \fmriprep, one of the largest processing pipeline in neuroimaging
+and we have demonstrated that our approach is able to detect variabilities
+comming from different \fmriprep versions.
 
-This approach requires reasonable numerical stability. It also requires Gaussian distributions of uncertainty.
-On smaller examples, we could do non-parametric tests.
-Discuss extension to functional pipeline.
+The numerical stability of the results varied across subjects in our study.
+Subjects were chosen to reflect diverse acquisition qualities, resolutions,
+ages, and genders. Although our analysis did not precisely determine which
+factors specifically influenced the non-regression test, we observed that
+certain smoothing sizes were more appropriate than others, indicating an optimal
+smoothing bandwidth.
 
-% limitations
-The Bonferroni correction assumes that all comparisons are independent, which is
-not the case for brain images. The resulting test is likely to be conservative,
-i.e., to not be sensitive enough to detect small deviations from the reference
-distribution.
+Fuzzy-libmath generated variability comparable to random-seed. Fuzzy-libmath
+provides an independent method to evaluate the numerical quality of neuroimaging
+pipelines. The smoothing size tended to affect the performance of the
+non-regression test, as it rendered the distribution of voxels more normal.
+However, voxel-wise analysis prevented the prediction of excessively large
+non-local variations. Incorporating neighborhood information could improve
+learning, such as using more general deep learning methods like
+VoxelMorph~\cite{balakrishnan2019voxelmorph}.
 
-Explain that perturbations were introduced in libmath only. For other
-applications (e.g., Deep Neural Networks), other libraries might have to be
-perturbed.
+The assumption of normality simplifies calculations. The issue with
+non-parametric methods is that they require large sample sizes ($>100$) to achieve
+an acceptable confidence level ($>0.95$). However, the acquisition cost for
+\fmriprep and neuroimaging pipelines in general is prohibitively high in terms of
+time and storage space. Working on other outputs, such as regions of interest
+with the produced segmentations, could reduce the volume of elements to be
+processed and enable more complex analyses in computations.
 
-% future work
-We could do the same on different derivatives (probabilistic segmentations).
+The solutions obtained for the smoothing kernel size may not be anatomically
+satisfactory for neuroimaging researchers (FWHM $\geq 15$) in terms of anatomical
+accuracy, but they are valid from a software engineering perspective, as they
+allow for the detection of significant changes between different versions of
+\fmriprep. Although our methods may not be currently applicable for neuroimaging
+research in a strict sense, they serve as a non-regression test for identifying
+noticeable differences between computed outputs.
 
+Although Bonferroni correction, despite being conservative, did not yield
+satisfactory results, indicating that regions that are numerically unstable were
+attempted to be accounted for. Given that these regions are highly unstable,
+even minimal variations in calculations result in significantly different
+geometric solutions. Since we are working voxel-wise, the obtained brain
+geometries can differ significantly at the voxel level, transitioning from
+intensity levels characteristic of gray matter to white matter, and vice versa.
+Furthermore, subsampling of the solution space may lead to the omission of
+possible white matter regions where only gray matter was observed, and vice
+versa.
 
-It would be interesting to investigate this approach on other use cases
-including test cases as in pytracer.
+Nevertheless, our method is sufficiently precise to detect inter-subject
+variability, even at higher levels of smoothing. The numerical perturbations
+introduced by fuzzy-libmath only affect a small portion of the calculations
+performed in \fmriprep. Although it reproduces the measured variability by
+varying the random seed, it does not stimulate calculations performed elsewhere
+in advancing neuroimaging. Extending the test to other application domains where
+libmath has little effect on stability may require perturbing other computation
+libraries.
+
+Finally, our method is designed for data that are structured as 3-dimensional
+arrays and can be extended to arbitrary dimensions without any loss of
+generality. However, our approach treats all spatial axes as equivalent and does
+not specifically focus on any particular axis. Furthermore, we consider the
+absolute value of elements, such as voxel intensity in our case, rather than
+relative differences between them. For example, in future work we plan to extend
+our test to other types of data, such as those used in functional neuroimaging.
+In functional neuroimaging, researchers analyze time series of neural
+activations and are primarily interested in activation potential rather than the
+absolute magnitude of voxel intensity. Additionally, the treatment of the time
+axis is different from that of the spatial axes.
 
 \section{Conclusion}
-\begin{itemize}
-    \item From a software engineering point of view, the non-regression test is usable
-          ($\alpha=0.15$ and FWHM=10mm) for a well-chosen database of test subjects. Do we want
-          to build the test with a different value of alpha and FWHM for each subject?
-    \item discuss sensitivity (to template corruption, subject change) vs specificity (LOO, IEEE)
-\end{itemize}
+
+We have proposed a novel approach for building non-regression tests in numerical
+analysis, even in the absence of an exact solution, a reference solution, or an
+acceptable bound of variation around the computed solution. We applied this
+approach to \fmriprep, one of the largest processing pipelines in neuroimaging,
+and demonstrated its ability to detect variabilities across different \fmriprep
+versions.
+
+From a software engineering perspective, our non-regression test is applicable
+to a carefully selected database of test subjects, as we were able to identify
+valid configurations $\alpha$ and FWHM for which the test passed our sanity
+checks. The identified configurations varied across subjects, depending on the
+quality of the acquisition data, indicating that our test is robust to
+heterogeneously quality data.
+
+From a neuroimaging perspective, our analyses revealed significant discrepancies
+in numerical quality results after preprocessing, with an average of 2 to 10
+bits out of 12 bits available. The quality of results varied considerably with
+the acquisition quality and the chosen random seed. Additionally, spatial
+smoothing had a notable impact on improving result quality, with improvements of
+2 to 10 bits observed for some subjects.
+
+Furthermore, we demonstrated that the Fuzzy-libmath perturbations type yielded
+comparable numerical quality results to those obtained with random seeds,
+highlighting the ability of the Monte Carlo arithmetic approach to accurately
+simulate numerical instabilities. However, it should be noted that some specific
+random seeds resulted in considerably higher variability, as shown by the
+results from subject 7 in RR+RS modes (Figure~\ref{fig:uncertainty-maps}).
+
+Our results showed that our test is more sensitive (i.e., has a higher ability
+to correctly detect true positives) than specific (i.e., has a higher ability to
+correctly detect true negatives). Specifically, our method exhibited lower
+specificity for low FWHM values, likely due to the voxel-wise analysis that does
+not account for neighborhood effects and poor sampling space. This limitation
+arises from the computational cost of statistical analyses and the acquisition
+cost of perturbed results. However, our test demonstrated high sensitivity, as
+we were able to correctly reject target images from different subjects or with
+low to moderate levels of noise in the registration atlas, depending on the
+applied FWHM.
+
+In conclusion, our proposed non-regression test represents a novel and effective
+method for detecting code changes that result in substantial numerical
+variabilities within results represented as numerical structured grids. Through
+our demonstrations on a large neuroimaging pipeline, such as \fmriprep, for the
+preprocessing step, we have shown the effectiveness of our approach under
+assumptions of independence and normality.
+
+In future research, we plan to extend our methodology to other data types and
+investigate its applicability under different statistical hypotheses. This work
+has the potential to contribute to the development of robust non-regression
+tests for numerical analysis in diverse scientific domains beyond neuroimaging,
+further enhancing the reliability and reproducibility of computational results.
+
 \section{Acknowledgments}
 
 Computations were made on the Narval supercomputer from \'Ecole de Technologie
