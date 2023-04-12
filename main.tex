@@ -766,11 +766,11 @@ have modified the nature of the results produced by \fmriprep.
 
 % summary of results
 We have proposed the first approach to build non-regression tests for numerical
-analysis in the abscence of an exact solution, a reference solution and even a
+analysis in the absence of an exact solution, a reference solution and even a
 acceptable bound of variation around the computed solution. We have applied this
 approach to \fmriprep, one of the largest processing pipeline in neuroimaging
 and we have demonstrated that our approach is able to detect variabilities
-comming from different \fmriprep versions.
+coming from different \fmriprep versions.
 
 The numerical stability of the results varied across subjects in our study.
 Subjects were chosen to reflect diverse acquisition qualities, resolutions,
@@ -800,7 +800,7 @@ The solutions obtained for the smoothing kernel size may not be anatomically
 satisfactory for neuroimaging researchers (FWHM $\geq 15$) in terms of anatomical
 accuracy, but they are valid from a software engineering perspective, as they
 allow for the detection of significant changes between different versions of
-\fmriprep. Although our methods may not be currently applicable for neuroimaging
+\fmriprep. Although our method may not be currently applicable to neuroimaging
 research in a strict sense, they serve as a non-regression test for identifying
 noticeable differences between computed outputs.
 
@@ -829,7 +829,7 @@ arrays and can be extended to arbitrary dimensions without any loss of
 generality. However, our approach treats all spatial axes as equivalent and does
 not specifically focus on any particular axis. Furthermore, we consider the
 absolute value of elements, such as voxel intensity in our case, rather than
-relative differences between them. For example, in future work we plan to extend
+the relative differences between them. For example, in future work, we plan to extend
 our test to other types of data, such as those used in functional neuroimaging.
 In functional neuroimaging, researchers analyze time series of neural
 activations and are primarily interested in activation potential rather than the
