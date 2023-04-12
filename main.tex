@@ -467,6 +467,7 @@ In this section, we explore the result of the non-regression test in different e
 \section{Discussion}
 
 % summary of results
+
 We have proposed the first approach to build non-regression tests for numerical analysis in the absence of an exact solution, a reference solution and even an acceptable bound of variation around the computed solution. We have applied this approach to \fmriprep, one of the largest processing pipeline in neuroimaging and we have demonstrated that our approach can detect variabilities coming from different \fmriprep versions.
 
 The numerical stability of the results varied across subjects in our study. Subjects were chosen to reflect diverse acquisition qualities, resolutions, ages, and genders. Although our analysis did not precisely determine which factors specifically influenced the non-regression test, we observed that certain smoothing sizes were more appropriate than others, indicating an optimal smoothing bandwidth.
