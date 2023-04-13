@@ -81,8 +81,6 @@ Overall, the main contribution of this paper is to build and evaluate a non-regr
 
 \section{Non-regression test design}
 
-% \subsection{Logic of the test}
-
 The non-regression test checks whether results produced by an updated version of fMRIPrep or obtained in a different execution environment deviate from the reference fMRIPrep LTS results. We estimate the distribution of reference results by introducing numerical perturbations in fMRIPrep LTS in a way that mimics variability resulting from changes in the execution environment.  For each voxel $x_i$ in each test image, we perform a z-test for the tested fMRIPrep version (non-perturbed, IEEE result) using the mean and standard deviation estimated from $n$ perturbed results. The test computes a p-value under the null hypothesis $H_{0,i}$ that the value produced by the tested fMRIPrep version belongs to the reference distribution:
 \begin{equation}
     \label{eqn:pval}
@@ -119,6 +117,7 @@ Random Seeds (RS) define pseudo-random number sequences involved in various nume
 The non-regression test applies to the main structural derivative produced by \fmriprep: the T1 image corrected for intensity non-uniformity using \texttt{N4BiasFieldCorrection} from \texttt{ANTS} and transformed to template space using \texttt{antsRegistration}, named \texttt{desc-preproc\_T1w} in the \fmriprep outputs and $X_k$ ($k < n$) in the remainder of this paper. In addition to the pre-processed T1 image $X_k$, \fmriprep produces a brain mask ($B_k$), a segmentation into grey matter, white matter and cerebrospinal fluid tissues, as well as probability maps for each of these tissues.
 
 Before computing the p-values in Equation~\ref{eqn:pval}, we apply the following pre-processing steps to $X_k$: brain masking, smoothing, and intensity normalization. For brain masking, we mask $X_k$ with the union of the brain masks produced across all perturbed results. We use the union of the brain masks rather than their intersection to capture variability across $B_k$ masks. For smoothing, we apply a spatial 3D Gaussian smoothing kernel with Full-Width at Half Maximum (\fwhm) ranging from 0~mm to 20~mm. For intensity normalization, we apply a min-max scaling to the smoothed intensities to scale them to [0,1].
+We have as a result a pre-processed image $X_k^\star$ from which we will proceed with our statistical analyses.
 
 \subsection{Handling multiple comparisons}
 
@@ -127,6 +126,30 @@ Handling multiple comparisons is a critical component of statistical testing in 
     \label{eq:bonferroni}
     \forall i, \quad i < v, \quad p_i < \frac{\alpha}{v}.
 \end{equation}
+
+\begin{table}
+    \centering
+    \begin{tabular}{c|l}
+        $i$              & index of the voxel within brain mask                                          \\
+        $v$              & number of voxels within brain mask                                            \\
+        $k$              & index of the perturbed sample                                                 \\
+        $n$              & perturbed outputs sample size                                                 \\
+        $x_i$            & voxel intensity                                                               \\
+        $z_i$            & z-score of voxel intensity                                                    \\
+        $p_i$            & p-value of voxel intensity                                                    \\
+        $\hat{\mu_i}$    & average voxel intensity across perturbed sample                               \\
+        $\hat{\sigma_i}$ & standard deviation of voxel intensity across perturbed sample                 \\
+        $B_k$            & brain mask produced by \fmriprep                                              \\
+        $B$              & union of $B_k$                                                                \\
+        $X_k$            & preprocessed T1 image                                                         \\
+        $X_k^{\star}$    & $X_k$ masked with $B$, min-max scaled and spatially smoothed                  \\
+        $\hat{s}$        & number of significant bits                                                    \\
+        $\Phi$           & cumulative distribution function of the normal centered Gaussian distribution \\
+        $\chi^2_{n-1}$   & Chi-2 distribution with n-1 degrees of freedom                                \\
+    \end{tabular}
+    \caption{Notations}
+    \label{tab:notations}
+\end{table}
 
 % \begin{table}[] \centering \begin{tabular}{c|c|c|c} & Negatives & Positives &
 %     \\
@@ -144,7 +167,7 @@ We compute the significant bits $\hat{s}$ with probability $p$ and confidence $1
 \[
     \hat{s} = -\log_2 \left| \frac{\hat{\sigma}}{\hat{\mu}} \right| - \delta(n, \alpha, p)
 \]
-where $\hat{\sigma}$ and $\hat{\mu}$ are the voxelwise average and standard deviation over the $X_i$ perturbed results ($i \leq n$), and
+where $\hat{\sigma}$ and $\hat{\mu}$ are the voxelwise average and standard deviation over the $X_k^\star$ perturbed results ($k \leq n$), and
 \[
     \delta(n, \alpha, p) =
     \left[
@@ -190,7 +213,6 @@ We computed 30 perturbed results for each of the 8 subjects and each of the 3 pe
 Overall, the three types of perturbations (RR, RS, RR+RS) created uncertainties of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured uncertainty is high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data. Numerically, \fmriprep appears to be highly sensitive to the numerical and random seed perturbation. We also observe substantial discrepancies among subjects. For a given smoothing kernel size, the number of significant bits frequently varies in the ratio of 1 to 3 among subjects. Overall, smoothing tends to reduce numerical uncertainty, however, this behavior is in general not monotonous and varies across subjects.
 
 The uncertainty measured across perturbed samples showed regional variations compatible with anatomical features (Figure~\ref{fig:uncertainty-maps}). In particular, uncertainty was maximal at the border of the brain mask, and it was overall higher in the gray matter than in the white matter. This is consistent with previous observations of numerical uncertainty in structural brain image analysis~\cite{salari2021accurate}. In addition, uncertainty was also maximal in some cortical regions, suggesting that non-linear registration may be unstable in these regions. Our non-regression test will therefore be more tolerant in these regions.
-
 
 \begin{figure}
     \centering
@@ -359,12 +381,11 @@ The uncertainty measured across perturbed samples showed regional variations com
             \draw[left color=red, right color=green!50!black, middle color=yellow]
             (0,0) rectangle (8,0.3);} 12 bits
         \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 for
-            (from right to left) IEEE, RR, RS and RR+RS perturbed samples with a spatial smoothing applied (FWHM=15mm). }
+            (from right to left) IEEE, RR, RS and RR+RS perturbed samples with spatial smoothing applied (FWHM=15mm). }
         \label{fig:uncertainty-maps}
 
     \end{figure}
 \end{landscape}
-
 
 \subsection{Non-regression test evaluations}
 
@@ -372,8 +393,7 @@ The uncertainty measured across perturbed samples showed regional variations com
 \[
     1-F(\mathds{1}_n;n,1-\alpha) \leq \alpha_0
 \]
-where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$, and
-$\alpha_0=0.05$.
+where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$, and $\alpha_0=0.05$.
 
 We applied leave-one-out validation for different confidence values (1-$\alpha$) and different FWHM  values for the 3 types of perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, tests become increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM. As previously observed, the 3 perturbation types behave similarly. For each subject, $\alpha$ and FWHM values exist such that the LOO test passes. However, these values importantly vary across subjects, presumably due to heterogeneous data quality. To pass the LOO test with $\alpha=0.05$ for RR perturbations, subjects 2, 6, 7 and 8 require a smoothing size of FWHM=12mm and subjects 3 and 5 require FWHM=15mm. Subjects 1 and 4 never pass the LOO test at this confidence level.
 
@@ -381,7 +401,7 @@ We applied leave-one-out validation for different confidence values (1-$\alpha$)
     \centering
     \includegraphics[width=\linewidth]{figures/exclude_mct_fwe_bonferroni.pdf}
     \caption{Leave-one-out evaluation for non-regression tests.
-        Binomial one-tailed test with a confidence level at 95\%.
+        Binomial one-tailed test with a confidence level of 95\%.
         Red: failed the test. Green: passed the test.}
     \label{fig:loo_bonferroni}
 \end{figure}
@@ -404,7 +424,7 @@ We first observe that none of the inter-subject tests fail which means that our 
     \begin{subfigure}[t]{0.7\linewidth}
         \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR-RS.pdf}
     \end{subfigure}
-    \caption{Inter-subject check for from top to bottom RR, RS and RR+RS modes (bonferroni)}
+    \caption{Inter-subject check for from top to bottom RR, RS and RR+RS modes (Bonferroni correction)}
     \label{fig:ieee-check}
 \end{figure}
 
@@ -417,11 +437,11 @@ We first observe that none of the inter-subject tests fail which means that our 
     \label{fig:template_bonferroni}
 \end{figure}
 
-Image registration is a fundamental step during the pre-preprocessing to enable statistical analyses. This step consists of realigning an input image (user space) to a common space (template space). To do so, it exists several templates representing a normal structural brain and \fmriprep uses the MNI152NLin2009cAsym template from ... (REF) by default. The quality of the template will condition the quality of the registered image. Hence, errors in the template should lead to substantial differences in the registered images. We use this principle to build this check and to determine that our non-regression correctly captures these variabilities induced.
+Image registration is a fundamental step during the pre-preprocessing to enable statistical analyses. This step consists of realigning an input image (user space) to a common space (template space). To do so, it exists several templates representing a normal structural brain and \fmriprep uses the ICBM 2009c Nonlinear Asymmetric template~\cite{fonov2011unbiased} used by default. The quality of the template will condition the quality of the registered image~\cite{li2021moving}. Hence, errors in the template should lead to substantial differences in the registered images. We use this principle to build this check and to determine that our non-regression correctly captures these variabilities induced.
 
-To do so, we generated 13 noised versions of the MNI152NLin2009cAsym template where we simulate "dead voxels" by setting the voxel's intensity to 0 for a fraction of the intracranial voxels. Each voxel had the same probability to be drawn no matter its localization or tissue type in the brain. We then executed \fmriprep in IEEE mode (without random perturbations) for each "corrupted template" on each subject.
+To do so, we generated noised versions of the MNI152NLin2009cAsym template where we simulate "dead voxels" by setting the voxel's intensity to 0 for a fraction of the intracranial voxels. Each voxel had the same probability to be drawn no matter its localization or tissue type in the brain. We then executed \fmriprep in IEEE mode (without random perturbations) for each "corrupted template" on each subject.
 
-Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for the 3 types of perturbations. On the left is the percentage of "dead voxels" introduced inside the masked brain. First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 1, 2, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 3, 4, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits. This distinction is also clearly visible when we look at the uncertainty maps at FMWH=5mm (Figure~\ref{fig:uncertainty_5mm}). This correlation may mean that the test is more permissive to a high percentage of "dead voxels" for subject having the highest uncertainty (or lowest number of significant bits).
+Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for the 3 types of perturbations. On the left is the percentage of "dead voxels" introduced inside the masked brain. First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 1, 2, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 3, 4, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits. This distinction is also clearly visible when we look at the uncertainty maps at FMWH=5mm (Figure~\ref{fig:uncertainty_5mm}). This correlation may mean that the test is more permissive to a high percentage of "dead voxels" for subjects having the highest uncertainty (or lowest number of significant bits).
 
 \subsection{Non-regression test application to environment updates}
 
@@ -450,7 +470,7 @@ In this section, we explore the result of the non-regression test in different e
             F     & Intel Gold 6238 Cascade Lake
         \end{tabular}
     \end{center}
-    \caption{Index of CPU architectures for Figure~\ref{fig:arch_bonferroni}. We use architecture A as a reference.}
+    \caption{Index of CPU architectures for Figure~\ref{fig:arch_bonferroni}. We use the architecture A as a reference.}
     \label{tab:index-arch-map}
 \end{table}
 
@@ -618,7 +638,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
             \end{subfigure}
             \begin{subfigure}[t]{0.2\paperheight}
                 \centering
-                RS (significant bits)
+                RR+RS (significant bits)
                 \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds001600_sub-1_sig.pdf}
             \end{subfigure} \\
             %% sub 2
@@ -782,7 +802,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
             \end{subfigure}
             \begin{subfigure}[t]{0.2\paperheight}
                 \centering
-                RS (significant bits)
+                RR+RS (significant bits)
                 \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds001600_sub-1_sig.pdf}
             \end{subfigure} \\
             %% sub 2
@@ -946,7 +966,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
             \end{subfigure}
             \begin{subfigure}[t]{0.2\paperheight}
                 \centering
-                RS (significant bits)
+                RR+RS (significant bits)
                 \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds001600_sub-1_sig.pdf}
             \end{subfigure} \\
             %% sub 2
@@ -1109,7 +1129,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
             \end{subfigure}
             \begin{subfigure}[t]{0.2\paperheight}
                 \centering
-                RS (significant bits)
+                RR+RS (significant bits)
                 \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001600_sub-1_sig.pdf}
             \end{subfigure} \\
             %% sub 2
@@ -1272,7 +1292,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
             \end{subfigure}
             \begin{subfigure}[t]{0.2\paperheight}
                 \centering
-                RS (significant bits)
+                RR+RS (significant bits)
                 \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds001600_sub-1_sig.pdf}
             \end{subfigure} \\
             %% sub 2
