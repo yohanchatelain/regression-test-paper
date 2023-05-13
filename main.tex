@@ -29,6 +29,8 @@
 
 \setlength{\marginparwidth}{2cm}
 \usepackage{todonotes}
+\usepackage{etoolbox}
+\usepackage{xargs}
 
 \newcommand{\TODO}[1]{\color{red}\textsc{TODO:} #1\color{black}\xspace}
 \newcommand{\TG}[1]{\color{blue}\textsc{From Tristan:} #1\color{black}\xspace}
@@ -40,6 +42,51 @@
         \shade[left color=\color{red}, right color=\color{green}, middle color=\color{yellow}]
                (0,0) rectangle ++(#1*#2/100,0.3);}%
   }%
+}
+
+\newtoggle{RRandRS}
+\togglefalse{RRandRS} % Set it to true or false based on your requirement
+
+
+\newlength{\figureWidthUM}
+\newlength{\vspaceIndex}
+
+\newcommandx{\uncertaintyMap}[5][5=false]{%
+  % arguments:
+  % 1: FWHM 
+  % 2: subject index
+  % 3: dataset
+  % 4: subject
+  % 5: add columns title
+%   \iftoggle{RRandRS}{\setlength{\figureWidthUM}{0.2\paperheight}}{\setlength{\figureWidthUM}{0.27\paperheight}}
+  \setlength{\figureWidthUM}{0.2\paperheight}
+  \ifstrequal{#5}{true}{\setlength{\vspaceIndex}{-45pt}}{\setlength{\vspaceIndex}{25pt}}
+  \begin{subfigure}[b]{0.01\paperwidth}
+    \centering
+    #2\vspace*{\vspaceIndex}
+  \end{subfigure}
+  \begin{subfigure}[t]{\figureWidthUM}
+    \centering
+    \ifstrequal{#5}{true}{IEEE (T1 intensity)}{}
+    \includegraphics[width=\textwidth]{figures/sig/#1mm/ieee_#3_#4.pdf}
+  \end{subfigure}
+  \begin{subfigure}[t]{\figureWidthUM}
+    \centering
+    \ifstrequal{#5}{true}{RR (significant bits)}{}
+    \includegraphics[width=\textwidth]{figures/sig/#1mm/rr_#3_#4_sig.pdf}
+  \end{subfigure}
+  \begin{subfigure}[t]{\figureWidthUM}
+    \centering
+    \ifstrequal{#5}{true}{RS (significant bits)}{}
+    \includegraphics[width=\textwidth]{figures/sig/#1mm/rs_#3_#4_sig.pdf}
+  \end{subfigure}
+  \iftoggle{RRandRS}{%
+    \begin{subfigure}[t]{\figureWidthUM}
+      \centering
+      \ifstrequal{#5}{true}{RR+RS (significant bits)}{}
+      \includegraphics[width=\textwidth]{figures/sig/#1mm/rr.rs_#3_#4_sig.pdf}
+    \end{subfigure}
+  }{}
 }
 
 % Cluster failure: Why fMRI inferences for spatial extent have inflated
@@ -196,12 +243,12 @@ We selected eight test subjects from sub-datasets in the OpenNeuro~\cite{markiew
             Index & Dataset  & Subject     & Dimension ($x,y,z$)         & Voxel resolution            & Data type & Age     & Sex \\
                   &          &             &                             & $mm^3$ ($x,y,z$)            &           & (years) &     \\
             \hline
-            1     & ds001600 & sub-1       & $176 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & -       & -   \\
-            2     & ds001771 & sub-36      & $256 \times 320 \times 320$ & $0.8 \times 0.8 \times 0.8$ & int16     & 22      & F   \\
-            3     & ds000256 & sub-CTS201  & $256 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & 8.68    & M   \\
-            4     & ds000256 & sub-CTS210  & $224 \times 256 \times 256$ & $0.8 \times 0.8 \times 0.8$ & int16     & 7.63    & F   \\
-            5     & ds001748 & sub-adult15 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & M   \\
-            6     & ds001748 & sub-adult16 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & F   \\
+            1     & ds000256 & sub-CTS201  & $256 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & 8.68    & M   \\
+            2     & ds000256 & sub-CTS210  & $224 \times 256 \times 256$ & $0.8 \times 0.8 \times 0.8$ & int16     & 7.63    & F   \\
+            3     & ds001600 & sub-1       & $176 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & -       & -   \\
+            4     & ds001748 & sub-adult15 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & M   \\
+            5     & ds001748 & sub-adult16 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & F   \\
+            6     & ds001771 & sub-36      & $256 \times 320 \times 320$ & $0.8 \times 0.8 \times 0.8$ & int16     & 22      & F   \\
             7     & ds002338 & sub-xp201   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 41      & F   \\
             8     & ds002338 & sub-xp207   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 39      & M   \\
         \end{tabular}
@@ -237,167 +284,24 @@ In addition, uncertainty was also maximal in some focal regions, suggesting that
     \caption{Voxel-wise means of mean, standard deviation and significant bits
         measured across n=30 perturbed samples for 3 types of perturbations and 8
         subjects. For each subject, we computed statistics in the union of the brain
-        masks among n=30 perturbed samples. \TG{Put "FWHM (mm)" above the color caption. Use subject indices (not names) in the caption.}}
+        masks among n=30 perturbed samples.}
     \label{fig:significant-digits}
 \end{figure}
 
 \begin{landscape}
     \begin{figure}
-
         \vspace*{-2cm}
         \centering
-        %% sub 1
-        \begin{subfigure}[b][][c]{0.01\paperwidth} 1 \vspace*{-45pt} \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            IEEE (T1 intensity)
-            \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds001600_sub-1.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            RR (significant bits)
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds001600_sub-1_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            RS (significant bits)
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001600_sub-1_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            RS (significant bits)
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001600_sub-1_sig.pdf}
-        \end{subfigure} \\
-        %% sub 2
-        \begin{subfigure}[b][][c]{0.01\paperwidth} 2 \vspace*{15pt} \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds001771_sub-36.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds001771_sub-36_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001771_sub-36_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds001771_sub-36_sig.pdf}
-        \end{subfigure} \\
-        %% sub 3
-        \begin{subfigure}[b][][c]{0.01\paperwidth} 3 \vspace*{15pt} \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds000256_sub-CTS201.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds000256_sub-CTS201_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds000256_sub-CTS201_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds000256_sub-CTS201_sig.pdf}
-        \end{subfigure} \\
-        %% sub 4
-        \begin{subfigure}[b][][c]{0.01\paperwidth} 4 \vspace*{15pt} \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds000256_sub-CTS210.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds000256_sub-CTS210_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds000256_sub-CTS210_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds000256_sub-CTS210_sig.pdf}
-        \end{subfigure} \\
-        %% sub 5
-        \begin{subfigure}[b][][c]{0.01\paperwidth} 5 \vspace*{15pt} \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds001748_sub-adult15.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds001748_sub-adult15_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001748_sub-adult15_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds001748_sub-adult15_sig.pdf}
-        \end{subfigure} \\
-        %% sub 6
-        \begin{subfigure}[b][][c]{0.01\paperwidth} 6 \vspace*{15pt} \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds001748_sub-adult16.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds001748_sub-adult16_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001748_sub-adult16_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds001748_sub-adult16_sig.pdf}
-        \end{subfigure} \\
-        %% sub 7
-        \begin{subfigure}[b][][c]{0.01\paperwidth} 7 \vspace*{15pt} \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds002338_sub-xp201.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds002338_sub-xp201_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds002338_sub-xp201_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds002338_sub-xp201_sig.pdf}
-        \end{subfigure} \\
-        %% sub 8
-        \begin{subfigure}[b][][c]{0.01\paperwidth} 8 \vspace*{15pt} \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds002338_sub-xp207.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds002338_sub-xp207_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds002338_sub-xp207_sig.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.2\paperheight}
-            \centering
-            \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds002338_sub-xp207_sig.pdf}
-        \end{subfigure} \\
-        \hspace*{6cm} 0 \tikz[baseline=(current bounding box.south)]{
-            \draw[left color=red, right color=green!50!black, middle color=yellow]
-            (0,0) rectangle (8,0.3);} 12 bits
-        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=15mm). \TG{Is the 3rd column RR+RS? It would be useful to have a few more ticks in the color bar.}}
+        \uncertaintyMap{15}{1}{ds000256}{sub-CTS201}[true] \\
+        \uncertaintyMap{15}{2}{ds000256}{sub-CTS210} \\
+        \uncertaintyMap{15}{3}{ds001600}{sub-1} \\
+        \uncertaintyMap{15}{4}{ds001748}{sub-adult15} \\
+        \uncertaintyMap{15}{5}{ds001748}{sub-adult16} \\
+        \uncertaintyMap{15}{6}{ds001771}{sub-36} \\
+        \uncertaintyMap{15}{7}{ds002338}{sub-xp201} \\
+        \uncertaintyMap{15}{8}{ds002338}{sub-xp207} \\
+        \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=15mm).}
         \label{fig:uncertainty-maps}
 
     \end{figure}
@@ -645,821 +549,75 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 
     \begin{landscape}
         \begin{figure}
-
             \vspace*{-2cm}
             \centering
-            %% sub 1
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 1 \vspace*{-45pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                IEEE (T1 intensity)
-                \includegraphics[width=\textwidth]{figures/sig/0mm/ieee_ds001600_sub-1.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR+RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure} \\
-            %% sub 2
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 2 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/ieee_ds001771_sub-36.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr.rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure} \\
-            %% sub 3
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 3 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/ieee_ds000256_sub-CTS201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr.rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 4
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 4 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/ieee_ds000256_sub-CTS210.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr.rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure} \\
-            %% sub 5
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 5 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/ieee_ds001748_sub-adult15.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr.rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure} \\
-            %% sub 6
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 6 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/ieee_ds001748_sub-adult16.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr.rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure} \\
-            %% sub 7
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 7 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/ieee_ds002338_sub-xp201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr.rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 8 
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 8 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/ieee_ds002338_sub-xp207.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/0mm/rr.rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure} \\
-            \hspace*{6cm} 0 \tikz[baseline=(current bounding box.south)]{
-                \draw[left color=red, right color=green!50!black, middle color=yellow]
-                (0,0) rectangle (8,0.3);} 12 bits
-            \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 for
-                (from right to left) IEEE, RR, RS and RR+RS perturbed samples with a spatial smoothing applied (FWHM=0mm). }
-            \label{fig:uncertainty_0mm}
-
-        \end{figure}
-    \end{landscape}
-
-
-    \begin{landscape}
-        \begin{figure}
-
-            \vspace*{-2cm}
-            \centering
-            %% sub 1
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 1 \vspace*{-45pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                IEEE (T1 intensity)
-                \includegraphics[width=\textwidth]{figures/sig/5mm/ieee_ds001600_sub-1.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR+RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure} \\
-            %% sub 2
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 2 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/ieee_ds001771_sub-36.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr.rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure} \\
-            %% sub 3
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 3 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/ieee_ds000256_sub-CTS201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr.rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 4
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 4 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/ieee_ds000256_sub-CTS210.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr.rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure} \\
-            %% sub 5
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 5 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/ieee_ds001748_sub-adult15.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr.rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure} \\
-            %% sub 6
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 6 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/ieee_ds001748_sub-adult16.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr.rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure} \\
-            %% sub 7
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 7 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/ieee_ds002338_sub-xp201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr.rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 8 
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 8 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/ieee_ds002338_sub-xp207.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/5mm/rr.rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure} \\
-            \hspace*{6cm} 0 \tikz[baseline=(current bounding box.south)]{
-                \draw[left color=red, right color=green!50!black, middle color=yellow]
-                (0,0) rectangle (8,0.3);} 12 bits
-            \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 for
-                (from right to left) IEEE, RR, RS and RR+RS perturbed samples with a spatial smoothing applied (FWHM=5mm). }
-            \label{fig:uncertainty_5mm}
-
-        \end{figure}
-    \end{landscape}
-
-
-    \begin{landscape}
-        \begin{figure}
-
-            \vspace*{-2cm}
-            \centering
-            %% sub 1
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 1 \vspace*{-45pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                IEEE (T1 intensity)
-                \includegraphics[width=\textwidth]{figures/sig/10mm/ieee_ds001600_sub-1.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR+RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure} \\
-            %% sub 2
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 2 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/ieee_ds001771_sub-36.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr.rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure} \\
-            %% sub 3
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 3 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/ieee_ds000256_sub-CTS201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr.rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 4
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 4 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/ieee_ds000256_sub-CTS210.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr.rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure} \\
-            %% sub 5
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 5 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/ieee_ds001748_sub-adult15.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr.rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure} \\
-            %% sub 6
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 6 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/ieee_ds001748_sub-adult16.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr.rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure} \\
-            %% sub 7
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 7 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/ieee_ds002338_sub-xp201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr.rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 8 
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 8 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/ieee_ds002338_sub-xp207.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/10mm/rr.rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure} \\
-            \hspace*{6cm} 0 \tikz[baseline=(current bounding box.south)]{
-                \draw[left color=red, right color=green!50!black, middle color=yellow]
-                (0,0) rectangle (8,0.3);} 12 bits
-            \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 for
-                (from right to left) IEEE, RR, RS and RR+RS perturbed samples with a spatial smoothing applied (FWHM=10mm). }
-            \label{fig:uncertainty_10mm}
-
+            \uncertaintyMap{0}{1}{ds000256}{sub-CTS201}[true] \\
+            \uncertaintyMap{0}{2}{ds000256}{sub-CTS210} \\
+            \uncertaintyMap{0}{3}{ds001600}{sub-1} \\
+            \uncertaintyMap{0}{4}{ds001748}{sub-adult15} \\
+            \uncertaintyMap{0}{5}{ds001748}{sub-adult16} \\
+            \uncertaintyMap{0}{6}{ds001771}{sub-36} \\
+            \uncertaintyMap{0}{7}{ds002338}{sub-xp201} \\
+            \uncertaintyMap{0}{8}{ds002338}{sub-xp207} \\
+            \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
+            \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=0mm). }
+            \label{fig:uncertainty-maps-0mm}
         \end{figure}
     \end{landscape}
 
     \begin{landscape}
         \begin{figure}
-
             \vspace*{-2cm}
             \centering
-            %% sub 1
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 1 \vspace*{-45pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                IEEE (T1 intensity)
-                \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds001600_sub-1.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR+RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure} \\
-            %% sub 2
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 2 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds001771_sub-36.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure} \\
-            %% sub 3
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 3 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds000256_sub-CTS201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 4
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 4 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds000256_sub-CTS210.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure} \\
-            %% sub 5
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 5 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds001748_sub-adult15.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure} \\
-            %% sub 6
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 6 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds001748_sub-adult16.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure} \\
-            %% sub 7
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 7 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds002338_sub-xp201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 8 
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 8 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/ieee_ds002338_sub-xp207.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/15mm/rr.rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure} \\
-            \hspace*{6cm} 0 \tikz[baseline=(current bounding box.south)]{
-                \draw[left color=red, right color=green!50!black, middle color=yellow]
-                (0,0) rectangle (8,0.3);} 12 bits
-            \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 for
-                (from right to left) IEEE, RR, RS and RR+RS perturbed samples with a spatial smoothing applied (FWHM=15mm). }
-            \label{fig:uncertainty_15mm}
-
+            \uncertaintyMap{5}{1}{ds000256}{sub-CTS201}[true] \\
+            \uncertaintyMap{5}{2}{ds000256}{sub-CTS210} \\
+            \uncertaintyMap{5}{3}{ds001600}{sub-1} \\
+            \uncertaintyMap{5}{4}{ds001748}{sub-adult15} \\
+            \uncertaintyMap{5}{5}{ds001748}{sub-adult16} \\
+            \uncertaintyMap{5}{6}{ds001771}{sub-36} \\
+            \uncertaintyMap{5}{7}{ds002338}{sub-xp201} \\
+            \uncertaintyMap{5}{8}{ds002338}{sub-xp207} \\
+            \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
+            \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=5mm). }
+            \label{fig:uncertainty-maps-5mm}
         \end{figure}
     \end{landscape}
 
     \begin{landscape}
         \begin{figure}
-
             \vspace*{-2cm}
             \centering
-            %% sub 1
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 1 \vspace*{-45pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                IEEE (T1 intensity)
-                \includegraphics[width=\textwidth]{figures/sig/20mm/ieee_ds001600_sub-1.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                RR+RS (significant bits)
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds001600_sub-1_sig.pdf}
-            \end{subfigure} \\
-            %% sub 2
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 2 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/ieee_ds001771_sub-36.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr.rs_ds001771_sub-36_sig.pdf}
-            \end{subfigure} \\
-            %% sub 3
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 3 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/ieee_ds000256_sub-CTS201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr.rs_ds000256_sub-CTS201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 4
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 4 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/ieee_ds000256_sub-CTS210.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr.rs_ds000256_sub-CTS210_sig.pdf}
-            \end{subfigure} \\
-            %% sub 5
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 5 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/ieee_ds001748_sub-adult15.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr.rs_ds001748_sub-adult15_sig.pdf}
-            \end{subfigure} \\
-            %% sub 6
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 6 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/ieee_ds001748_sub-adult16.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr.rs_ds001748_sub-adult16_sig.pdf}
-            \end{subfigure} \\
-            %% sub 7
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 7 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/ieee_ds002338_sub-xp201.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr.rs_ds002338_sub-xp201_sig.pdf}
-            \end{subfigure} \\
-            %% sub 8 
-            \begin{subfigure}[b][][c]{0.01\paperwidth} 8 \vspace*{15pt} \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/ieee_ds002338_sub-xp207.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure}
-            \begin{subfigure}[t]{0.2\paperheight}
-                \centering
-                \includegraphics[width=\textwidth]{figures/sig/20mm/rr.rs_ds002338_sub-xp207_sig.pdf}
-            \end{subfigure} \\
-            \hspace*{6cm} 0 \tikz[baseline=(current bounding box.south)]{
-                \draw[left color=red, right color=green!50!black, middle color=yellow]
-                (0,0) rectangle (8,0.3);} 12 bits
-            \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 for
-                (from right to left) IEEE, RR, RS and RR+RS perturbed samples with a spatial smoothing applied (FWHM=20mm). }
-            \label{fig:uncertainty_20mm}
-
+            \uncertaintyMap{10}{1}{ds000256}{sub-CTS201}[true] \\
+            \uncertaintyMap{10}{2}{ds000256}{sub-CTS210} \\
+            \uncertaintyMap{10}{3}{ds001600}{sub-1} \\
+            \uncertaintyMap{10}{4}{ds001748}{sub-adult15} \\
+            \uncertaintyMap{10}{5}{ds001748}{sub-adult16} \\
+            \uncertaintyMap{10}{6}{ds001771}{sub-36} \\
+            \uncertaintyMap{10}{7}{ds002338}{sub-xp201} \\
+            \uncertaintyMap{10}{8}{ds002338}{sub-xp207} \\
+            \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
+            \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=10mm). }
+            \label{fig:uncertainty-maps-10mm}
         \end{figure}
     \end{landscape}
 
+    \begin{landscape}
+        \begin{figure}
+            \vspace*{-2cm}
+            \centering
+            \uncertaintyMap{20}{1}{ds000256}{sub-CTS201}[true] \\
+            \uncertaintyMap{20}{2}{ds000256}{sub-CTS210} \\
+            \uncertaintyMap{20}{3}{ds001600}{sub-1} \\
+            \uncertaintyMap{20}{4}{ds001748}{sub-adult15} \\
+            \uncertaintyMap{20}{5}{ds001748}{sub-adult16} \\
+            \uncertaintyMap{20}{6}{ds001771}{sub-36} \\
+            \uncertaintyMap{20}{7}{ds002338}{sub-xp201} \\
+            \uncertaintyMap{20}{8}{ds002338}{sub-xp207} \\
+            \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
+            \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=20mm). }
+            \label{fig:uncertainty-maps-20mm}
+        \end{figure}
+    \end{landscape}
 
     \section*{Summary \fmriprep versions}
 
