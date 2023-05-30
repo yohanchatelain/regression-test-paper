@@ -37,6 +37,10 @@
 \newcommand{\fmriprep}{fMRIPrep\xspace}
 \newcommand{\fwhm}{\textsc{FWHM}}
 
+\newcommand{\failcolor}{orange} % HEX #009E73
+\newcommand{\passcolor}{green} % HEX #D55E00
+
+
 \newcommand\Mark[2][8.4]{%
   \rlap{\tikz[baseline=(current bounding box.south)]{
         \shade[left color=\color{red}, right color=\color{green}, middle color=\color{yellow}]
@@ -110,8 +114,6 @@ Software Engineering. \url{https://www.computer.org/csdl/journal/ts}
 
 \section{Introduction}
 
-\TG{Good writing but logic needs to be revised: numerical accuracy is a tool (method) to build a non-regression test. The primary goal is to build a non-regression test usable in the context of an LTS, not to evaluate numerical accuracy.}
-
 In the field of software engineering, non-regression testing plays a critical role in ensuring the stability and reliability of software systems over time. This involves testing software updates to verify that they do not introduce new bugs or regressions compared to previous versions. It is an important quality assurance process that helps identify and fix potential issues before they impact users.
 
 In neuroimaging, tools have been developed and utilized by the scientific community for several decades now, enabling researchers to study the human brain with unprecedented detail and precision. The maturity of neuroimaging software tools pushed them to develop long-term support (LTS) versions to release stable and reliable software versions for long-term use. But LTS requires inevitable updates for security reasons, bug fixes, end-of-life (EOL) and updates dependencies. Despite the widespread use of these tools, there are still variabilities observed between different software tools and even between different versions of the same tool, which can impact the quality and reliability of the results obtained~\cite{glatard2015reproducibility, bhagwat2021understanding}.
@@ -180,21 +182,21 @@ Handling multiple comparisons is a critical component of statistical testing in 
 \begin{table}
     \centering
     \begin{tabular}{c|l}
-        $\Lambda$        & reference application \\
-        $\tilde \Lambda$ & tested application\\
+        $\Lambda$        & reference application                                                         \\
+        $\tilde \Lambda$ & tested application                                                            \\
         $i$              & index of a voxel in the brain mask                                            \\
         $v$              & number of voxels in the brain mask                                            \\
         $k$              & index of the perturbed sample                                                 \\
         $n$              & perturbed outputs sample size                                                 \\
-        $\tilde x_i$     & voxel intensity in image $\tilde X$                                                         \\
+        $\tilde x_i$     & voxel intensity in image $\tilde X$                                           \\
         $z_i$            & z-score of voxel intensity                                                    \\
         $p_i$            & p-value of voxel intensity                                                    \\
         $\hat{\mu_i}$    & average voxel intensity across perturbed samples                              \\
         $\hat{\sigma_i}$ & standard deviation of voxel intensity across perturbed samples                \\
-        $B_k$            & brain mask produced by \fmriprep  \TG{$\Lambda$?}                             \\
+        $B_k$            & brain mask produced by $\Lambda$                                              \\
         $B$              & union of $B_k$ masks                                                          \\
-        $X$              & image produced by unperturbed $\Lambda$ using IEEE convention                             \\
-        $\tilde X$       & image produced by unperturbed $\tilde \Lambda$ using IEEE convention                      \\
+        $X$              & image produced by unperturbed $\Lambda$ using IEEE convention                 \\
+        $\tilde X$       & image produced by unperturbed $\tilde \Lambda$ using IEEE convention          \\
         $X_k$            & images produced by random perturbations of $\Lambda$                          \\
         $X_k^{\star}$    & $X_k$ masked with $B$, min-max scaled and spatially smoothed                  \\
         $\hat{s}$        & average number of significant bits across the image                           \\
@@ -267,9 +269,7 @@ We used Fuzzy \texttt{v0.9.1-a} built with Verificarlo version \texttt{v0.9.1}.
 We computed 30 perturbed results for each of the 8 subjects and each of the two perturbations RR and RS. We also computed an unperturbed IEEE result for each subject using the
 random seed used in RR (42). For each perturbation, we measured the uncertainty of fMRIPrep in terms of significant bits, and we built the non-regression test using different values of FWHM smoothing and confidence level.
 
-\TG{Consider rewording the sub-section titles to summarize the main results}
-
-\subsection{Measured uncertainty}
+\subsection{Measured uncertainty varies across subjects}
 
 Overall, the three types of perturbations (RR, RS, RR+RS) created uncertainties of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured uncertainty is high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data \TG{can we better quantify this?}. Numerically, \fmriprep appears to be highly sensitive to the numerical and random seed perturbations. We also observe substantial discrepancies across subjects. For a given smoothing kernel size, the number of significant bits frequently varies in the ratio of 1 to 3 across subjects. Overall, smoothing tends to reduce numerical uncertainty, however, this behavior is in general not monotonous and varies across subjects.
 
@@ -310,7 +310,7 @@ In addition, uncertainty was also maximal in some focal regions, suggesting that
 \subsection{Non-regression test evaluations}
 
 \paragraph{Leave-one-out evaluation.} We implemented a ``leave-one-out" (LOO) evaluation by constructing the non-regression test $n$ times for $n-1$ perturbed results and applying it to the remaining perturbed result.
-We model the LOO test using a binomial variable $B(n,1-\alpha)$ where $n$ is the number of repetitions and $1-\alpha$ \TG{use a different notation for alpha?} is the probability of success of a repetition. Under $H_0$ for all voxels, we expect the following bound to be verified:
+We model the LOO test using a binomial variable $B(n,1-\alpha)$ where $n$ is the number of repetitions and $1-\alpha$ is the probability of success of a repetition. Under $H_0$ for all voxels, we expect the following bound to be verified:
 \[
     1-F(\mathds{1}_n;n,1-\alpha) \leq \alpha_0
 \]
@@ -349,15 +349,14 @@ such that the IEEE check passes. In addition, the IEEE check passes with FWHM=15
 \begin{figure}
     \centering
     \begin{subfigure}[t]{0.7\linewidth}
+        \subcaption*{RR}
         \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR.pdf}
     \end{subfigure}
     \begin{subfigure}[t]{0.7\linewidth}
+        \subcaption*{RS}
         \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RS.pdf}
     \end{subfigure}
-    \begin{subfigure}[t]{0.7\linewidth}
-        \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR-RS.pdf}
-    \end{subfigure}
-    \caption{Inter-subject check for from top to bottom RR, RS and RR+RS modes. \TG{add RR, RS, RR+RS to the figure}}
+    \caption{Inter-subject check for from top to bottom RR and RS modes. RR 962/17472 0.06\%, RS 935/17472 0.05\%}
     \label{fig:ieee-check}
 \end{figure}
 
@@ -421,7 +420,7 @@ In this section, we explore the result of the non-regression test in different e
 
 % summary of results
 
-We have proposed the first approach to build non-regression tests for numerical analysis in the absence of an exact solution, a reference solution and even an acceptable bound of variation around the computed solution. We have applied this approach to \fmriprep, one of the largest processing pipeline in neuroimaging and we have demonstrated that our approach can detect variabilities coming from different \fmriprep versions.
+We have proposed the first approach to build non-regression tests for numerical analysis in the absence of an exact solution, a reference solution and even an acceptable bound of variation around the computed solution. We have applied this approach to \fmriprep, one of the largest processing pipelines in neuroimaging and we have demonstrated that our approach can detect variabilities coming from different \fmriprep versions.
 
 The numerical stability of the results varied across subjects in our study. Subjects were chosen to reflect diverse acquisition qualities, resolutions, ages, and genders. Although our analysis did not precisely determine which factors specifically influenced the non-regression test, we observed that certain smoothing sizes were more appropriate than others, indicating an optimal smoothing bandwidth.
 
@@ -463,12 +462,15 @@ Innovation (CFI), Ministère de l’Économie, des Sciences et de l’Innovation
 Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 (FRQ-NT).
 
-
 \begin{appendices}
+
+    \section{Colors Palette}
+    Fail: \texttt{\#D55E00}
+    Pass: \texttt{\#009E73}
     \section{Results for uncorrected tests}
     \label{appendix:multiple-comparison-tests}
 
-    In absence of multiple comparison correction, we expect
+    In the absence of multiple comparison corrections, we expect
     by construction to incorrectly reject each $H_{0,i}$ with probability $\alpha$ a.k.a
     the per-comparison error rate (PCER). To account for the PCER, we measure the
     fraction of positive z-tests $V_P$ among the $v$ voxels in the image and the
@@ -515,6 +517,20 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
     % following confidence interval for $V_P$:
 
     % obtained from:
+
+    \begin{figure}
+        \centering
+        \begin{subfigure}[t]{0.7\linewidth}
+            \subcaption*{RR}
+            \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_RR.pdf}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.7\linewidth}
+            \subcaption*{RS}
+            \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_RS.pdf}
+        \end{subfigure}
+        \caption{Inter-subject check for from top to bottom RR and RS modes. RR 791/17472 0.05\%, RS 685/17472 0.04\%}
+        \label{fig:ieee-check-pce}
+    \end{figure}
 
 
     \begin{figure}
