@@ -271,10 +271,10 @@ random seed used in RR (42). For each perturbation, we measured the uncertainty 
 
 \subsection{Measured uncertainty varies across subjects}
 
-Overall, the three types of perturbations (RR, RS, RR+RS) created uncertainties of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured uncertainty is high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data \TG{can we better quantify this?}. Numerically, \fmriprep appears to be highly sensitive to the numerical and random seed perturbations. We also observe substantial discrepancies across subjects. For a given smoothing kernel size, the number of significant bits frequently varies in the ratio of 1 to 3 across subjects. Overall, smoothing tends to reduce numerical uncertainty, however, this behavior is in general not monotonous and varies across subjects.
+Overall, the two types of perturbations (RR and RS) created uncertainties of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured uncertainty is high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data \TG{can we better quantify this?}. Numerically, \fmriprep appears to be highly sensitive to the numerical and random seed perturbations. We also observe substantial discrepancies across subjects. For a given smoothing kernel size, the number of significant bits frequently varies in the ratio of 1 to 3 across subjects. Overall, smoothing tends to reduce numerical uncertainty, however, this behavior is in general not monotonous and varies across subjects.
 
 The uncertainty measured across perturbed samples showed regional variations compatible with anatomical features (Figure~\ref{fig:uncertainty-maps}). In particular, uncertainty was
-maximal at the border of the brain mask \TG{this is not obvious from the figure}, and it was overall higher in the gray matter than in the white matter.
+maximal at the border of the brain mask, and it was overall higher in the gray matter than in the white matter.
 This is consistent with previous observations of numerical uncertainty in structural brain image analysis~\cite{salari2021accurate}.
 In addition, uncertainty was also maximal in some focal regions, suggesting that non-linear registration may be unstable in these regions. Our non-regression test will therefore be more tolerant in these regions.
 
@@ -317,34 +317,23 @@ We model the LOO test using a binomial variable $B(n,1-\alpha)$ where $n$ is the
 where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$, and $\alpha_0=0.05$.
 
 We applied leave-one-out validation for different confidence values (1-$\alpha$) and different FWHM  values for the 3 types of perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, tests become increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM.
-As previously observed, the 3 perturbation types behave similarly overall. For each subject, $\alpha$ and FWHM values exist such that the LOO test passes. However, these values importantly vary across subjects, presumably due to heterogeneous data quality. To pass the LOO test with $\alpha=0.05$ for RR perturbations, subjects 2, 6, 7 and 8 require a smoothing size of FWHM=12mm and subjects 3 and 5 require FWHM=15mm. Subjects 1 and 4 never pass the LOO test at this confidence level.
-\TG{Add a conclusive sentence}
+As previously observed, the 3 perturbation types behave similarly overall. For each subject, $\alpha$ and FWHM values exist such that the LOO test passes. However, these values importantly vary across subjects, presumably due to heterogeneous data quality. To pass the LOO test with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 require a smoothing size of FWHM=12mm and subjects 1 and 4 require FWHM=15mm. Subjects 2 and 3 never pass the LOO test at this confidence level. Hence, the efficiency of our statistical test is significantly influenced by the quality of the input images. Individual images necessitate specific statistical parametrization to be successful.
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/exclude_mct_fwe_bonferroni.pdf}
     \caption{Leave-one-out evaluation for non-regression tests.
-        Binomial one-tailed test with a confidence level of 95\% \TG{so what is the confidence level in the figure? Clarify by using different alpha notations (alpha1, alpha2, etc) for each test.}.
-        Red: failed the test. Green: passed the test. \TG{use subject indices (not names) in figure.}}
+        Binomial one-tailed test with a confidence level of 95\%.
+        Red: failed the test. Green: passed the test.}
     \label{fig:loo_bonferroni}
 \end{figure}
 
 
-\paragraph{IEEE check.} We constructed the non-regression test from the $n$ perturbed results and applied
-it to each of the 8 IEEE results (one per subject).
-The purpose of this check is twofold: (1) to verify that IEEE results pass the non-regression test built
-from the reference distribution of their corresponding subject and (2) to verify that IEEE results fail the non-regression test
-built from the reference distribution of other subjects.
+\paragraph{IEEE check.} We constructed the non-regression test from the $n$ perturbed results and applied it to each of the 8 IEEE results (one per subject). The purpose of this check is twofold: (1) to verify that IEEE results pass the non-regression test built from the reference distribution of their corresponding subject and (2) to verify that IEEE results fail the non-regression test built from the reference distribution of other subjects.
 
-Figure~\ref{fig:ieee-check} shows the result for increasing values of $\alpha$ and FWHM for the 3 types of perturbations.
-Each cell is a comparison matrix where rows represent the reference subject used to build the test and columns represent
-the test subject. The ideal non-regression test has green values on the diagonal and red values outside the diagonal.
+Figure~\ref{fig:ieee-check} shows the result for increasing values of $\alpha$ and FWHM for the 3 types of perturbations. Each cell is a comparison matrix where rows represent the reference subject used to build the test and columns represent the test subject. The ideal non-regression test has green values on the diagonal and red values outside the diagonal.
 
-We first observe that none of the inter-subject tests fail which means
-that our test is sufficiently specific to detect
-inter-subject variability even with a high smoothing kernel size. However, for low FWHM sizes the non-regression test rejects the IEEE sample of the reference subject,
-suggesting a lack of precision. But most importantly, for each subject there is an $\alpha$ and FWHM pair
-such that the IEEE check passes. In addition, the IEEE check passes with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations.
+We first observe that none of the inter-subject tests fail which means that our test is sufficiently specific to detect inter-subject variability even with a high smoothing kernel size. However, for low FWHM sizes, the non-regression test rejects the IEEE sample of the reference subject, suggesting a lack of precision. But most importantly, for each subject, there is an $\alpha$ and FWHM pair such that the IEEE check passes. In addition, the IEEE check passes with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations.
 
 \begin{figure}
     \centering
@@ -365,7 +354,7 @@ such that the IEEE check passes. In addition, the IEEE check passes with FWHM=15
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/template/template_fwe_bonferroni.pdf}
-    \caption{Corrupted template check for RR, RS and RR+RS mode (Bonferroni correction)}
+    \caption{Corrupted template check for RR and RS modes (Bonferroni correction)}
     \label{fig:template_bonferroni}
 \end{figure}
 
@@ -444,7 +433,8 @@ From a software engineering perspective, our non-regression test applies to a ca
 
 From a neuroimaging perspective, our analyses revealed significant discrepancies in numerical quality results after preprocessing, with an average of 2 to 10 bits out of 12 bits available. The quality of results varied considerably with the acquisition quality and the chosen random seed. Additionally, spatial smoothing had a notable impact on improving result quality, with improvements of 2 to 10 bits observed for some subjects.
 
-Furthermore, we demonstrated that the Fuzzy-libmath perturbations type yielded comparable numerical quality results to those obtained with random seeds, highlighting the ability of the Monte Carlo arithmetic approach to accurately simulate numerical instabilities. However, it should be noted that some specific random seeds resulted in considerably higher variability, as shown by the results from subject 7 in RR+RS modes (Figure~\ref{fig:uncertainty-maps}).
+Furthermore, we demonstrated that the Fuzzy-libmath perturbations type yielded comparable numerical quality results to those obtained with random seeds, highlighting the ability of the Monte Carlo arithmetic approach to accurately simulate numerical instabilities.
+% However, it should be noted that some specific random seeds resulted in considerably higher variability, as shown by the results from subject 7 in RR+RS modes (Figure~\ref{fig:uncertainty-maps}).
 
 Our results showed that our test is more sensitive (i.e., has a higher ability to correctly detect true positives) than specific (i.e., has a higher ability to correctly detect true negatives). Specifically, our method exhibited lower specificity for low FWHM values, likely due to the voxel-wise analysis that does not account for neighborhood effects and poor sampling space. This limitation arises from the computational cost of statistical analyses and the acquisition cost of perturbed results. However, our test demonstrated high sensitivity, as we were able to correctly reject target images from different subjects or with low to moderate levels of noise in the registration atlas, depending on the applied FWHM.
 
@@ -560,7 +550,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
     \begin{figure}
         \centering
         \includegraphics[width=\linewidth]{figures/template/template_pce.pdf}
-        \caption{Corrupted template check for RR, RS and RR+RS mode (pce)}
+        \caption{Corrupted template check for RR and RS modes (pce)}
     \end{figure}
 
     \begin{landscape}
