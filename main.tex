@@ -40,6 +40,8 @@
 \newcommand{\failcolor}{orange} % HEX #009E73
 \newcommand{\passcolor}{green} % HEX #D55E00
 
+\hyphenation{pre-processing}
+
 
 \newcommand\Mark[2][8.4]{%
   \rlap{\tikz[baseline=(current bounding box.south)]{
@@ -345,11 +347,21 @@ We first observe that none of the inter-subject tests fail which means that our 
         \subcaption*{RS}
         \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RS.pdf}
     \end{subfigure}
-    \caption{Inter-subject check for from top to bottom RR and RS modes. RR 962/17472 0.06\%, RS 935/17472 0.05\%}
+    \caption{Inter-subject check for the Bonferroni correction for RR (top) and RS (bottom) modes. We expect that the tests would pass along the diagonals and be rejected otherwise.
+        Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\%. These data corroborate our test's capacity to discern inter-subject variability.
+    }
     \label{fig:ieee-check}
 \end{figure}
 
-\paragraph{Corrupted template check.}
+\paragraph{Corrupted ``template'' check.}
+
+Image registration is a fundamental step during the pre-preprocessing to enable statistical analyses.
+This step consists of realigning an input image (user space) to a common space (template space). To do so, it exists several templates representing a normal structural brain and \fmriprep uses the ICBM 2009c Nonlinear Asymmetric template~\cite{fonov2011unbiased} used by default. The quality of the template will condition the quality of the registered image~\cite{li2021moving}. Hence, errors in the template should lead to substantial differences in the registered images. We use this principle to build this check and to determine that our non-regression correctly captures these variabilities induced.
+
+To do so, we generated noised versions of the MNI152NLin2009cAsym template where we simulate "dead voxels" by setting the voxel's intensity to 0 for a fraction of the intracranial voxels. Each voxel had the same probability to be drawn no matter its localization or tissue type in the brain. We then executed \fmriprep in IEEE mode (without random perturbations) for each "corrupted template" on each subject.
+
+Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for the 3 types of perturbations. On the left is the percentage of "dead voxels" introduced inside the masked brain. First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 3, 4, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 1, 2, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits.
+% This distinction is also clearly visible when we look at the uncertainty maps at FMWH=5mm (Figure~\ref{fig:uncertainty-maps-5mm}). This correlation may mean that the test is more permissive to a high percentage of "dead voxels" for subjects having the highest uncertainty (or lowest number of significant bits).
 
 \begin{figure}
     \centering
@@ -357,12 +369,6 @@ We first observe that none of the inter-subject tests fail which means that our 
     \caption{Corrupted template check for RR and RS modes (Bonferroni correction)}
     \label{fig:template_bonferroni}
 \end{figure}
-
-Image registration is a fundamental step during the pre-preprocessing to enable statistical analyses. This step consists of realigning an input image (user space) to a common space (template space). To do so, it exists several templates representing a normal structural brain and \fmriprep uses the ICBM 2009c Nonlinear Asymmetric template~\cite{fonov2011unbiased} used by default. The quality of the template will condition the quality of the registered image~\cite{li2021moving}. Hence, errors in the template should lead to substantial differences in the registered images. We use this principle to build this check and to determine that our non-regression correctly captures these variabilities induced.
-
-To do so, we generated noised versions of the MNI152NLin2009cAsym template where we simulate "dead voxels" by setting the voxel's intensity to 0 for a fraction of the intracranial voxels. Each voxel had the same probability to be drawn no matter its localization or tissue type in the brain. We then executed \fmriprep in IEEE mode (without random perturbations) for each "corrupted template" on each subject.
-
-Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for the 3 types of perturbations. On the left is the percentage of "dead voxels" introduced inside the masked brain. First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 1, 2, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 3, 4, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits. This distinction is also clearly visible when we look at the uncertainty maps at FMWH=5mm (Figure~\ref{fig:uncertainty_5mm}). This correlation may mean that the test is more permissive to a high percentage of "dead voxels" for subjects having the highest uncertainty (or lowest number of significant bits).
 
 \subsection{Non-regression test application to environment updates}
 
@@ -395,7 +401,8 @@ In this section, we explore the result of the non-regression test in different e
     \label{tab:index-arch-map}
 \end{table}
 
-\paragraph*{\fmriprep versions.} Figure~\ref{fig:version_bonferroni} shows the results of the non-regression test with the Bonferroni correction for increasing $\alpha$ and FWHM values for the 3 types of perturbations. On the left y-axis is the number of \fmriprep versions used to compute the target image. Overall, we see two observed two groups delimited by the version \texttt{20.2.5}. From version \texttt{20.2.0} to \texttt{20.2.4}, results are identical for a given subject and perturbation mode. Subject 4 passes for some confidence level and FWHM configurations. For the other major versions (21, 22 and 23) the test rejects all the subjects. This result suggests that code modifications introduced with version \texttt{20.2.5} have modified the nature of the results produced by \fmriprep. \TODO{find modifications and why it can explain the results}.
+\paragraph*{\fmriprep versions.} Figure~\ref{fig:version_bonferroni} shows the results of the non-regression test with the Bonferroni correction for increasing $\alpha$ and FWHM values for the 3 types of perturbations. On the left y-axis is the number of \fmriprep versions used to compute the target image. Overall, we see two observed two groups delimited by the version \texttt{20.2.5}. From version \texttt{20.2.0} to \texttt{20.2.4}, results are identical for a given subject and perturbation mode. Subject 4 passes for some confidence level and FWHM configurations. For the other major versions (21, 22 and 23) the test rejects all the subjects. This result suggests that code modifications introduced with version \texttt{20.2.5} have modified the nature of the results produced by \fmriprep. Version \texttt{20.2.5} modified the interpolation scheme used to resample the segmentation brain map from MGZ format into the Niifti one (see PR \href{https://github.com/nipreps/smriprep/pull/268}{\url{github.com/nipreps/smriprep/pull/268}}). Previous versions used the trilinear interpolation scheme while versions above \texttt{20.2.5} used the nearest neighbor interpolation. Our statistical test discerned the modifications introduced into version \texttt{20.2.5}. The results exceeded the variability bounds determined by our reference sampling, thereby demonstrating the effectiveness of our methodology.
+
 
 \begin{figure}
     \centering
@@ -518,7 +525,9 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
             \subcaption*{RS}
             \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_RS.pdf}
         \end{subfigure}
-        \caption{Inter-subject check for from top to bottom RR and RS modes. RR 791/17472 0.05\%, RS 685/17472 0.04\%}
+        \caption{Inter-subject check for the uncorrected test for RR (top) and RS (bottom) modes. We expect that the tests would pass along the diagonals and be rejected otherwise.
+            Out of a total of 17,472 individual assessments, we reported 791 failures in the RR mode, representing a failure rate of 0.05\%, and 685 failures in the RS mode, corresponding to a failure rate of 0.04\%. These data corroborate our test's capacity to discern inter-subject variability.
+        }
         \label{fig:ieee-check-pce}
     \end{figure}
 
@@ -625,63 +634,6 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
         \end{figure}
     \end{landscape}
 
-    \section*{Summary \fmriprep versions}
-
-    \begin{itemize}
-        \item 20.2.0: first fMRIPrep LTS (long-term support)
-        \item 20.2.1:
-              \begin{itemize}
-                  \item ENH: Output TaskName and timing metadata for all resampled BOLD series (2320)
-                  \item ENH: Add --output-layout CLI option to enable BIDS (YODA) mode (2303)
-                  \item ENH: Add Docker authentication to increase pull rate limit (2316)
-                  \item FIX: Specify logger for warning (2298)
-              \end{itemize}
-        \item 20.2.2:
-              \begin{itemize}
-                  \item FIX: Feed NiTransforms with LTAs of type RAS2RAS (2444)
-                  \item FIX: Add some clarity to BrokenProcessPool failures (2436)
-                  \item FIX: Fall-back to initializing workflow in main process (2435)
-                  \item FIX: Raise informative error when duplicate subworkflows are added (2434)
-                  \item FIX: Non-existing path or JSON syntax error for --bids-filter-file should raise on error (2331)
-                  \item FIX: Ignore SBRef files if --ignore sbref is passed (2370)
-                  \item ENH: Relax requirement for PyBIDS databases to exist (2429)
-                  \item ENH: Improve \_get\_series\_len performance (2406)
-                  \item ENH: Set and track NumPy's random seed (2400)
-                  \item DOC: Skull-stripping is forced by default (2430)
-                  \item MAINT: Pin nilearn==0.6.2 (2427)
-                  \item MAINT: Pin tedana==0.0.9a1 for LTS branch (2403)
-                  \item MAINT: Failing CI (2401)
-              \end{itemize}
-        \item 20.2.3:
-              \begin{itemize}
-                  \item FIX: Address the problems of a sloppy merge (2468)
-                  \item FIX: DerivativesDataSink nondeterministic checksums fixed with niworkflows=~1.3.4 (2458)
-                  \item FIX: Address dependency incompatibilities by pinning specific packages (2463)
-                  \item FIX: Unprotected import of sentry\_sdk, which is not a dependency (2460)
-                  \item ENH: Detect 3D Acknowledgments too-short BOLD series, warn and skip run's workflow building (2461)
-                  \item DOC: Transfer duplicated documentation to www.nipreps.org (2469)
-                  \item DOC: Better explanation on how spike regressors are generated (2465)
-                  \item DOC: Clarify that res-2 entity does not mean 2mm (2466)
-                  \item MAINT: Containers - remove /root/.npm (2464)
-                  \item MAINT: Back port CircleCI configuration from dev branch (2456)
-              \end{itemize}
-        \item 20.2.4:
-              \begin{itemize}
-                  \item FIX: Avoid unnecessary connections based on branching logic (2508)
-                  \item FIX: Permit missing TR to show PyBIDS error at workflow construction time (2513)
-                  \item FIX: Catch FreeSurfer error related to FIPS being enabled (2490)
-                  \item ENH: Use BIDSLayoutIndexer and do not index unnecessary modalities (2494)
-                  \item ENH: Slice-timing correction improvements (2565)
-              \end{itemize}
-        \item 20.2.5:
-              \begin{itemize}
-                  \item FIX: --slice-time-ref option parsing (2573)
-                  \item CI: Add style checks (missing since Travis got throttled) (2570)
-                  \item FIX: Resample aseg with nearest-neighbor interpolation (nipreps/smriprep268)
-                  \item FIX: Revert to FAST for tissue probability maps (nipreps/smriprep264)
-              \end{itemize}
-    \end{itemize}
-
 \end{appendices}
 
 
@@ -689,3 +641,4 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 \bibliography{main}
 
 \end{document}
+
