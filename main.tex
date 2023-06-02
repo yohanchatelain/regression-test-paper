@@ -197,7 +197,6 @@ Handling multiple comparisons is a critical component of statistical testing in 
         $\hat{\sigma_i}$ & standard deviation of voxel intensity across perturbed samples                \\
         $B_k$            & brain mask produced by $\Lambda$                                              \\
         $B$              & union of $B_k$ masks                                                          \\
-        $X$              & image produced by unperturbed $\Lambda$ using IEEE convention                 \\
         $\tilde X$       & image produced by unperturbed $\tilde \Lambda$ using IEEE convention          \\
         $X_k$            & images produced by random perturbations of $\Lambda$                          \\
         $X_k^{\perp}$    & $X_k$ masked with $B$, min-max scaled and spatially smoothed                  \\
@@ -397,7 +396,7 @@ In this section, we explore the result of the non-regression test in different e
             F     & Intel Gold 6238 Cascade Lake
         \end{tabular}
     \end{center}
-    \caption{Index of CPU architectures for Figure~\ref{fig:arch_bonferroni}. We use the architecture A as a reference.}
+    \caption{Index of CPU architectures for Figure~\ref{fig:arch_bonferroni}. We use architecture A as a reference.}
     \label{tab:index-arch-map}
 \end{table}
 
