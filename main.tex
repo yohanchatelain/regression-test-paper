@@ -152,11 +152,11 @@ Gaussian and:
 \begin{equation*}
     z_i = \frac{\tilde x_i-\hat \mu_i}{\hat \sigma_i},
 \end{equation*}
-where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number of voxels in $\tilde X$, and $\hat \mu_i$ and $\hat \sigma_i$ are the mean and standard deviation voxel intensities estimated from the $n$ perturbed results $X_k$. $H_{0,i}$ is rejected when $p_i$ is lower than a threshold $\alpha$ that also defines the confidence level of the test (1-$\alpha$)\%. The z-test assumes that perturbed voxel intensities are normally distributed. To capture anatomical variability, we perform this test on a representative set of input images. Table~\ref{tab:notations} summarizes the notations and Figure~\ref{fig:test_workflow} summarizes the test workflow. 
+where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number of voxels in $\tilde X$, and $\hat \mu_i$ and $\hat \sigma_i$ are the mean and standard deviation voxel intensities estimated from the $n$ perturbed results $X_k$. $H_{0,i}$ is rejected when $p_i$ is lower than a threshold $\alpha$ that also defines the confidence level of the test (1-$\alpha$)\%. The z-test assumes that perturbed voxel intensities are normally distributed. To capture anatomical variability, we perform this test on a representative set of input images. Table~\ref{tab:notations} summarizes the notations and Figure~\ref{fig:test_workflow} summarizes the test workflow.
 
 \begin{figure*}
     \centering
-    \includegraphics[width=\linewidth]{figures/workflow_H.pdf}
+    \includegraphics[width=\linewidth]{figures/workflow_V.pdf}
     \caption{Stability test construction and evaluation. \TG{change $\tilde B$ to $B$ in masked image} The reference application $\Lambda$ is executed $n$ times on the input data, with random perturbations, resulting in images $X_k$ from which a null distribution is built to test the result produced by target application $\tilde \Lambda$. All results undergo the same smoothing and normalization. \TG{add a legend to the figure. You might also want to represent the figure vertically, to better use the space.}}
     \label{fig:test_workflow}
 \end{figure*}
@@ -167,17 +167,17 @@ where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number 
         $\tilde \Lambda$ & tested application                                                            \\
         $i$              & index of a voxel in the brain mask                                            \\
         $v$              & number of voxels in the brain mask                                            \\
-        $k$              & index of a perturbed sample                                                 \\
-        $n$              & number of perturbed samples                                                 \\
+        $k$              & index of a perturbed sample                                                   \\
+        $n$              & number of perturbed samples                                                   \\
         $\tilde x_i$     & voxel intensity in image $\tilde X$                                           \\
-        $z_i$            & z-score of voxel i                                                    \\
-        $p_i$            & p-value of voxel i                                                    \\
+        $z_i$            & z-score of voxel i                                                            \\
+        $p_i$            & p-value of voxel i                                                            \\
         $\hat{\mu_i}$    & average voxel intensity across perturbed samples                              \\
         $\hat{\sigma_i}$ & standard deviation of voxel intensity across perturbed samples                \\
-        $B_k$            & brain masks produced by random numerical perturbations of $\Lambda$    \\
+        $B_k$            & brain masks produced by random numerical perturbations of $\Lambda$           \\
         $B$              & union of $B_k$ masks                                                          \\
         $\tilde X$       & image produced by unperturbed $\tilde \Lambda$ using IEEE convention          \\
-        $X_k$            & images produced by random numerical perturbations of $\Lambda$                          \\
+        $X_k$            & images produced by random numerical perturbations of $\Lambda$                \\
         $X_k^{\perp}$    & $X_k$ masked with $B$, min-max scaled and spatially smoothed                  \\
         $\hat{s}$        & average number of significant bits across the image                           \\
         $\Phi$           & cumulative distribution function of the normal centered Gaussian distribution \\
@@ -235,8 +235,8 @@ We quantify numerical uncertainty for each voxel using the number of significant
 where $\hat{\sigma_i}$ and $\hat{\mu_i}$ are the voxelwise average and standard deviation over the $X_k^\perp$ perturbed results ($k \leq n$), and
 \begin{equation}
     \begin{split}
-    \delta(n, \alpha_s, p_s) =& \frac{1}{2} \left[ \log_2 \left( \frac{n-1}{\chi^2_{1-\alpha_s/2}} \right) + \right. \\
-                              &  \left. \log_2 \left( \Phi^{-1} \left( \frac{p_s+1}{2} \right) \right) \right] 
+        \delta(n, \alpha_s, p_s) =& \frac{1}{2} \left[ \log_2 \left( \frac{n-1}{\chi^2_{1-\alpha_s/2}} \right) + \right. \\
+            &  \left. \log_2 \left( \Phi^{-1} \left( \frac{p_s+1}{2} \right) \right) \right]
     \end{split}
 \end{equation}
 is a penalty term to estimate $\hat{s_i}$ with probability $p_s$ and confidence level $1-\alpha_s$ for a sample size $n$. $\Phi^{-1}$ is the inverse cumulative distribution of the standard normal distribution and $\chi^2$ is the Chi-2 distribution with n-1 degrees of freedom.
@@ -321,7 +321,7 @@ As previously observed, the 3 perturbation types behave similarly overall. For e
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/exclude_mct_fwe_bonferroni.pdf}
+    \includegraphics[width=\linewidth]{figures/loo_fwe_bonferroni.pdf}
     \caption{Leave-one-out evaluation for stability tests.
         Binomial one-tailed test with a confidence level of 95\%.
         Red: failed the test. Green: passed the test.}
@@ -337,14 +337,7 @@ We first observe that none of the inter-subject tests fail which means that our 
 
 \begin{figure}
     \centering
-    \begin{subfigure}[t]{0.7\linewidth}
-        \subcaption*{RR}
-        \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RR.pdf}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.7\linewidth}
-        \subcaption*{RS}
-        \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RS.pdf}
-    \end{subfigure}
+    \includegraphics[width=\linewidth]{figures/inter-subject/inter_fwe_bonferroni.pdf}
     \caption{Inter-subject check for the Bonferroni correction for RR (top) and RS (bottom) modes. We expect that the tests would pass along the diagonals and be rejected otherwise.
         Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\%. These data corroborate our test's capacity to discern inter-subject variability.
     }
@@ -377,7 +370,7 @@ In this section, we explore the result of the stability test in different enviro
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/arch/arch_mct_fwe_bonferroni_.pdf}
+    \includegraphics[width=\linewidth]{figures/arch/arch_fwe_bonferroni.pdf}
     \caption{Bonferroni corrected test application on different CPU architectures}
     \label{fig:arch_bonferroni}
 \end{figure}
@@ -404,7 +397,7 @@ In this section, we explore the result of the stability test in different enviro
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/fmriprep-versions/bonferroni.pdf}
+    \includegraphics[width=\linewidth]{figures/fmriprep-versions/versions_fwe_bonferroni.pdf}
     \caption{Bonferroni corrected test applications on different \fmriprep versions.}
     \label{fig:version_bonferroni}
 \end{figure}
@@ -457,7 +450,7 @@ Innovation (CFI), Ministère de l’Économie, des Sciences et de l’Innovation
 Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 (FRQ-NT).
 
-\appendix 
+\appendix
 
 \section{Numerical uncertainty results for different smoothing kernel sizes}
 \label{appendix:numerical_uncertainty}
@@ -534,108 +527,101 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
     \end{figure}
 \end{landscape}
 
-    \section{Colors Palette}
-    Fail: \texttt{\#D55E00}
-    Pass: \texttt{\#009E73}
-    \section{Results for uncorrected tests}
-    \label{appendix:multiple-comparison-tests}
+\section{Colors Palette}
+Fail: \texttt{\#D55E00}
+Pass: \texttt{\#009E73}
+\section{Results for uncorrected tests}
+\label{appendix:multiple-comparison-tests}
 
-    In the absence of multiple comparison corrections, we expect
-    by construction to incorrectly reject each $H_{0,i}$ with probability $\alpha$ a.k.a
-    the per-comparison error rate (PCER). To account for the PCER, we measure the
-    fraction of positive z-tests $V_P$ among the $v$ voxels in the image and the
-    tested \fmriprep result is considered part of the reference distribution iif:
-    \begin{equation}
-        V_{P} \leq \alpha.
-        \label{eqn:pce}
-    \end{equation}
+In the absence of multiple comparison corrections, we expect
+by construction to incorrectly reject each $H_{0,i}$ with probability $\alpha$ a.k.a
+the per-comparison error rate (PCER). To account for the PCER, we measure the
+fraction of positive z-tests $V_P$ among the $v$ voxels in the image and the
+tested \fmriprep result is considered part of the reference distribution iif:
+\begin{equation}
+    V_{P} \leq \alpha.
+    \label{eqn:pce}
+\end{equation}
 
-    For each of the $n$ repetitions,
-    we measured $V_P$, the fraction of
-    positive z-tests among the $v$ voxels as well as $\mathds{1}_n$, the number of repetitions
-    that passed the test with Bonferroni correction.
+For each of the $n$ repetitions,
+we measured $V_P$, the fraction of
+positive z-tests among the $v$ voxels as well as $\mathds{1}_n$, the number of repetitions
+that passed the test with Bonferroni correction.
 
-    For the uncorrected tests (Equation~\ref{eqn:pce}), we expect $\overline{V_P}$ to have
-    the following upper bound:
-    \[
-        \overline{V_P} \leq
-        \alpha  + t_{29,0.05} \frac{\tilde{\sigma}_{V_P}}{\sqrt{30}}
-    \]
-    with
-    $t_{k,\gamma}$ the $(1-\gamma)$quantile of the Student distribution with $k$ degrees of freedom,
-    and $\overline{V_P}$ and $\tilde{\sigma}_{V_P}$ the mean and standard-deviation estimated from
-    $n$ $V_P$ measures.
-    This confidence interval is obtained from a two-tailed one-sample
-    t-test with $n-1$ degrees of freedom at a level of significance $\alpha_0=0.05$:
-    \[
-        \mathbb{P}
-        \left(
-        -t_{n-1,\alpha_0/2}
-        <
-        \dfrac{\overline{V_p} - \alpha}{\tilde{\sigma}_{V_P} / \sqrt{n}}
-        <
-        t_{n-1,\alpha_0/2}
-        \right)
-        = 1 - \alpha_0
-    \]
+For the uncorrected tests (Equation~\ref{eqn:pce}), we expect $\overline{V_P}$ to have
+the following upper bound:
+\[
+    \overline{V_P} \leq
+    \alpha  + t_{29,0.05} \frac{\tilde{\sigma}_{V_P}}{\sqrt{30}}
+\]
+with
+$t_{k,\gamma}$ the $(1-\gamma)$quantile of the Student distribution with $k$ degrees of freedom,
+and $\overline{V_P}$ and $\tilde{\sigma}_{V_P}$ the mean and standard-deviation estimated from
+$n$ $V_P$ measures.
+This confidence interval is obtained from a two-tailed one-sample
+t-test with $n-1$ degrees of freedom at a level of significance $\alpha_0=0.05$:
+\[
+    \mathbb{P}
+    \left(
+    -t_{n-1,\alpha_0/2}
+    <
+    \dfrac{\overline{V_p} - \alpha}{\tilde{\sigma}_{V_P} / \sqrt{n}}
+    <
+    t_{n-1,\alpha_0/2}
+    \right)
+    = 1 - \alpha_0
+\]
 
-    % fraction of positive
-    % z-tests $V_P$ among the $v$ voxels should be close to the nomimal value $\alpha$
-    % on average. To assess the validity of our LOO test, we test that the average
-    % of the $n$ $V_P$ fractions measured belongs to a confidence interval
-    % around the nomimal value $\alpha$. To do so, we use  resulting in the
-    % following confidence interval for $V_P$:
+% fraction of positive
+% z-tests $V_P$ among the $v$ voxels should be close to the nomimal value $\alpha$
+% on average. To assess the validity of our LOO test, we test that the average
+% of the $n$ $V_P$ fractions measured belongs to a confidence interval
+% around the nomimal value $\alpha$. To do so, we use  resulting in the
+% following confidence interval for $V_P$:
 
-    % obtained from:
+% obtained from:
 
-    \begin{figure}
-        \centering
-        \begin{subfigure}[t]{0.7\linewidth}
-            \subcaption*{RR}
-            \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_RR.pdf}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.7\linewidth}
-            \subcaption*{RS}
-            \includegraphics[width=\linewidth]{figures/inter-subject/one_pce_RS.pdf}
-        \end{subfigure}
-        \caption{Inter-subject check for the uncorrected test for RR (top) and RS (bottom) modes. We expect that the tests would pass along the diagonals and be rejected otherwise.
-            Out of a total of 17,472 individual assessments, we reported 791 failures in the RR mode, representing a failure rate of 0.05\%, and 685 failures in the RS mode, corresponding to a failure rate of 0.04\%. These data corroborate our test's capacity to discern inter-subject variability.
-        }
-        \label{fig:ieee-check-pce}
-    \end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/inter-subject/inter_pce.pdf}
+    \caption{Inter-subject check for the uncorrected test for RR (top) and RS (bottom) modes. We expect that the tests would pass along the diagonals and be rejected otherwise.
+        Out of a total of 17,472 individual assessments, we reported 791 failures in the RR mode, representing a failure rate of 0.05\%, and 685 failures in the RS mode, corresponding to a failure rate of 0.04\%. These data corroborate our test's capacity to discern inter-subject variability.
+    }
+    \label{fig:ieee-check-pce}
+\end{figure}
 
 
-    \begin{figure}
-        \centering
-        \includegraphics[width=\linewidth]{figures/fmriprep-versions/pce.pdf}
-        \caption{Uncorrected test applications on different \fmriprep versions.}
-        \label{fig:versions_pce}
-    \end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/fmriprep-versions/versions_pce.pdf}
+    \caption{Uncorrected test applications on different \fmriprep versions.}
+    \label{fig:versions_pce}
+\end{figure}
 
-    \begin{figure}
-        \centering
-        \includegraphics[width=\linewidth]{figures/arch/arch_pce_.pdf}
-        \caption{Uncorrected test applications on CPU architectures.}
-        \label{fig:arch_pce}
-    \end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/arch/arch_pce.pdf}
+    \caption{Uncorrected test applications on CPU architectures.}
+    \label{fig:arch_pce}
+\end{figure}
 
 
-    \section{Uncertainty maps for others FWHM}
+\section{Uncertainty maps for others FWHM}
 
-    \begin{figure}
-        \centering
-        \includegraphics[width=\linewidth]{figures/exclude_pce.pdf}
-        \caption{PCE}
-        \label{fig:loo_pce}
-    \end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/loo_pce.pdf}
+    \caption{PCE}
+    \label{fig:loo_pce}
+\end{figure}
 
-    \begin{figure}
-        \centering
-        \includegraphics[width=\linewidth]{figures/template/template_pce.pdf}
-        \caption{Corrupted template check for RR and RS modes (pce)}
-    \end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/template/template_pce.pdf}
+    \caption{Corrupted template check for RR and RS modes (pce)}
+\end{figure}
 
-  
+
 
 
 \bibliographystyle{IEEEtran}
