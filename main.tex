@@ -272,26 +272,29 @@ We used Fuzzy \texttt{v0.9.1-a} built with Verificarlo version \texttt{v0.9.1}.
 
 \section{Results}
 
-We computed n=30 perturbed results for each of the 8 subjects and each of the two perturbations RR and RS. For RS, we used \fmriprep's command-line interface to set the random seed in all the pipeline components. We also computed an unperturbed IEEE result for each subject using the
-random seed used in RR (42). For each perturbation, we measured the uncertainty of fMRIPrep in terms of significant bits, and we built the stability test using different values of FWHM smoothing and confidence level.
+We computed n=30 perturbed results for each of the 8 subjects and for the two types of perturbations RR and RS. For RS, we used \fmriprep's command-line interface to set the random seed in all the pipeline components. We also computed an unperturbed IEEE result for each subject using the
+random seed used in RR (42). For each type of perturbation, we measured the numerical uncertainty of fMRIPrep in terms of significant bits, and we built the stability test using different sizes of  smoothing kernel and different confidence levels.
 
-\subsection{Measured numerical uncertainty is high and it varies across subjects}
+\subsection{Measured numerical uncertainty was high and it varied across subjects}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/stats.pdf}
     \caption{Voxel-wise means of significant bits
-        measured across n=30 perturbed samples for 3 types of perturbations and 8
-        subjects. For each subject, we computed significant bits in the union of the brain
-        masks among n=30 perturbed samples.}
+        measured across n=30 perturbed samples for RR and RS perturbations and 8
+        subjects. \TG{Can you move the ylabel to the left side?} \TG{Add a label named "subjects".}}
     \label{fig:significant-digits}
 \end{figure}
-Overall, the two types of perturbations (RR and RS) created uncertainties of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured uncertainty was high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data \TG{table 2 says int16, isn't it 16 bits?}. Numerically, \fmriprep appears to be highly sensitive to the numerical and random seed perturbations. We also observe substantial discrepancies across subjects. For a given smoothing kernel size, the number of significant bits frequently varies in the ratio of 1 to 3 across subjects. Overall, smoothing tends to reduce numerical uncertainty, however, this behavior is in general not monotonous and varies across subjects.
+Overall, the two types of perturbations (RR and RS) resulted in numerical uncertainties of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured uncertainty was high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data \TG{table 2 says int16, isn't it 16 bits?}. The application appears to be highly sensitive to the numerical and random seed perturbations.
+
+We noted substantial discrepancies in numerical uncertainty across subjects. For a given smoothing kernel size, the number of significant bits frequently varied in the ratio of 1 to 3 across subjects. Overall, smoothing tended to reduce numerical uncertainty, however, this behavior was in general not monotonous and impacted subjects differently.
 
 The uncertainty measured across perturbed samples showed regional variations compatible with anatomical features (Figure~\ref{fig:uncertainty-maps}). In particular, uncertainty was
 maximal at the border of the brain mask, and it was overall higher in the gray matter than in the white matter.
 This is consistent with previous observations of numerical uncertainty in structural brain image analysis~\cite{salari2021accurate}.
-In addition, uncertainty was also maximal in some focal regions, suggesting that non-linear registration may be unstable in these regions. Our stability test will therefore be more tolerant in these regions.
+In addition, uncertainty was also maximal in some focal regions \TG{indicated with arrows in Figure~\ref{fig_uncertainty-maps}}, suggesting that non-linear registration may be unstable in these regions. Our stability test will therefore be more tolerant in these regions.
+
+
 \begin{figure*}
     \centering
     \uncertaintyMap{15}{1}{ds000256}{sub-CTS201}[true] \\
@@ -303,44 +306,50 @@ In addition, uncertainty was also maximal in some focal regions, suggesting that
     \uncertaintyMap{15}{7}{ds002338}{sub-xp201} \\
     \uncertaintyMap{15}{8}{ds002338}{sub-xp207} \\
     \includegraphics*[width=.6\linewidth]{figures/colorbar_sigbit.pdf}
-    \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=15mm). Uncertainty maps for other smoothing kernel sizes are available in Appendix~\ref{appendix:numerical_uncertainty}.}
+    \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=15mm. Uncertainty maps for other smoothing kernel sizes are available in Appendix~\ref{appendix:numerical_uncertainty}.}
     \label{fig:uncertainty-maps}
 \end{figure*}
 
 \subsection{Sanity checks}
 
-We implemented three different sanity checks to evaluate the sensitivity and specificity of our stability test. 
+We implemented three different sanity checks to evaluate the relevance of the stability test. 
+The leave-one-out and IEEE checks evaluate the specificity of the stability test, that is, its ability 
+to accept results produced by the reference application $\Lambda$. The corrupted template check evaluates 
+the sensitivity of the stability test, that is, its ability to reject results produced by a corrupted version of the reference application. 
 
-\paragraph{Leave-one-out evaluation} We implemented a ``leave-one-out" (LOO) evaluation by constructing the stability test $n$ times for $n-1$ perturbed results and applying it to the remaining perturbed result. The purpose of this test is to verify that a given perturbed result is not rejected as by construction it is part of the null distribution.
-We model the LOO test using a binomial variable $B(n,1-\alpha)$ where $n$ is the number of repetitions and $1-\alpha$ \TG{should it be $\alpha_0$?} is the probability of success of a repetition. Under $H_0$ for all voxels, we expect the following bound to be verified:
+\paragraph{Leave-one-out checks} We implemented a ``leave-one-out" (LOO) evaluation by constructing the stability test $n$ times for $n-1$ perturbed results and applying it to the remaining perturbed result. By construction, the remaining perturbed result is sampled from the distribution of results produced by $\Lambda$ and should therefore be accepted by the stability test.
+To define a clear passing criterion for the LOO check, we modeled the LOO check using a binomial variable $B(n,1-\alpha)$ where $n$ is the number LOO iterations and $1-\alpha$ is the probability that a perturbed sample is accepted by the stability test. Under $H_0$ for all voxels, we expect the following bound to be verified:
 \[
     1-F(\mathds{1}_n;n,1-\alpha) \leq \alpha_0
 \]
 where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$, and $\alpha_0=0.05$.
 
-We applied leave-one-out validation for different confidence values (1-$\alpha$) and different FWHM  values for the RR and RS perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, tests become increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM.
-As previously observed, RR and RS behave similarly overall. For each subject, $\alpha$ and FWHM values exist such that the LOO test passes. However, these values importantly vary across subjects, presumably due to heterogeneous data quality. To pass the LOO test with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 require a smoothing size of FWHM=12mm and subjects 1 and 4 require FWHM=15mm. Subjects 2 and 3 never pass the LOO test at this confidence level. Hence, the efficiency of our statistical test is significantly influenced by the quality of the input images. Individual images necessitate specific statistical parametrization to be successful. \TG{I don't understand the previous two sentences}
+We applied the LOO check for different confidence values (1-$\alpha$) and different FWHM  values for the RR and RS perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, the stability test became increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM. As previously observed, RR and RS behaved similarly overall. For each subject, there were values of $\alpha$ and FWHM such that the LOO check passed, which demonstrates the good specificity of the stability test. 
+
+However, the values of $\alpha$ and FWHM for which the LOO check passed importantly varied across subjects, presumably due to between-subject variations in input data quality and in stability modes of image registration. For instance, to pass the LOO check with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 required a smoothing size of FWHM=12mm and subjects 1 and 4 required FWHM=15mm. Subjects 2 and 3 required $\alpha=$\TG{x} to pass the LOO check. This is not surprising given the heterogeneity in numerical uncertainty previously observed across subjects. In practice, it suggests that different values of $\alpha$ and FWHM should be used for each subject in the test dataset.
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/loo_fwe_bonferroni.pdf}
-    \caption{Leave-one-out evaluation of stability test for subjects 1 to 8. \TG{increase font size in figure}
-        Binomial one-tailed test with a confidence level of 95\%.
-        Red: failed the test. Green: passed the test. \TG{flip figure to have the same layout as the other ones}}
+    \caption{Leave-one-out evaluation of stability test for subjects 1 to 8. \TG{increase font size in figure. Replace ``alpha'' with $\alpha$. Add a "Subjects" label.}
+        Red/green: rejected/accepted by binomial one-tailed test with sample size $n=30$ and confidence level $1-\alpha_0$=0.95.}
     \label{fig:loo_bonferroni}
 \end{figure}
 
 
-\paragraph{IEEE check} We constructed the stability test from the $n$ perturbed results and applied it to each of the 8 IEEE results (one per subject). The purpose of this check is twofold: (1) to verify that IEEE results pass the stability test built from the reference distribution of their corresponding subject and (2) to verify that IEEE results fail the stability test built from the reference distribution of other subjects.
+\paragraph{IEEE check} We constructed the stability test from the $n$ perturbed results for each subject and applied it to the IEEE results (one per subject). The purpose of this check was twofold: (1) to verify that IEEE results pass the stability test built from the reference distribution of their corresponding subject and (2) to verify that IEEE results fail the stability test built from the reference distribution of other subjects.
 
-Figure~\ref{fig:ieee-check} shows the result for increasing values of $\alpha$ and FWHM for the 3 types of perturbations. Each cell is a comparison matrix where rows represent the reference subject used to build the test and columns represent the test subject. The ideal stability test has green values on the diagonal and red values outside the diagonal.
+Figure~\ref{fig:ieee-check} shows the result for increasing values of $\alpha$ and FWHM for RS and RR perturbations. Each cell is a comparison matrix where rows represent the reference subject used to build the test and columns represent the test subject. The ideal stability test has green values on the diagonal and red values outside the diagonal.
 
 We first observe that none of the inter-subject tests fail, which means that our test is sufficiently sensitive to detect inter-subject variability even with a high smoothing kernel size. However, for low FWHM sizes, the stability test rejects the IEEE sample of the reference subject, suggesting a lack of specificity in such cases. Most importantly, for each subject, there is an $\alpha$ and FWHM pair such that the IEEE check passes. In addition, the IEEE check passes with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations.
+
+We conclude from this experiment that the stability test is sensitive enough to reject results obtained from different subjects using the reference application, and accept results obtained from the same subject using 
+the reference application executed with random perturbations.
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/inter-subject/inter_fwe_bonferroni.pdf}
-    \caption{Inter-subject check for RR (top) and RS (bottom). An ideal test would pass on the diagonals and be rejected outside of the diagonals, which is the case for RR with FWHM=15mm, for all subjects. Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\% \TG{this is cryptic}. 
+    \caption{IEEE check for RR (top) and RS (bottom). An ideal test would pass on the diagonals and be rejected outside of the diagonals, which is the case for RR with FWHM=15mm, for all subjects. Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\% \TG{this is cryptic} \TG{this doesn't look like the right figure}. 
         }
     \label{fig:ieee-check}
 \end{figure}
@@ -350,7 +359,10 @@ We first observe that none of the inter-subject tests fail, which means that our
 Multiple brain templates exist to align subject data to a common space and template selection substantially impacts the results~\cite{li2021moving}. Hence, errors in the template should lead to substantial differences in the results. The purpose of this check was to verify that results obtained from corrupted templates are correctly rejected by the stability test.
 To do so, we generated noised versions of the MNI152NLin2009cAsym template used by \fmriprep where we zeroed the intensity of an increasing fraction of brain voxels selected uniformly. We then executed \fmriprep in IEEE mode (without random perturbations) for each resulting corrupted template and each subject.
 
-Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for RR and RS. On the left is the percentage of "dead voxels" introduced inside the masked brain. First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 3, 4, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 1, 2, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits. \TG{revise this parapgraph}
+Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for RR and RS. The stability test correctly rejected results obtained with the corrupted template 
+above a subject-dependent threshold of corrupted voxels. Smoothing had a measurable effect that did not manifest clearly across subjects. We conclude that the stability test is sensitive to changes of the brain template which are a common source of variability in neuroimaging.
+
+% First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 3, 4, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 1, 2, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits. \TG{revise this parapgraph}
 % This distinction is also clearly visible when we look at the uncertainty maps at FMWH=5mm (Figure~\ref{fig:uncertainty-maps-5mm}). This correlation may mean that the test is more permissive to a high percentage of "dead voxels" for subjects having the highest uncertainty (or lowest number of significant bits).
 
 \begin{figure}
@@ -362,8 +374,8 @@ Figure~\ref{fig:template_bonferroni} shows the results for increasing values of 
 
 \subsection{Application to environment updates}
 
-Having checked the relevance of our stability test, we apply it to the detection of results differences in different execution 
-environments. The goal is to detect factors causing results to be outside
+The previous sanity checks demonstrated a satisfying level of sensitivity and specificity of our stability test for simple scenarios. We can now apply it to more realistic deployment situations in heterogeneous execution environments. 
+The goal is to detect factors causing results to be outside
  accepted variability bounds. We executed \fmriprep in IEEE mode by varying 
  two factors: the CPU architecture to execute on and the \fmriprep version.
 
@@ -454,7 +466,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
         \uncertaintyMap{0}{7}{ds002338}{sub-xp201} \\
         \uncertaintyMap{0}{8}{ds002338}{sub-xp207} \\
         \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
-        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=0mm). }
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=0mm. }
         \label{fig:uncertainty-maps-0mm}
     \end{figure}
 \end{landscape}
@@ -472,7 +484,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
         \uncertaintyMap{5}{7}{ds002338}{sub-xp201} \\
         \uncertaintyMap{5}{8}{ds002338}{sub-xp207} \\
         \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
-        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=5mm). }
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=5mm. }
         \label{fig:uncertainty-maps-5mm}
     \end{figure}
 \end{landscape}
@@ -490,7 +502,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
         \uncertaintyMap{10}{7}{ds002338}{sub-xp201} \\
         \uncertaintyMap{10}{8}{ds002338}{sub-xp207} \\
         \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
-        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=10mm). }
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=10mm. }
         \label{fig:uncertainty-maps-10mm}
     \end{figure}
 \end{landscape}
@@ -508,7 +520,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
         \uncertaintyMap{20}{7}{ds002338}{sub-xp201} \\
         \uncertaintyMap{20}{8}{ds002338}{sub-xp207} \\
         \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
-        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with spatial smoothing (FWHM=20mm). }
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=20mm. }
         \label{fig:uncertainty-maps-20mm}
     \end{figure}
 \end{landscape}
