@@ -312,10 +312,10 @@ In addition, uncertainty was also maximal in some focal regions \TG{indicated wi
 
 \subsection{Sanity checks}
 
-We implemented three different sanity checks to evaluate the relevance of the stability test. 
-The leave-one-out and IEEE checks evaluate the specificity of the stability test, that is, its ability 
-to accept results produced by the reference application $\Lambda$. The corrupted template check evaluates 
-the sensitivity of the stability test, that is, its ability to reject results produced by a corrupted version of the reference application. 
+We implemented three different sanity checks to evaluate the relevance of the stability test.
+The leave-one-out and IEEE checks evaluate the specificity of the stability test, that is, its ability
+to accept results produced by the reference application $\Lambda$. The corrupted template check evaluates
+the sensitivity of the stability test, that is, its ability to reject results produced by a corrupted version of the reference application.
 
 \paragraph{Leave-one-out checks} We implemented a ``leave-one-out" (LOO) evaluation by constructing the stability test $n$ times for $n-1$ perturbed results and applying it to the remaining perturbed result. By construction, the remaining perturbed result is sampled from the distribution of results produced by $\Lambda$ and should therefore be accepted by the stability test.
 To define a clear passing criterion for the LOO check, we modeled the LOO check using a binomial variable $B(n,1-\alpha)$ where $n$ is the number LOO iterations and $1-\alpha$ is the probability that a perturbed sample is accepted by the stability test. Under $H_0$ for all voxels, we expect the following bound to be verified:
@@ -324,7 +324,7 @@ To define a clear passing criterion for the LOO check, we modeled the LOO check 
 \]
 where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$, and $\alpha_0=0.05$.
 
-We applied the LOO check for different confidence values (1-$\alpha$) and different FWHM  values for the RR and RS perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, the stability test became increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM. As previously observed, RR and RS behaved similarly overall. For each subject, there were values of $\alpha$ and FWHM such that the LOO check passed, which demonstrates the good specificity of the stability test. 
+We applied the LOO check for different confidence values (1-$\alpha$) and different FWHM  values for the RR and RS perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, the stability test became increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM. As previously observed, RR and RS behaved similarly overall. For each subject, there were values of $\alpha$ and FWHM such that the LOO check passed, which demonstrates the good specificity of the stability test.
 
 However, the values of $\alpha$ and FWHM for which the LOO check passed importantly varied across subjects, presumably due to between-subject variations in input data quality and in stability modes of image registration. For instance, to pass the LOO check with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 required a smoothing size of FWHM=12mm and subjects 1 and 4 required FWHM=15mm. Subjects 2 and 3 required $\alpha=$\TG{x} to pass the LOO check. This is not surprising given the heterogeneity in numerical uncertainty previously observed across subjects. In practice, it suggests that different values of $\alpha$ and FWHM should be used for each subject in the test dataset.
 
@@ -343,14 +343,14 @@ Figure~\ref{fig:ieee-check} shows the result for increasing values of $\alpha$ a
 
 We first observe that none of the inter-subject tests fail, which means that our test is sufficiently sensitive to detect inter-subject variability even with a high smoothing kernel size. However, for low FWHM sizes, the stability test rejects the IEEE sample of the reference subject, suggesting a lack of specificity in such cases. Most importantly, for each subject, there is an $\alpha$ and FWHM pair such that the IEEE check passes. In addition, the IEEE check passes with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations.
 
-We conclude from this experiment that the stability test is sensitive enough to reject results obtained from different subjects using the reference application, and accept results obtained from the same subject using 
+We conclude from this experiment that the stability test is sensitive enough to reject results obtained from different subjects using the reference application, and accept results obtained from the same subject using
 the reference application executed with random perturbations.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figures/inter-subject/inter_fwe_bonferroni.pdf}
-    \caption{IEEE check for RR (top) and RS (bottom). An ideal test would pass on the diagonals and be rejected outside of the diagonals, which is the case for RR with FWHM=15mm, for all subjects. Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\% \TG{this is cryptic} \TG{this doesn't look like the right figure}. 
-        }
+    \includegraphics[width=\linewidth]{figures/inter-subject/inter_mct_fwe_bonferroni.pdf}
+    \caption{IEEE check for RR (top) and RS (bottom). An ideal test would pass on the diagonals and be rejected outside of the diagonals, which is the case for RR with FWHM=15mm, for all subjects. Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\% \TG{this is cryptic} \TG{this doesn't look like the right figure}.
+    }
     \label{fig:ieee-check}
 \end{figure}
 
@@ -359,7 +359,7 @@ the reference application executed with random perturbations.
 Multiple brain templates exist to align subject data to a common space and template selection substantially impacts the results~\cite{li2021moving}. Hence, errors in the template should lead to substantial differences in the results. The purpose of this check was to verify that results obtained from corrupted templates are correctly rejected by the stability test.
 To do so, we generated noised versions of the MNI152NLin2009cAsym template used by \fmriprep where we zeroed the intensity of an increasing fraction of brain voxels selected uniformly. We then executed \fmriprep in IEEE mode (without random perturbations) for each resulting corrupted template and each subject.
 
-Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for RR and RS. The stability test correctly rejected results obtained with the corrupted template 
+Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for RR and RS. The stability test correctly rejected results obtained with the corrupted template
 above a subject-dependent threshold of corrupted voxels. Smoothing had a measurable effect that did not manifest clearly across subjects. We conclude that the stability test is sensitive to changes of the brain template which are a common source of variability in neuroimaging.
 
 % First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 3, 4, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 1, 2, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits. \TG{revise this parapgraph}
@@ -374,10 +374,10 @@ above a subject-dependent threshold of corrupted voxels. Smoothing had a measura
 
 \subsection{Application to environment updates}
 
-The previous sanity checks demonstrated a satisfying level of sensitivity and specificity of our stability test for simple scenarios. We can now apply it to more realistic deployment situations in heterogeneous execution environments. 
+The previous sanity checks demonstrated a satisfying level of sensitivity and specificity of our stability test for simple scenarios. We can now apply it to more realistic deployment situations in heterogeneous execution environments.
 The goal is to detect factors causing results to be outside
- accepted variability bounds. We executed \fmriprep in IEEE mode by varying 
- two factors: the CPU architecture to execute on and the \fmriprep version.
+accepted variability bounds. We executed \fmriprep in IEEE mode by varying
+two factors: the CPU architecture to execute on and the \fmriprep version.
 
 \paragraph*{Architecture} Figure~\ref{fig:arch_bonferroni} shows the results of the stability test for increasing $\alpha$ and FWHM values for RR and RS. We see that the architecture used has no impact on the stability test since results are identical across architecture for a subject and a perturbation mode given. For subject 1, we see that the variability of the stability test results is more important. In conclusion, the perturbation mode used to build the test is more important than the architecture used \TG{reformulate}.
 
