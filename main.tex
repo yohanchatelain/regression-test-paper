@@ -114,7 +114,7 @@
 \maketitle
 
 \begin{abstract}
-    To ensure the long-term reproducibility of analyses, neuroimaging tools have developed long-term support (LTS) versions that require automated testing methods. Therefore, non-regression testing is crucial for neuroimaging to avoid breaking numerical reproducibility across code updates. However, the lack of universally accepted ground truth or acceptable bounds of variation poses a challenge in the neuroimaging community. In this study, we propose a statistical test based on numerical uncertainty quantification to address this problem. We apply this method to \fmriprep, a widely-used neuroimaging tool, and detect significant changes within LTS versions. Our approach requires minimal statistical assumptions and no ground truth, making it applicable in various domains and scenarios. The results of this study contribute to enhancing the reliability and reproducibility of neuroimaging research by providing a robust and flexible method for numerical quality testing.
+    To ensure the long-term reproducibility of analyses, neuroimaging tools have developed long-term support (LTS) versions that require automated testing methods. Therefore, stability testing is crucial for neuroimaging to avoid breaking numerical reproducibility across code updates. However, the lack of universally accepted ground truth or acceptable bounds of variation poses a challenge in the neuroimaging community. In this study, we propose a statistical test based on numerical uncertainty quantification to address this problem. We apply this method to \fmriprep, a widely-used neuroimaging tool, and detect significant changes within LTS versions. Our approach requires minimal statistical assumptions and no ground truth, making it applicable in various domains and scenarios. The results of this study contribute to enhancing the reliability and reproducibility of neuroimaging research by providing a robust and flexible method for numerical quality testing.
 \end{abstract}
 
 \section{Introduction}
@@ -307,33 +307,35 @@ In addition, uncertainty was also maximal in some focal regions, suggesting that
     \label{fig:uncertainty-maps}
 \end{figure*}
 
-\subsection{Non-regression test evaluations}
+\subsection{Sanity checks}
 
-\paragraph{Leave-one-out evaluation.} We implemented a ``leave-one-out" (LOO) evaluation by constructing the stability test $n$ times for $n-1$ perturbed results and applying it to the remaining perturbed result.
-We model the LOO test using a binomial variable $B(n,1-\alpha)$ where $n$ is the number of repetitions and $1-\alpha$ is the probability of success of a repetition. Under $H_0$ for all voxels, we expect the following bound to be verified:
+We implemented three different sanity checks to evaluate the sensitivity and specificity of our stability test. 
+
+\paragraph{Leave-one-out evaluation} We implemented a ``leave-one-out" (LOO) evaluation by constructing the stability test $n$ times for $n-1$ perturbed results and applying it to the remaining perturbed result. The purpose of this test is to verify that a given perturbed result is not rejected as by construction it is part of the null distribution.
+We model the LOO test using a binomial variable $B(n,1-\alpha)$ where $n$ is the number of repetitions and $1-\alpha$ \TG{should it be $\alpha_0$?} is the probability of success of a repetition. Under $H_0$ for all voxels, we expect the following bound to be verified:
 \[
     1-F(\mathds{1}_n;n,1-\alpha) \leq \alpha_0
 \]
 where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(n,p)$, and $\alpha_0=0.05$.
 
-We applied leave-one-out validation for different confidence values (1-$\alpha$) and different FWHM  values for the 3 types of perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, tests become increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM.
-As previously observed, the 3 perturbation types behave similarly overall. For each subject, $\alpha$ and FWHM values exist such that the LOO test passes. However, these values importantly vary across subjects, presumably due to heterogeneous data quality. To pass the LOO test with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 require a smoothing size of FWHM=12mm and subjects 1 and 4 require FWHM=15mm. Subjects 2 and 3 never pass the LOO test at this confidence level. Hence, the efficiency of our statistical test is significantly influenced by the quality of the input images. Individual images necessitate specific statistical parametrization to be successful.
+We applied leave-one-out validation for different confidence values (1-$\alpha$) and different FWHM  values for the RR and RS perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, tests become increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM.
+As previously observed, RR and RS behave similarly overall. For each subject, $\alpha$ and FWHM values exist such that the LOO test passes. However, these values importantly vary across subjects, presumably due to heterogeneous data quality. To pass the LOO test with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 require a smoothing size of FWHM=12mm and subjects 1 and 4 require FWHM=15mm. Subjects 2 and 3 never pass the LOO test at this confidence level. Hence, the efficiency of our statistical test is significantly influenced by the quality of the input images. Individual images necessitate specific statistical parametrization to be successful. \TG{I don't understand the previous two sentences}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/exclude_mct_fwe_bonferroni.pdf}
-    \caption{Leave-one-out evaluation for stability tests.
+    \caption{Leave-one-out evaluation of stability test for subjects 1 to 8. \TG{increase font size in figure}
         Binomial one-tailed test with a confidence level of 95\%.
-        Red: failed the test. Green: passed the test.}
+        Red: failed the test. Green: passed the test. \TG{flip figure to have the same layout as the other ones}}
     \label{fig:loo_bonferroni}
 \end{figure}
 
 
-\paragraph{IEEE check.} We constructed the stability test from the $n$ perturbed results and applied it to each of the 8 IEEE results (one per subject). The purpose of this check is twofold: (1) to verify that IEEE results pass thestability test built from the reference distribution of their corresponding subject and (2) to verify that IEEE results fail the non-regression test built from the reference distribution of other subjects.
+\paragraph{IEEE check} We constructed the stability test from the $n$ perturbed results and applied it to each of the 8 IEEE results (one per subject). The purpose of this check is twofold: (1) to verify that IEEE results pass the stability test built from the reference distribution of their corresponding subject and (2) to verify that IEEE results fail the stability test built from the reference distribution of other subjects.
 
 Figure~\ref{fig:ieee-check} shows the result for increasing values of $\alpha$ and FWHM for the 3 types of perturbations. Each cell is a comparison matrix where rows represent the reference subject used to build the test and columns represent the test subject. The ideal stability test has green values on the diagonal and red values outside the diagonal.
 
-We first observe that none of the inter-subject tests fail which means that our test is sufficiently specific to detect inter-subject variability even with a high smoothing kernel size. However, for low FWHM sizes, the stability test rejects the IEEE sample of the reference subject, suggesting a lack of precision. But most importantly, for each subject, there is an $\alpha$ and FWHM pair such that the IEEE check passes. In addition, the IEEE check passes with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations.
+We first observe that none of the inter-subject tests fail, which means that our test is sufficiently sensitive to detect inter-subject variability even with a high smoothing kernel size. However, for low FWHM sizes, the stability test rejects the IEEE sample of the reference subject, suggesting a lack of specificity in such cases. Most importantly, for each subject, there is an $\alpha$ and FWHM pair such that the IEEE check passes. In addition, the IEEE check passes with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations.
 
 \begin{figure}
     \centering
@@ -345,67 +347,51 @@ We first observe that none of the inter-subject tests fail which means that our 
         \subcaption*{RS}
         \includegraphics[width=\linewidth]{figures/inter-subject/one_mct_fwe_bonferroni_RS.pdf}
     \end{subfigure}
-    \caption{Inter-subject check for the Bonferroni correction for RR (top) and RS (bottom) modes. We expect that the tests would pass along the diagonals and be rejected otherwise.
-        Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\%. These data corroborate our test's capacity to discern inter-subject variability.
+    \caption{Inter-subject check for RR (top) and RS (bottom). An ideal test would pass on the diagonals and be rejected outside of the diagonals, which is the case for RR with FWHM=15mm, for all subjects. Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\% \TG{this is cryptic}. 
     }
     \label{fig:ieee-check}
 \end{figure}
 
-\paragraph{Corrupted ``template'' check.}
+\paragraph{Corrupted template check}
 
-Image registration is a fundamental step during the pre-preprocessing to enable statistical analyses.
-This step consists of realigning an input image (user space) to a common space (template space). To do so, it exists several templates representing a normal structural brain and \fmriprep uses the ICBM 2009c Nonlinear Asymmetric template~\cite{fonov2011unbiased} used by default. The quality of the template will condition the quality of the registered image~\cite{li2021moving}. Hence, errors in the template should lead to substantial differences in the registered images. We use this principle to build this check and to determine that our stability test correctly captures these variabilities induced.
+Multiple brain templates exist to align subject data to a common space and template selection substantially impacts the results~\cite{li2021moving}. Hence, errors in the template should lead to substantial differences in the results. The purpose of this check was to verify that results obtained from corrupted templates are correctly rejected by the stability test.
+To do so, we generated noised versions of the MNI152NLin2009cAsym template used by \fmriprep where we zeroed the intensity of an increasing fraction of brain voxels selected uniformly. We then executed \fmriprep in IEEE mode (without random perturbations) for each resulting corrupted template and each subject.
 
-To do so, we generated noised versions of the MNI152NLin2009cAsym template where we simulate "dead voxels" by setting the voxel's intensity to 0 for a fraction of the intracranial voxels. Each voxel had the same probability to be drawn no matter its localization or tissue type in the brain. We then executed \fmriprep in IEEE mode (without random perturbations) for each "corrupted template" on each subject.
-
-Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for the 3 types of perturbations. On the left is the percentage of "dead voxels" introduced inside the masked brain. First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 3, 4, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 1, 2, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits.
+Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for RR and RS. On the left is the percentage of "dead voxels" introduced inside the masked brain. First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 3, 4, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 1, 2, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits. \TG{revise this parapgraph}
 % This distinction is also clearly visible when we look at the uncertainty maps at FMWH=5mm (Figure~\ref{fig:uncertainty-maps-5mm}). This correlation may mean that the test is more permissive to a high percentage of "dead voxels" for subjects having the highest uncertainty (or lowest number of significant bits).
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/template/template_fwe_bonferroni.pdf}
-    \caption{Corrupted template check for RR and RS modes (Bonferroni correction)}
+    \caption{Corrupted template check for RR and RS modes. \TG{increase font size}}
     \label{fig:template_bonferroni}
 \end{figure}
 
-\subsection{Stability test application to environment updates}
+\subsection{Application to environment updates}
 
-In this section, we explore the result of the stability test in different environments. The goal is to detect factors causing results to be outside accepted variability bounds. We executed \fmriprep in IEEE mode by varying two factors: the CPU architecture to execute on and the \fmriprep version.
+Having checked the relevance of our stability test, we apply it to the detection of results differences in different execution 
+environments. The goal is to detect factors causing results to be outside
+ accepted variability bounds. We executed \fmriprep in IEEE mode by varying 
+ two factors: the CPU architecture to execute on and the \fmriprep version.
 
-\paragraph*{Architecture.} Figure~\ref{fig:arch_bonferroni} shows the results of the stability test with the Bonferroni correction for increasing $\alpha$ and FWHM values for the 3 types of perturbations. Table~\ref{tab:index-arch-map} gives the mapping between the architecture used and the letter present on the left y-axis. We see that the architecture used has no impact on the stability test since results are identical across architecture for a subject and a perturbation mode given. For subject 1, we see that the variability of the stability test results is more important. In conclusion, the perturbation mode used to build the test is more important than the architecture used.
+\paragraph*{Architecture} Figure~\ref{fig:arch_bonferroni} shows the results of the stability test for increasing $\alpha$ and FWHM values for RR and RS. We see that the architecture used has no impact on the stability test since results are identical across architecture for a subject and a perturbation mode given. For subject 1, we see that the variability of the stability test results is more important. In conclusion, the perturbation mode used to build the test is more important than the architecture used \TG{reformulate}.
 
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/arch/arch_mct_fwe_bonferroni_.pdf}
-    \caption{Bonferroni corrected test application on different CPU architectures}
+    \caption{Stability test application to different CPU architectures for subjects 1 to 8. \TG{Mention RR and RS in the figure.} \TG{Could this figure have the same layout as figure 4?}. A: AMD Rome 7532; B: Intel E5-2683 v4 Broadwell; C: Intel Silver 4216 Cascade Lake; D: Intel Platinum 8160F Skylake; E: Intel Gold 5120 Skylake; F: Intel Gold 6238 Cascade Lake.}
     \label{fig:arch_bonferroni}
 \end{figure}
 
-\begin{table}
-    \begin{center}
-        \begin{tabular}{c|l}
-            Index & Architecture                   \\
-            \hline
-            A     & AMD Rome 7532                  \\
-            B     & Intel E5-2683 v4 Broadwell     \\
-            C     & Intel Silver 4216 Cascade Lake \\
-            D     & Intel Platinum 8160F Skylake   \\
-            E     & Intel Gold 5120 Skylake        \\
-            F     & Intel Gold 6238 Cascade Lake
-        \end{tabular}
-    \end{center}
-    \caption{Index of CPU architectures for Figure~\ref{fig:arch_bonferroni}. We use architecture A as a reference.}
-    \label{tab:index-arch-map}
-\end{table}
 
-\paragraph*{\fmriprep versions.} Figure~\ref{fig:version_bonferroni} shows the results of the stability test with the Bonferroni correction for increasing $\alpha$ and FWHM values for the 3 types of perturbations. On the left y-axis is the number of \fmriprep versions used to compute the target image. Overall, we see two observed two groups delimited by the version \texttt{20.2.5}. From version \texttt{20.2.0} to \texttt{20.2.4}, results are identical for a given subject and perturbation mode. Subject 4 passes for some confidence level and FWHM configurations. For the other major versions (21, 22 and 23) the test rejects all the subjects. This result suggests that code modifications introduced with version \texttt{20.2.5} have modified the nature of the results produced by \fmriprep. Version \texttt{20.2.5} modified the interpolation scheme used to resample the segmentation brain map from MGZ format into the Niifti one (see PR \href{https://github.com/nipreps/smriprep/pull/268}{\url{github.com/nipreps/smriprep/pull/268}}). Previous versions used the trilinear interpolation scheme while versions above \texttt{20.2.5} used the nearest neighbor interpolation. Our statistical test discerned the modifications introduced into version \texttt{20.2.5}. The results exceeded the variability bounds determined by our reference sampling, thereby demonstrating the effectiveness of our methodology.
+\paragraph*{\fmriprep versions} Figure~\ref{fig:version_bonferroni} shows the results of the stability test for increasing $\alpha$ and FWHM values for RR and RS perturbations. On the left y-axis is the number of \fmriprep versions used to compute the target image. Overall, we see two observed two groups delimited by the version \texttt{20.2.5}. From version \texttt{20.2.0} to \texttt{20.2.4}, results are identical for a given subject and perturbation mode. Subject 4 passes for some confidence level and FWHM configurations. For the other major versions (21, 22 and 23) the test rejects all the subjects. This result suggests that code modifications introduced with version \texttt{20.2.5} have modified the nature of the results produced by \fmriprep. Version \texttt{20.2.5} modified the interpolation scheme used to resample the segmentation brain map from MGZ format into the Niifti one (see PR \href{https://github.com/nipreps/smriprep/pull/268}{\url{github.com/nipreps/smriprep/pull/268}}). Previous versions used the trilinear interpolation scheme while versions above \texttt{20.2.5} used the nearest neighbor interpolation. Our statistical test discerned the modifications introduced into version \texttt{20.2.5}. The results exceeded the variability bounds determined by our reference sampling, thereby demonstrating the effectiveness of our methodology.
 
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/fmriprep-versions/bonferroni.pdf}
-    \caption{Bonferroni corrected test applications on different \fmriprep versions.}
+    \caption{Stability test application to different \fmriprep versions.}
     \label{fig:version_bonferroni}
 \end{figure}
 
