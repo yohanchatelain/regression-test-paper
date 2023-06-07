@@ -105,6 +105,45 @@
   }{}
 }
 
+\newcommandx{\uncertaintyMapDiscrete}[5][5=false]{%
+  % arguments:
+  % 1: FWHM 
+  % 2: subject index
+  % 3: dataset
+  % 4: subject
+  % 5: add columns title
+%   \iftoggle{RRandRS}{\setlength{\figureWidthUM}{0.2\paperheight}}{\setlength{\figureWidthUM}{0.27\paperheight}}
+  \setlength{\figureWidthUM}{0.15\paperheight}
+  \ifstrequal{#5}{true}{\setlength{\vspaceIndex}{-45pt}}{\setlength{\vspaceIndex}{25pt}}
+  \begin{subfigure}[b]{0.01\paperwidth}
+    \centering
+    #2\vspace*{\vspaceIndex}
+  \end{subfigure}
+  \begin{subfigure}[t]{\figureWidthUM}
+    \centering
+    \ifstrequal{#5}{true}{IEEE (T1 intensity)}{}
+    \includegraphics[width=\textwidth]{figures/sig/#1mm/ieee_#3_#4.pdf}
+  \end{subfigure}
+  \begin{subfigure}[t]{\figureWidthUM}
+    \centering
+    \ifstrequal{#5}{true}{RR (significant bits)}{}
+    \includegraphics[width=\textwidth]{figures/sig/discrete/#1mm/rr_#3_#4_sig_discrete.pdf}
+  \end{subfigure}
+  \begin{subfigure}[t]{\figureWidthUM}
+    \centering
+    \ifstrequal{#5}{true}{RS (significant bits)}{}
+    \includegraphics[width=\textwidth]{figures/sig/discrete/#1mm/rs_#3_#4_sig_discrete.pdf}
+  \end{subfigure}
+  \iftoggle{RRandRS}{%
+    \begin{subfigure}[t]{\figureWidthUM}
+      \centering
+      \ifstrequal{#5}{true}{RR+RS (significant bits)}{}
+      \includegraphics[width=\textwidth]{figures/sig/discrete/#1mm/rr.rs_#3_#4_sig_discrete.pdf}
+    \end{subfigure}
+  }{}
+}
+
+
 % Cluster failure: Why fMRI inferences for spatial extent have inflated
 % false-positive https://www.pnas.org/doi/pdf/10.1073/pnas.1602413113
 
@@ -274,8 +313,7 @@ We used Fuzzy \texttt{v0.9.1-a} built with Verificarlo version \texttt{v0.9.1}.
 
 \section{Results}
 
-We computed n=30 perturbed results for each of the 8 subjects and for the two types of perturbations RR and RS. For RS, we used \fmriprep's command-line interface to set the random seed in all the pipeline components. We also computed an unperturbed IEEE result for each subject using the
-random seed used in RR (42). For each type of perturbation, we measured the numerical uncertainty of fMRIPrep in terms of significant bits, and we built the stability test using different sizes of  smoothing kernel and different confidence levels.
+We computed n=30 perturbed results for each of the 8 subjects and for the two types of perturbations RR and RS. For RS, we used \fmriprep's command-line interface to set the random seed in all the pipeline components. We also computed an unperturbed IEEE result for each subject using the random seed used in RR (42). For each type of perturbation, we measured the numerical uncertainty of fMRIPrep in terms of significant bits, and we built the stability test using different sizes of smoothing kernel and different confidence levels.
 
 \subsection{Measured numerical uncertainty was high and it varied across subjects}
 
@@ -287,14 +325,14 @@ random seed used in RR (42). For each type of perturbation, we measured the nume
         subjects.}
     \label{fig:significant-digits}
 \end{figure}
-Overall, the two types of perturbations (RR and RS) resulted in numerical uncertainties of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured uncertainty was high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data \TG{table 2 says int16, isn't it 16 bits?}. The application appears to be highly sensitive to the numerical and random seed perturbations.
+Overall, the two types of perturbations (RR and RS) resulted in numerical uncertainties of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured uncertainty was high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data\footnote{The voxel intensity is encoded on 12 bits but is embedded in a 16 bits format.}. The application appears to be highly sensitive to numerical and random seed perturbations.
 
 We noted substantial discrepancies in numerical uncertainty across subjects. For a given smoothing kernel size, the number of significant bits frequently varied in the ratio of 1 to 3 across subjects. Overall, smoothing tended to reduce numerical uncertainty, however, this behavior was in general not monotonous and impacted subjects differently.
 
 The uncertainty measured across perturbed samples showed regional variations compatible with anatomical features (Figure~\ref{fig:uncertainty-maps}). In particular, uncertainty was
 maximal at the border of the brain mask, and it was overall higher in the gray matter than in the white matter.
 This is consistent with previous observations of numerical uncertainty in structural brain image analysis~\cite{salari2021accurate}.
-In addition, uncertainty was also maximal in some focal regions \TG{indicated with arrows in Figure~\ref{fig_uncertainty-maps}}, suggesting that non-linear registration may be unstable in these regions. Our stability test will therefore be more tolerant in these regions.
+In addition, uncertainty was also maximal in some focal regions \TG{indicated with arrows in Figure~\ref{fig:uncertainty-maps}}, suggesting that non-linear registration may be unstable in these regions. Our stability test will therefore be more tolerant in these regions.
 
 
 \begin{figure*}
@@ -312,6 +350,22 @@ In addition, uncertainty was also maximal in some focal regions \TG{indicated wi
     \label{fig:uncertainty-maps}
 \end{figure*}
 
+\begin{figure*}
+    \centering
+    \uncertaintyMapDiscrete{15}{1}{ds000256}{sub-CTS201}[true] \\
+    \uncertaintyMapDiscrete{15}{2}{ds000256}{sub-CTS210} \\
+    \uncertaintyMapDiscrete{15}{3}{ds001600}{sub-1} \\
+    \uncertaintyMapDiscrete{15}{4}{ds001748}{sub-adult15} \\
+    \uncertaintyMapDiscrete{15}{5}{ds001748}{sub-adult16} \\
+    \uncertaintyMapDiscrete{15}{6}{ds001771}{sub-36} \\
+    \uncertaintyMapDiscrete{15}{7}{ds002338}{sub-xp201} \\
+    \uncertaintyMapDiscrete{15}{8}{ds002338}{sub-xp207} \\
+    \includegraphics*[width=.6\linewidth]{figures/colorbar_sigbit_discrete.pdf}
+    \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=15mm. Uncertainty maps for other smoothing kernel sizes are available in Appendix~\ref{appendix:numerical_uncertainty}.}
+    \label{fig:uncertainty-maps}
+\end{figure*}
+
+
 \subsection{Sanity checks}
 
 We implemented three different sanity checks to evaluate the relevance of the stability test.
@@ -328,13 +382,13 @@ where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(
 
 We applied the LOO check for different confidence values (1-$\alpha$) and different FWHM  values for the RR and RS perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, the stability test became increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM. As previously observed, RR and RS behaved similarly overall. For each subject, there were values of $\alpha$ and FWHM such that the LOO check passed, which demonstrates the good specificity of the stability test.
 
-However, the values of $\alpha$ and FWHM for which the LOO check passed importantly varied across subjects, presumably due to between-subject variations in input data quality and in stability modes of image registration. For instance, to pass the LOO check with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 required a smoothing size of FWHM=12mm and subjects 1 and 4 required FWHM=15mm. Subjects 2 and 3 required $\alpha=$\TG{x} to pass the LOO check. This is not surprising given the heterogeneity in numerical uncertainty previously observed across subjects. In practice, it suggests that different values of $\alpha$ and FWHM should be used for each subject in the test dataset.
+However, the values of $\alpha$ and FWHM for which the LOO check passed importantly varied across subjects, presumably due to between-subject variations in input data quality and instability modes of image registration. For instance, to pass the LOO check with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 required a smoothing size of FWHM=12mm and subjects 1 and 4 required FWHM=15mm. Subjects 2 and 3 required $\alpha=0.15$ to pass the LOO check. This is not surprising given the heterogeneity in numerical uncertainty previously observed across subjects. In practice, it suggests that different values of $\alpha$ and FWHM should be used for each subject in the test dataset.
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/loo_fwe_bonferroni.pdf}
     \caption{Leave-one-out evaluation of stability test for subjects 1 to 8. \TG{increase font size in figure. Replace ``alpha'' with $\alpha$. Add a "Subjects" label.}
-        Red/green: rejected/accepted by binomial one-tailed test with sample size $n=30$ and confidence level $1-\alpha_0$=0.95.}
+        Red/green: rejected/accepted by a binomial one-tailed test with sample size $n=30$ and confidence level $1-\alpha_0$=0.95.}
     \label{fig:loo_bonferroni}
 \end{figure}
 
@@ -526,6 +580,80 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
         \label{fig:uncertainty-maps-20mm}
     \end{figure}
 \end{landscape}
+
+
+\begin{landscape}
+    \begin{figure}
+        \vspace*{-2cm}
+        \centering
+        \uncertaintyMapDiscrete{0}{1}{ds000256}{sub-CTS201}[true] \\
+        \uncertaintyMapDiscrete{0}{2}{ds000256}{sub-CTS210} \\
+        \uncertaintyMapDiscrete{0}{3}{ds001600}{sub-1} \\
+        \uncertaintyMapDiscrete{0}{4}{ds001748}{sub-adult15} \\
+        \uncertaintyMapDiscrete{0}{5}{ds001748}{sub-adult16} \\
+        \uncertaintyMapDiscrete{0}{6}{ds001771}{sub-36} \\
+        \uncertaintyMapDiscrete{0}{7}{ds002338}{sub-xp201} \\
+        \uncertaintyMapDiscrete{0}{8}{ds002338}{sub-xp207} \\
+        \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=0mm. }
+        \label{fig:uncertainty-maps-0mm-disc}
+    \end{figure}
+\end{landscape}
+
+\begin{landscape}
+    \begin{figure}
+        \vspace*{-2cm}
+        \centering
+        \uncertaintyMapDiscrete{5}{1}{ds000256}{sub-CTS201}[true] \\
+        \uncertaintyMapDiscrete{5}{2}{ds000256}{sub-CTS210} \\
+        \uncertaintyMapDiscrete{5}{3}{ds001600}{sub-1} \\
+        \uncertaintyMapDiscrete{5}{4}{ds001748}{sub-adult15} \\
+        \uncertaintyMapDiscrete{5}{5}{ds001748}{sub-adult16} \\
+        \uncertaintyMapDiscrete{5}{6}{ds001771}{sub-36} \\
+        \uncertaintyMapDiscrete{5}{7}{ds002338}{sub-xp201} \\
+        \uncertaintyMapDiscrete{5}{8}{ds002338}{sub-xp207} \\
+        \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=5mm. }
+        \label{fig:uncertainty-maps-5mm-disc}
+    \end{figure}
+\end{landscape}
+
+\begin{landscape}
+    \begin{figure}
+        \vspace*{-2cm}
+        \centering
+        \uncertaintyMapDiscrete{10}{1}{ds000256}{sub-CTS201}[true] \\
+        \uncertaintyMapDiscrete{10}{2}{ds000256}{sub-CTS210} \\
+        \uncertaintyMapDiscrete{10}{3}{ds001600}{sub-1} \\
+        \uncertaintyMapDiscrete{10}{4}{ds001748}{sub-adult15} \\
+        \uncertaintyMapDiscrete{10}{5}{ds001748}{sub-adult16} \\
+        \uncertaintyMapDiscrete{10}{6}{ds001771}{sub-36} \\
+        \uncertaintyMapDiscrete{10}{7}{ds002338}{sub-xp201} \\
+        \uncertaintyMapDiscrete{10}{8}{ds002338}{sub-xp207} \\
+        \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=10mm. }
+        \label{fig:uncertainty-maps-10mm-disc}
+    \end{figure}
+\end{landscape}
+
+\begin{landscape}
+    \begin{figure}
+        \vspace*{-2cm}
+        \centering
+        \uncertaintyMapDiscrete{20}{1}{ds000256}{sub-CTS201}[true] \\
+        \uncertaintyMapDiscrete{20}{2}{ds000256}{sub-CTS210} \\
+        \uncertaintyMapDiscrete{20}{3}{ds001600}{sub-1} \\
+        \uncertaintyMapDiscrete{20}{4}{ds001748}{sub-adult15} \\
+        \uncertaintyMapDiscrete{20}{5}{ds001748}{sub-adult16} \\
+        \uncertaintyMapDiscrete{20}{6}{ds001771}{sub-36} \\
+        \uncertaintyMapDiscrete{20}{7}{ds002338}{sub-xp201} \\
+        \uncertaintyMapDiscrete{20}{8}{ds002338}{sub-xp207} \\
+        \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
+        \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=20mm. }
+        \label{fig:uncertainty-maps-20mm-disc}
+    \end{figure}
+\end{landscape}
+
 
 \section{Colors Palette}
 Fail: \texttt{\#D55E00}
