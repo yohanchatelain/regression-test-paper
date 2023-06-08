@@ -194,12 +194,12 @@ Gaussian and:
 \end{equation*}
 where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number of voxels in $\tilde X$, and $\hat \mu_i$ and $\hat \sigma_i$ are the mean and standard deviation voxel intensities estimated from the $n$ perturbed results $X_k$. $H_{0,i}$ is rejected when $p_i$ is lower than a threshold $\alpha$ that also defines the confidence level of the test (1-$\alpha$)\%. The z-test assumes that perturbed voxel intensities are normally distributed. To capture anatomical variability, we perform this test on a representative set of input images. Table~\ref{tab:notations} summarizes the notations and Figure~\ref{fig:test_workflow} summarizes the test workflow.
 
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{figures/workflow_V.pdf}
-    \caption{Stability test construction and evaluation. The reference application $\Lambda$ is executed $n$ times on the input data, with random perturbations, resulting in images $X_k$ from which a null distribution is built to test the result produced by target application $\tilde \Lambda$. All results undergo the same smoothing and normalization.}
+    \caption{Stability test construction and evaluation. The reference application $\Lambda$ is executed $n$ times on the input data, with random perturbations, resulting in images $X_k$ from which a null distribution is built to test the result produced by target application $\tilde \Lambda$. All results undergo the same smoothing and normalization steps. \TG{in masked images: the pictograms are not in the same order as the letters. I'm not sure why the normalization is split in two boxes. Add some whitespace between the workflow and the caption.}}
     \label{fig:test_workflow}
-\end{figure*}
+\end{figure}
 \begin{table}
     \centering
     \begin{tabular}{r|l}
@@ -405,8 +405,7 @@ the reference application executed with random perturbations.
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/inter-subject/inter_mct_fwe_bonferroni.pdf}
-    \caption{IEEE check for RR (top) and RS (bottom). An ideal test would pass on the diagonals and be rejected outside of the diagonals, which is the case for RR with FWHM=15mm, for all subjects. Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\% \TG{this is cryptic} \TG{this doesn't look like the right figure}.
-    }
+    \caption{IEEE check for RR (top) and RS (bottom). An ideal test would pass on the diagonals and be rejected outside of the diagonals, which is the case for RR with FWHM=15mm, for all subjects. Out of a total of 17,472 individual assessments, we reported 962 failures in the RR mode, representing a failure rate of 0.06\%, and 935 failures in the RS mode, corresponding to a failure rate of 0.05\% \TG{this is cryptic} \TG{this doesn't look like the right figure}.}
     \label{fig:ieee-check}
 \end{figure}
 
