@@ -147,7 +147,7 @@
 % Cluster failure: Why fMRI inferences for spatial extent lhave inflated
 % false-positive https://www.pnas.org/doi/pdf/10.1073/pnas.1602413113
 
-\title{Long-term stability tests for neuroimaging analysis software: a numerical uncertainty approach}
+\title{A numerical precision approach to results stability tests and its application to neuroimaging}
 \author{Yohan Chatelain, Loic Tetrel, Christopher J. Markiewicz, Gregory Kiar,\\ Oscar Esteban,  Pierre Bellec, Tristan Glatard}
 
 \begin{document}
@@ -159,16 +159,34 @@
 
 \section{Introduction}
 
-\TG{Update with stability testing}
-\TG{Explain the typical neuroimaging pipeline, including linear and non-linear registration}
-\TG{explain fmriprep with more details}
-In the field of software engineering, non-regression testing plays a critical role in ensuring the stability and reliability of software systems over time. This involves testing software updates to verify that they do not introduce new bugs or regressions compared to previous versions. It is an important quality assurance process that helps identify and fix potential issues before they impact users.
+% results stability tests
+Data analyses can produce different results depending on
+the hardware and software conditions in which they are executed~\cite{glatard2015reproducibility, bhagwat2021understanding}, which has important repercussions
+in a number of disciplines. This paper investigates results stability tests whereby the outcome of a data
+analysis is asserted to remain within acceptable variation bounds of a reference result. The main
+difficulty associated with the development of such results stability tests lies in the determination of 
+acceptable bounds of variation. We propose to define such bounds from the numerical variability of the results, that is,
+from the variability inherent to numerical computations. Numerical variability explains a substantial fraction of
+results variability across execution environments when complex data analyses are involved. 
 
-In neuroimaging, tools have been developed and utilized by the scientific community for several decades now, enabling researchers to study the human brain with unprecedented detail and precision. The maturity of neuroimaging software tools pushed them to develop long-term support (LTS) versions to release stable and reliable software versions for long-term use. But LTS requires inevitable updates for security reasons, bug fixes, end-of-life (EOL) and updates dependencies. Despite the widespread use of these tools, there are still variabilities observed between different software tools and even between different versions of the same tool, which can impact the quality and reliability of the results obtained~\cite{glatard2015reproducibility, bhagwat2021understanding}.
+% neuroimaging
+Although the testing methodology developed in the present paper applies to data analyses widely, we focus on 
+neuroimaging analyses as our motivating use case. For several decades, the neuroimaging community has 
+developed advanced software tools enabling researchers to study the human brain with unprecedented detail and precision.
+A significant obstacle in assessing neuroimaging software stems from the lack of a well-established reference (a.k.a. ground truth) for 
+the results. Methods such as simulations~\cite{simulation}, phantoms~\cite{phantom}, and ex-vivo data~\cite{exvivo} have limitations and do not provide a comprehensive solution for defining acceptable variation bounds.
 
-A significant obstacle in assessing neuroimaging software stems from the lack of a well-established reference or ground truth for comparative purposes. Even determining an acceptable tolerance threshold proves to be particularly challenging, given the absence of universally accepted standards in the field. Methods such as simulations, phantoms, and ex-vivo data have limitations and do not provide a comprehensive solution for defining acceptable variation bounds. Hence, conducting thorough testing is imperative to ensure that the quality of results does not regress due to bug fixes and updates applied to LTS versions of neuroimaging software tools.
+% fmriprep
+The present paper focuses primarily on the \fmriprep software~\cite{esteban2019fmriprep}, a tool to process structural and 
+functional MRI data. In the past years, \fmriprep developers initiated long-term support (LTS) releases to guarantee the stability 
+of results over time, a critical issue for neuroscience studies that commonly span multiple years. 
+In this context, results stability tests are particularly important, due to inevitable security updates and bug fixes in the main software or in its dependencies.
+\fmriprep is an integrated data analysis pipeline for structural and functional MRI pre-processing, which includes image processing operations typically 
+encountered in MRI analysis. We focus primarily on the pre-processing of structural MRIs as implemented in \fmriprep, which includes intensity non-uniformity corrections, skull stripping, and spatial normalization to a brain template. Spatial normalization is a critical step of MRI analysis whereby images acquired on individual subjects are mapped to a template brain through a process called image registration. 
 
-To ensure that output values remain within an acceptable range of variations, one way is to account for the errors introduced during calculations due to the use of finite-precision arithmetic, such as the floating-point model. Such errors may arise when changes occur in the computational environment, including the computing architecture, the operating system, or the version of a dependent library for a given application. A well-established technique for estimating this uncertainty is Monte Carlo Arithmetic (MCA), a member of the family of stochastic arithmetics. Stochastic arithmetic models floating-point calculation errors with random variables, transforming the challenging task of symbolic round-off error analysis into a more tractable statistical sampling problem. Importantly, MCA is not dependent on the specificities of the application domain, rendering it applicable across a diverse range of cases and scenarios. Notably, MCA has been successfully utilized in neuroimaging to simulate numerical variability resulting from changes in operating systems~\cite{salari2021accurate} and to evaluate the reliability of brain networks~\cite{kiar2021numerical}.
+% numerical precision
+We construct results stability tests by defining acceptable variation bounds from the numerical variability resulting from the use of finite-precision arithmetic in calculations.
+Such errors arise when changes occur in the computational environment, including the computing architecture, the operating system, or the version of a dependent library for a given application. A well-established technique for estimating this uncertainty is Monte Carlo Arithmetic (MCA), a member of the family of stochastic arithmetics. Stochastic arithmetic models floating-point calculation errors with random variables, transforming the challenging task of symbolic round-off error analysis into a more tractable statistical sampling problem. Importantly, MCA is not dependent on the specificities of the application domain, rendering it applicable across a diverse range of cases and scenarios. Notably, MCA has been successfully utilized in neuroimaging to simulate numerical variability resulting from changes in operating systems~\cite{salari2021accurate} and to evaluate the reliability of brain networks~\cite{kiar2021numerical}.
 
 % Besides, the images generated by neuroimaging tools undergo several preprocessing steps, including image reconstruction, registration, and normalization, to ensure accurate and reliable analysis. These steps are critical in obtaining high-quality structural brain images that serve as a baseline for further analyses, such as functional imaging. Therefore, it is imperative to ensure a high level of numerical quality for these results, particularly over long-term support (LTS) patches.
 
@@ -176,9 +194,14 @@ To ensure that output values remain within an acceptable range of variations, on
 
 In this work, we propose a novel approach to non-regression testing in neuroimaging based on numerical uncertainty quantification. We leverage numerical variability, which is a critical property of scientific data analyses, to define acceptable variation bounds around an output of reference, using a set of representative datasets. Our approach is not specific to any particular numerical scheme and relies on a few statistical assumptions such as normality and independence, making it applicable to a wide range of scenarios. Hence, the proposed approach is not limited to neuroimaging and could be applied to other domains where ground truth is not available or acceptable variation bounds are difficult to define. We focus on preprocessing stages in neuroimaging, as they precede any further analyses, such as functional imaging or tractography. These preprocessing steps encompass image reconstruction, registration, and normalization, which yield structural brain images. As a result, it is crucial to guarantee consistent quality for these images over long-term support (LTS) patches, which explains our emphasis on these initial stages.
 
-Overall, the main contribution of this paper is to build and evaluate a non-regression test for structural MRI analysis using numerical uncertainty quantification, with the LTS of the \fmriprep software as the baseline. By leveraging numerical variability and providing a comprehensive method for defining acceptable variation bounds, we aim to enhance the accuracy and reliability of neuroimaging software and contribute to the field of non-regression testing in software engineering.
+In summary, the main contributions of this paper are the following:
+\begin{itemize}
+build and evaluate a non-regression test for structural MRI analysis using numerical uncertainty quantification, with the LTS of the \fmriprep software as the baseline. By leveraging numerical variability and providing a comprehensive method for defining acceptable variation bounds, we aim to enhance the accuracy and reliability of neuroimaging software and contribute to the field of non-regression testing in software engineering.
+\end{itemize}
 
-
+% \TG{Update with stability testing}
+% \TG{Explain the typical neuroimaging pipeline, including linear and non-linear registration}
+% \TG{explain fmriprep with more details}
 
 
 \section{Stability test design}
