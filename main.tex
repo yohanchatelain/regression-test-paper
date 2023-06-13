@@ -218,7 +218,7 @@ where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number 
 \begin{figure}
   \centering
   \includegraphics[width=\columnwidth]{figures/workflow_V.pdf}
-  \caption{Stability test construction and evaluation. The reference application $\Lambda$ is executed $n$ times on the input data, with random perturbations, resulting in images $X_k$ from which a null distribution is built to test the result produced by target application $\tilde \Lambda$. All results undergo the same smoothing and normalization steps. \TG{in masked images: the pictograms are not in the same order as the letters. I'm not sure why the normalization is split in two boxes. Add some whitespace between the workflow and the caption.}}
+  \caption{Stability test construction and evaluation. The reference application $\Lambda$ is executed $n$ times on the input data, with random perturbations, resulting in images $X_k$ from which a null distribution is built to test the result produced by target application $\tilde \Lambda$. All results undergo the same smoothing and normalization steps.}
   \label{fig:test_workflow}
 \end{figure}
 \begin{table}
@@ -234,13 +234,13 @@ where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number 
     $z_i$              & z-score of voxel i                                        \\
     $p_i$              & p-value of voxel i                                        \\
     $\hat{\mu_i}$      & average voxel intensity across perturbed samples          \\
-    $\hat{\sigma_i}$   & standard deviation of voxel intensity across perturbed    \\ & samples       \\
+    $\hat{\sigma_i}$   & standard deviation of voxel intensity                     \\ & across perturbed samples       \\
     $B_k$              & brain masks produced by random numerical                  \\ & perturbations of $\Lambda$  \\
     $B$                & union of $B_k$ masks                                      \\
     $\tilde X$         & image produced by unperturbed $\tilde \Lambda$ using IEEE \\ & convention \\
-    $X_k$              & images produced by random numerical perturbations         \\ & of $\Lambda$       \\
-    $X_k^{\perp}$      & $X_k$ masked with $B$, min-max scaled and spatially       \\ & smoothed         \\
-    $\hat{s}$          & average number of significant bits across the image       \\
+    $X_k$              & images produced by random numerical                       \\ &  perturbations of $\Lambda$       \\
+    $X_k^{\perp}$      & $X_k$ masked with $B$, min-max scaled                     \\ &  and spatially smoothed         \\
+    $\hat{s}$          & average number of significant bits                        \\ & across the image \\
     $\mathcal{N}(0,1)$ & standard Gaussian distribution                            \\
     $\Phi$             & cumulative distribution function of $\mathcal{N}(0,1)$    \\
     $\chi^2_{n-1}$     & Chi-2 distribution with n-1 degrees of freedom            \\
@@ -268,7 +268,7 @@ Random Seed (RS) and RR trigger different types of variability. RR can be applie
 For the \fmriprep application, $X_k$ is the main structural derivative produced by \fmriprep, that is, the T1-weighted MRI image corrected for intensity non-uniformity using \texttt{N4BiasFieldCorrection} from \texttt{ANTS} and transformed to template space using \texttt{antsRegistration}. This file is named \texttt{desc-preproc\_T1w} in the \fmriprep outputs. In addition to $X_k$, \fmriprep produces a brain mask $B_k$, a segmentation into grey matter, white matter and cerebrospinal fluid tissues, as well as probability maps for each of these tissues.
 
 Before computing the p-values in Equation~\ref{eq:pval}, we apply brain masking, smoothing, and intensity normalization to $X_k$. For brain masking, we mask $X_k$ with the union of the brain masks produced across all perturbed results. We use the union of the brain masks rather than their intersection to capture variability across $B_k$ masks. For smoothing, we apply a spatial 3D Gaussian smoothing kernel with Full-Width at Half Maximum (\fwhm) ranging from 0mm to 20mm. For intensity normalization, we apply a min-max scaling to the smoothed intensities to scale them to [0,1].
-The resulting pre-processed image $X_k^\perp$ is used as input of the stability test.
+The resulting pre-processed image $X_k^\perp$ is used as input for the stability test.
 
 \subsection{Datasets}
 
@@ -318,8 +318,6 @@ where $\hat{\sigma_i}$ and $\hat{\mu_i}$ are the voxelwise average and standard 
   \end{split}
 \end{equation}
 is a penalty term to estimate $\hat{s_i}$ with probability $p_s$ and confidence level $1-\alpha_s$ for a sample size $n$. $\Phi^{-1}$ is the inverse cumulative distribution of the standard normal distribution and $\chi^2$ is the Chi-2 distribution with n-1 degrees of freedom.
-
-
 
 \subsection{Computing infrastructure}
 
@@ -385,13 +383,12 @@ In addition, numerical variability was also maximal in some focal regions, sugge
 \subsection{The results stability test passed sanity checks but usable FWHM and $\alpha$ values were data-dependent}
 
 We implemented three different sanity checks to evaluate the relevance of the stability test.
-The leave-one-out check evaluate the specificity of the stability test, that is, its ability
-to accept results produced by the reference application $\Lambda$. The IEEE check evaluates the specificity
-of the test by checking that it accepts the unperturbed application result, and its sensitivity through the rejection of results produced by a different subject than the original result. The corrupted template check evaluates
-the sensitivity of the stability test, that is, its ability to reject results produced by a corrupted version of the reference application.
+The leave-one-out check evaluates the specificity of the stability test, that is, its ability to accept results produced by the reference application $\Lambda$.
+The IEEE check evaluates the specificity of the test by checking that it accepts the unperturbed application result and its sensitivity through the rejection of results produced by a different subject than the original result.
+The corrupted template check evaluates the sensitivity of the stability test, that is, its ability to reject results produced by a corrupted version of the reference application.
 
 \paragraph{Leave-one-out check} We implemented a ``leave-one-out" (LOO) evaluation by constructing the stability test $n$ times for $n-1$ perturbed results and applying it to the remaining perturbed result. By construction, the remaining perturbed result is sampled from the distribution of results produced by $\Lambda$ and should therefore be accepted by the stability test.
-To define a clear passing criterion for the LOO check, we modeled the LOO check using a binomial variable $B(n,1-\alpha)$ where $n$ is the number LOO iterations and $1-\alpha$ is the probability that a perturbed sample is accepted by the stability test. Under $H_0$ for all voxels, we expect the following bound to be verified:
+To define a clear passing criterion for the LOO check, we modeled the LOO check using a binomial variable $B(n,1-\alpha)$ where $n$ is the number of LOO iterations and $1-\alpha$ is the probability that a perturbed sample is accepted by the stability test. Under $H_0$ for all voxels, we expect the following bound to be verified:
 \[
   1-F(\mathds{1}_n;n,1-\alpha) \leq \alpha_0
 \]
@@ -410,9 +407,9 @@ However, the values of $\alpha$ and FWHM for which the LOO check passed importan
 \end{figure}
 
 
-\paragraph{IEEE check} We constructed the stability test from the $n$ perturbed results for each subject and applied it to the IEEE results (one per subject). The purpose of this check was twofold: (within subject) to verify that IEEE results passed the stability test built from the reference distribution of their corresponding subject and (between subjects) to verify that IEEE results failed the stability test built from the reference distribution of other subjects.
+\paragraph{IEEE check} We constructed the stability test from the $n$ perturbed results for each subject and applied it to the IEEE results (one per subject). The purpose of this check was twofold: (within subjects) to verify that IEEE results passed the stability test built from the reference distribution of their corresponding subject and (between subjects) to verify that IEEE results failed the stability test built from the reference distribution of other subjects.
 
-Within subject: for each subject there was an $\alpha$ and FWHM pair such that all the within-subject IEEE checks passed (Figure~\ref{fig:ieee-check}). In particular, the within-subject IEEE check passed with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations. For low FWHM sizes, the stability test rejected the IEEE sample of the reference subject, suggesting a lack of specificity in such cases.
+Within subject: for each subject, there was an $\alpha$ and FWHM pair such that all the within-subject IEEE checks passed (Figure~\ref{fig:ieee-check}). In particular, the within-subject IEEE check passed with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations. For low FWHM sizes, the stability test rejected the IEEE sample of the reference subject, suggesting a lack of specificity in such cases.
 
 Between subjects: the stability tests successfully rejected all the IEEE samples coming from other subjects, for all combinations of $\alpha$ and FWHM values, and consistently for both RR and RS perturbations. Therefore the stability test is sufficiently sensitive to detect between-subject variability even with a high smoothing kernel size.
 
@@ -593,7 +590,6 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 
 
 \begin{landscape}
-  <<<<<<< HEAD
   \begin{figure}
     \vspace*{-2cm}
     \centering
@@ -663,77 +659,6 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
     \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=20mm. }
     \label{fig:uncertainty-maps-20mm-disc}
   \end{figure}
-  =======
-  \begin{figure}
-    \vspace*{-2cm}
-    \centering
-    \uncertaintyMapDiscrete{0}{1}{ds000256}{sub-CTS201}[true] \\
-    \uncertaintyMapDiscrete{0}{2}{ds000256}{sub-CTS210} \\
-    \uncertaintyMapDiscrete{0}{3}{ds001600}{sub-1} \\
-    \uncertaintyMapDiscrete{0}{4}{ds001748}{sub-adult15} \\
-    \uncertaintyMapDiscrete{0}{5}{ds001748}{sub-adult16} \\
-    \uncertaintyMapDiscrete{0}{6}{ds001771}{sub-36} \\
-    \uncertaintyMapDiscrete{0}{7}{ds002338}{sub-xp201} \\
-    \uncertaintyMapDiscrete{0}{8}{ds002338}{sub-xp207} \\
-    \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
-    \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=0mm. }
-    \label{fig:uncertainty-maps-0mm-disc}
-  \end{figure}
-\end{landscape}
-
-\begin{landscape}
-  \begin{figure}
-    \vspace*{-2cm}
-    \centering
-    \uncertaintyMapDiscrete{5}{1}{ds000256}{sub-CTS201}[true] \\
-    \uncertaintyMapDiscrete{5}{2}{ds000256}{sub-CTS210} \\
-    \uncertaintyMapDiscrete{5}{3}{ds001600}{sub-1} \\
-    \uncertaintyMapDiscrete{5}{4}{ds001748}{sub-adult15} \\
-    \uncertaintyMapDiscrete{5}{5}{ds001748}{sub-adult16} \\
-    \uncertaintyMapDiscrete{5}{6}{ds001771}{sub-36} \\
-    \uncertaintyMapDiscrete{5}{7}{ds002338}{sub-xp201} \\
-    \uncertaintyMapDiscrete{5}{8}{ds002338}{sub-xp207} \\
-    \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
-    \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=5mm. }
-    \label{fig:uncertainty-maps-5mm-disc}
-  \end{figure}
-\end{landscape}
-
-\begin{landscape}
-  \begin{figure}
-    \vspace*{-2cm}
-    \centering
-    \uncertaintyMapDiscrete{10}{1}{ds000256}{sub-CTS201}[true] \\
-    \uncertaintyMapDiscrete{10}{2}{ds000256}{sub-CTS210} \\
-    \uncertaintyMapDiscrete{10}{3}{ds001600}{sub-1} \\
-    \uncertaintyMapDiscrete{10}{4}{ds001748}{sub-adult15} \\
-    \uncertaintyMapDiscrete{10}{5}{ds001748}{sub-adult16} \\
-    \uncertaintyMapDiscrete{10}{6}{ds001771}{sub-36} \\
-    \uncertaintyMapDiscrete{10}{7}{ds002338}{sub-xp201} \\
-    \uncertaintyMapDiscrete{10}{8}{ds002338}{sub-xp207} \\
-    \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
-    \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=10mm. }
-    \label{fig:uncertainty-maps-10mm-disc}
-  \end{figure}
-\end{landscape}
-
-\begin{landscape}
-  \begin{figure}
-    \vspace*{-2cm}
-    \centering
-    \uncertaintyMapDiscrete{20}{1}{ds000256}{sub-CTS201}[true] \\
-    \uncertaintyMapDiscrete{20}{2}{ds000256}{sub-CTS210} \\
-    \uncertaintyMapDiscrete{20}{3}{ds001600}{sub-1} \\
-    \uncertaintyMapDiscrete{20}{4}{ds001748}{sub-adult15} \\
-    \uncertaintyMapDiscrete{20}{5}{ds001748}{sub-adult16} \\
-    \uncertaintyMapDiscrete{20}{6}{ds001771}{sub-36} \\
-    \uncertaintyMapDiscrete{20}{7}{ds002338}{sub-xp201} \\
-    \uncertaintyMapDiscrete{20}{8}{ds002338}{sub-xp207} \\
-    \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
-    \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=20mm. }
-    \label{fig:uncertainty-maps-20mm-disc}
-  \end{figure}
-  >>>>>>> 10ea347 (WIP)
 \end{landscape}
 
 
