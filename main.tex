@@ -144,11 +144,26 @@
 }
 
 
-% Cluster failure: Why fMRI inferences for spatial extent have inflated
+% Cluster failure: Why fMRI inferences for spatial extent lhave inflated
 % false-positive https://www.pnas.org/doi/pdf/10.1073/pnas.1602413113
 
-\title{Long-term stability tests for neuroimaging analysis: a numerical uncertainty approach}
-\author{Yohan Chatelain, Loic Tetrel, Christopher J. Markiewicz, Gregory Kiar,\\ Oscar Esteban,  Pierre Bellec, Tristan Glatard}
+\title{A numerical variability approach to results stability tests and its application to neuroimaging}
+\author{\IEEEauthorblockN{Yohan Chatelain\IEEEauthorrefmark{1}, Loic Tetrel\IEEEauthorrefmark{2}, Christopher J. Markiewicz\IEEEauthorrefmark{3}, Gregory Kiar\IEEEauthorrefmark{6}, Oscar Esteban\IEEEauthorrefmark{3,5},  Pierre Bellec\IEEEauthorrefmark{2,4}, Tristan Glatard\IEEEauthorrefmark{1}}
+
+\IEEEauthorblockA{\IEEEauthorrefmark{1}Department of Computer Science and Software Engineering, Concordia University, Montreal, Quebec, Canada.}
+
+\IEEEauthorblockA{\IEEEauthorrefmark{2} Centre de recherche de l'Institut Universitaire de Gériatrie de Montréal (CRIUGM), Montréal, Québec, Canada.}
+
+\IEEEauthorblockA{\IEEEauthorrefmark{3} Department of Psychology, Stanford University, Stanford, CA, USA.}
+
+\IEEEauthorblockA{\IEEEauthorrefmark{4} Department of Psychology, Université de Montréal, Montréal, Québec, Canada.}
+
+\IEEEauthorblockA{\IEEEauthorrefmark{5} Department of Radiology, Lausanne University Hospital and University of Lausanne, Switzerland.}
+
+\IEEEauthorblockA{\IEEEauthorrefmark{6} Child Mind Institute, New York City, NY, USA.}
+}
+
+
 
 \begin{document}
 \maketitle
@@ -159,28 +174,34 @@
 
 \section{Introduction}
 
-\TG{Update with stability testing}
-\TG{Explain the typical neuroimaging pipeline, including linear and non-linear registration}
-\TG{explain fmriprep with more details}
-In the field of software engineering, non-regression testing plays a critical role in ensuring the stability and reliability of software systems over time. This involves testing software updates to verify that they do not introduce new bugs or regressions compared to previous versions. It is an important quality assurance process that helps identify and fix potential issues before they impact users.
+% results stability tests
+Data analyses can produce different results depending on the hardware and software conditions in which they are executed~\cite{glatard2015reproducibility, bhagwat2021understanding}, which has important repercussions in a number of disciplines. This paper investigates results stability tests whereby the outcome of a data analysis is asserted to remain within acceptable variation bounds of a reference result. The primary challenge in developing such stability tests lies in the determination of acceptable bounds of variation around the reference result. We define such bounds from the numerical variability of the results, that is, from the variability inherent to numerical computations.
 
-In neuroimaging, tools have been developed and utilized by the scientific community for several decades now, enabling researchers to study the human brain with unprecedented detail and precision. The maturity of neuroimaging software tools pushed them to develop long-term support (LTS) versions to release stable and reliable software versions for long-term use. But LTS requires inevitable updates for security reasons, bug fixes, end-of-life (EOL) and updates dependencies. Despite the widespread use of these tools, there are still variabilities observed between different software tools and even between different versions of the same tool, which can impact the quality and reliability of the results obtained~\cite{glatard2015reproducibility, bhagwat2021understanding}.
+% neuroimaging
+We focus on the use case of neuroimaging analyses, although our method applies to data analyses more broadly. For several decades, the neuroimaging community has developed advanced software tools enabling researchers to study the human brain with unprecedented detail and precision. Neuroimaging tools now underpin scientific findings in several disciplines, and must therefore be thoroughly tested. In particular, neuroimaging studies often follow subjects over multiple years, which requires data analyses to be consistent over substantial time periods.
 
-A significant obstacle in assessing neuroimaging software stems from the lack of a well-established reference or ground truth for comparative purposes. Even determining an acceptable tolerance threshold proves to be particularly challenging, given the absence of universally accepted standards in the field. Methods such as simulations, phantoms, and ex-vivo data have limitations and do not provide a comprehensive solution for defining acceptable variation bounds. Hence, conducting thorough testing is imperative to ensure that the quality of results does not regress due to bug fixes and updates applied to LTS versions of neuroimaging software tools.
 
-To ensure that output values remain within an acceptable range of variations, one way is to account for the errors introduced during calculations due to the use of finite-precision arithmetic, such as the floating-point model. Such errors may arise when changes occur in the computational environment, including the computing architecture, the operating system, or the version of a dependent library for a given application. A well-established technique for estimating this uncertainty is Monte Carlo Arithmetic (MCA), a member of the family of stochastic arithmetics. Stochastic arithmetic models floating-point calculation errors with random variables, transforming the challenging task of symbolic round-off error analysis into a more tractable statistical sampling problem. Importantly, MCA is not dependent on the specificities of the application domain, rendering it applicable across a diverse range of cases and scenarios. Notably, MCA has been successfully utilized in neuroimaging to simulate numerical variability resulting from changes in operating systems~\cite{salari2021accurate} and to evaluate the reliability of brain networks~\cite{kiar2021numerical}.
+% fmriprep
+The present paper focuses primarily on the \fmriprep software~\cite{esteban2019fmriprep}, a tool to pre-process Magnetic Resonance Imaging (MRI) data as a pre-requisite of any further analysis. \fmriprep is an integrated data analysis pipeline for structural and functional MRI pre-processing. We focus on the pre-processing of structural MRI, which includes intensity non-uniformity correction, skull stripping, and spatial normalization to a brain template. 
+%Spatial normalization is a critical step of MRI analysis whereby images acquired on individual subjects are mapped to a template brain through a process called image registration. 
+ \fmriprep developers recently initiated long-term support (LTS) releases to guarantee results stability over multiple years, which motivated the development of the results stability tests presented in this paper. 
 
-% Besides, the images generated by neuroimaging tools undergo several preprocessing steps, including image reconstruction, registration, and normalization, to ensure accurate and reliable analysis. These steps are critical in obtaining high-quality structural brain images that serve as a baseline for further analyses, such as functional imaging. Therefore, it is imperative to ensure a high level of numerical quality for these results, particularly over long-term support (LTS) patches.
+% is challenging due to inevitable security updates and bug fixes in the main software or in its dependencies.
 
-% and therefore condition the quality of the subsequent analyses. are important to obtaining accurate and reliable high-quality structural brain images. Since these images serve as a basis for further analyses, it makes the preprocessing steps a mandatory and critical component of the process. Therefore, ensuring a stable quality for these results over long-term support (LTS) patches is imperative for the robustness and reliability of subsequent analyses in the neuroimaging pipeline.
+% numerical precision
+Our stability tests leverage the numerical variability resulting from the use of finite-precision arithmetic in calculations. This variability manifests primarily as a result of changes in  computational environments, which includes hardware architecture, parallelization scheme, operating system, and software dependencies. To estimate numerical variability, we rely on random rounding, a stochastic arithmetic technique that randomly rounds floating-point operation results to the previous or to the next floating-point number with equal probability. Stochastic arithmetic has been successfully applied to simulate numerical variability in various domains, including neuroimaging~\cite{salari2021accurate, kiar2021numerical}. Our approach is not specific to any particular numerical scheme and relies on a few statistical assumptions such as normality and independence, making it applicable to a wide range of scenarios.
 
-In this work, we propose a novel approach to non-regression testing in neuroimaging based on numerical uncertainty quantification. We leverage numerical variability, which is a critical property of scientific data analyses, to define acceptable variation bounds around an output of reference, using a set of representative datasets. Our approach is not specific to any particular numerical scheme and relies on a few statistical assumptions such as normality and independence, making it applicable to a wide range of scenarios. Hence, the proposed approach is not limited to neuroimaging and could be applied to other domains where ground truth is not available or acceptable variation bounds are difficult to define. We focus on preprocessing stages in neuroimaging, as they precede any further analyses, such as functional imaging or tractography. These preprocessing steps encompass image reconstruction, registration, and normalization, which yield structural brain images. As a result, it is crucial to guarantee consistent quality for these images over long-term support (LTS) patches, which explains our emphasis on these initial stages.
+% summary of contributions
+In summary, the main contributions of this paper are the following:
+\begin{itemize}
+    \item Define a numerical variability approach to results stability tests;
+    \item Build results stability tests for structural pre-processing in \fmriprep;
+    \item Evaluate results stability tests in a number of configurations.
+\end{itemize}
 
-Overall, the main contribution of this paper is to build and evaluate a non-regression test for structural MRI analysis using numerical uncertainty quantification, with the LTS of the \fmriprep software as the baseline. By leveraging numerical variability and providing a comprehensive method for defining acceptable variation bounds, we aim to enhance the accuracy and reliability of neuroimaging software and contribute to the field of non-regression testing in software engineering.
+\section{Results stability test design}
 
-\section{Stability test design}
-
-Considering a data processing application $\Lambda$, the objective of our stability test is to determine whether the results generated by a different application $\tilde \Lambda$ deviate from the reference results produced by $\Lambda$. In practice, we are particularly interested in the case where $\tilde \Lambda$ corresponds to a different version of $\Lambda$, or to the same version executed in a different execution environment (operating system, parallelization or hardware). Given input data $I$, we assume that $\Lambda$ and $\tilde \Lambda$ produce 3D images $X$ and $\tilde X$ with the same number $v$ of voxels. We model $X$ as a random variable and we sample its distribution by computing $n$ random numerical perturbations of $\Lambda$, resulting in $n$ images $X_k$. Conversely, we compute $\tilde X$ without random perturbation using the IEEE-754 norm, to avoid computational overheads at test time. To test if $\tilde X$ belongs to the distribution of $X$, we perform a z-test for each voxel $\tilde x_i$ ($i\leq v$), using the mean $\hat \mu_i$ and the standard deviation $\hat \sigma_i$ estimated from the $n$ perturbed results. The test computes a p-value $p_i$ under the null hypothesis $H_{0,i}$ that the tested voxel belongs to the reference distribution:
+Considering a data processing application $\Lambda$, the objective of our stability test is to determine whether the results generated by a different application $\tilde \Lambda$ significantly differ from the reference results produced by $\Lambda$. In practice, we are particularly interested in the case where $\tilde \Lambda$ corresponds to a different version of $\Lambda$, or to the same version executed in a different execution environment (operating system, parallelization or hardware). Given input data $I$, we assume that $\Lambda$ and $\tilde \Lambda$ produce images $X$ and $\tilde X$ with the same number $v$ of voxels. We model $X$ as a random variable and we sample its distribution by computing $n$ random numerical perturbations of $\Lambda$, resulting in $n$ images $X_k$. Conversely, we compute $\tilde X$ without random perturbation using the IEEE-754 norm, to avoid computational overheads at test time. To test if $\tilde X$ belongs to the distribution of $X$, we perform a z-test for each voxel $\tilde x_i$ ($i\leq v$), using the mean $\hat \mu_i$ and the standard deviation $\hat \sigma_i$ estimated from the $n$ perturbed results. The test computes a p-value $p_i$ under the null hypothesis $H_{0,i}$ that the tested voxel belongs to the reference distribution:
 \begin{equation} \label{eq:pval}
     p_i(z_i) = 2 \left(1-\Phi(z_i)\right),
 \end{equation}
@@ -189,14 +210,14 @@ Gaussian and:
 \begin{equation*}
     z_i = \frac{\tilde x_i-\hat \mu_i}{\hat \sigma_i},
 \end{equation*}
-where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number of voxels in $\tilde X$, and $\hat \mu_i$ and $\hat \sigma_i$ are the mean and standard deviation voxel intensities estimated from the $n$ perturbed results $X_k$. $H_{0,i}$ is rejected when $p_i$ is lower than a threshold $\alpha$ that also defines the confidence level of the test (1-$\alpha$)\%. The z-test assumes that perturbed voxel intensities are normally distributed. To capture anatomical variability, we perform this test on a representative set of input images. Table~\ref{tab:notations} summarizes the notations and Figure~\ref{fig:test_workflow} summarizes the test workflow.
+where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number of voxels in $\tilde X$, and $\hat \mu_i$ and $\hat \sigma_i$ are the mean and standard deviation voxel intensities estimated from the $n$ perturbed results $X_k$. $H_{0,i}$ is rejected when $p_i$ is lower than a threshold $\alpha$ that also defines the confidence level of the test (1-$\alpha$)\%. The z-test assumes that perturbed voxel intensities are normally distributed. To capture anatomical variability, we perform this test on a representative set of input images described hereafter. Table~\ref{tab:notations} summarizes the notations and Figure~\ref{fig:test_workflow} summarizes the test workflow.
 
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{figures/workflow_V.pdf}
-    \caption{Stability test construction and evaluation. The reference application $\Lambda$ is executed $n$ times on the input data, with random perturbations, resulting in images $X_k$ from which a null distribution is built to test the result produced by target application $\tilde \Lambda$. All results undergo the same smoothing and normalization.}
+    \caption{Stability test construction and evaluation. The reference application $\Lambda$ is executed $n$ times on the input data, with random perturbations, resulting in images $X_k$ from which a null distribution is built to test the result produced by target application $\tilde \Lambda$. All results undergo the same smoothing and normalization steps. \TG{in masked images: the pictograms are not in the same order as the letters. I'm not sure why the normalization is split in two boxes. Add some whitespace between the workflow and the caption.}}
     \label{fig:test_workflow}
-\end{figure*}
+\end{figure}
 \begin{table}
     \centering
     \begin{tabular}{r|l}
@@ -228,7 +249,7 @@ where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number 
 
 \subsection{Numerical variability estimation}
 
-To estimate the distribution of reference results and compute $\hat \mu_i$ and $\hat \sigma_i$, we sample results distributions by applying two types of random numerical perturbations: (1) Random Rounding (RR), which randomly rounds function outputs in the GNU libmath mathematical library, and (2) Random Seed (RS), which varies the random seed used in the application. In neuroimaging, random seeds are typically employed to initialize optimization processes encountered in linear and non-linear image registration.
+To estimate the distribution of reference results and compute $\hat \mu_i$ and $\hat \sigma_i$, we sample results distributions by applying two types of random numerical perturbations: (1) Random Rounding (RR), which randomly rounds function outputs in the GNU libmath mathematical library, and (2) Random Seed (RS), which varies the random seed used in the application. In neuroimaging, random seeds are typically employed to initialize optimization processes encountered in spatial normalization.
 
 Random Rounding (RR) consists in rounding the exact result of a floating-point arithmetic operation toward the previous or next floating-point number with equal probability~\cite{forsythe1959reprint}. RR is equivalent to applying Monte-Carlo Arithmetic (MCA~\cite{parker1997monte}) to double-precision numbers with a virtual precision of 53 bits and to single-precision numbers with a virtual precision of 24 bits, which was shown to accurately simulate the effect of operating system updates on the structural MRI pre-processing pipelines of the Human Connectome Project (HCP) when applied to GNU libmath~\cite{salari2021accurate}. Structural HCP pipelines consist of tools assembled from the FSL~\cite{jenkinson2012fsl} and Freesurfer~\cite{fischl2012freesurfer} toolboxes, which makes them conceptually very similar to the structural fMRIPrep pipeline targeted by our study.
 
@@ -240,9 +261,32 @@ Random Seed (RS) and RR trigger different types of variability. RR can be applie
 
 For the \fmriprep application, $X_k$ is the main structural derivative produced by \fmriprep, that is, the T1-weighted MRI image corrected for intensity non-uniformity using \texttt{N4BiasFieldCorrection} from \texttt{ANTS} and transformed to template space using \texttt{antsRegistration}. This file is named \texttt{desc-preproc\_T1w} in the \fmriprep outputs. In addition to $X_k$, \fmriprep produces a brain mask $B_k$, a segmentation into grey matter, white matter and cerebrospinal fluid tissues, as well as probability maps for each of these tissues.
 
-Before computing the p-values in Equation~\ref{eq:pval}, we apply brain masking, smoothing, and intensity normalization to $X_k$. For brain masking, we mask $X_k$ with the union of the brain masks produced across all perturbed results. We use the union of the brain masks rather than their intersection to capture variability across $B_k$ masks. For smoothing, we apply a spatial 3D Gaussian smoothing kernel with Full-Width at Half Maximum (\fwhm) ranging from 0~mm to 20~mm. For intensity normalization, we apply a min-max scaling to the smoothed intensities to scale them to [0,1].
+Before computing the p-values in Equation~\ref{eq:pval}, we apply brain masking, smoothing, and intensity normalization to $X_k$. For brain masking, we mask $X_k$ with the union of the brain masks produced across all perturbed results. We use the union of the brain masks rather than their intersection to capture variability across $B_k$ masks. For smoothing, we apply a spatial 3D Gaussian smoothing kernel with Full-Width at Half Maximum (\fwhm) ranging from 0mm to 20mm. For intensity normalization, we apply a min-max scaling to the smoothed intensities to scale them to [0,1].
 The resulting pre-processed image $X_k^\perp$ is used as input of the stability test.
 
+\subsection{Datasets}
+
+We selected eight test subjects from sub-datasets in the OpenNeuro~\cite{markiewicz2021openneuro} data-sharing platform, representing a diversity of ages, sex, and study designs. The datasets include a motion study with children (ds000256), a long-term memory study with young adults (ds001748), and a motor process study with adults (ds002338). In addition, two sub-datasets involve steps of the pipeline that can affect its reproducibility, namely different field maps (ds001600) and non-structural images (ds001771). Table~\ref{table:dataset_info} lists the dimension, voxels resolution, age and sex of each subject in the dataset.
+
+\begin{table*}
+    \begin{center}
+        \begin{tabular}{c|c|l|c|c|c|c|c}
+            Index & Dataset  & Subject     & Dimension ($x,y,z$)         & Voxel resolution            & Data type & Age     & Sex \\
+                  &          &             &                             & $mm^3$ ($x,y,z$)            &           & (years) &     \\
+            \hline
+            1     & ds000256 & sub-CTS201  & $256 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & 8.68    & M   \\
+            2     & ds000256 & sub-CTS210  & $224 \times 256 \times 256$ & $0.8 \times 0.8 \times 0.8$ & int16     & 7.63    & F   \\
+            3     & ds001600 & sub-1       & $176 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & -       & -   \\
+            4     & ds001748 & sub-adult15 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & M   \\
+            5     & ds001748 & sub-adult16 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & F   \\
+            6     & ds001771 & sub-36      & $256 \times 320 \times 320$ & $0.8 \times 0.8 \times 0.8$ & int16     & 22      & F   \\
+            7     & ds002338 & sub-xp201   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 41      & F   \\
+            8     & ds002338 & sub-xp207   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 39      & M   \\
+        \end{tabular}
+    \end{center}
+    \caption{Dimension, voxels resolutions, age and sex of each subject in the dataset.}
+    \label{table:dataset_info}
+\end{table*}
 
 \subsection{Handling multiple comparisons}
 
@@ -269,29 +313,7 @@ where $\hat{\sigma_i}$ and $\hat{\mu_i}$ are the voxelwise average and standard 
 \end{equation}
 is a penalty term to estimate $\hat{s_i}$ with probability $p_s$ and confidence level $1-\alpha_s$ for a sample size $n$. $\Phi^{-1}$ is the inverse cumulative distribution of the standard normal distribution and $\chi^2$ is the Chi-2 distribution with n-1 degrees of freedom.
 
-\subsection{Datasets}
 
-We selected eight test subjects from sub-datasets in the OpenNeuro~\cite{markiewicz2021openneuro} data-sharing platform, representing a diversity of ages, sex, and study designs. The datasets include a motion study with children (ds000256), a long-term memory study with young adults (ds001748), and a motor process study with adults (ds002338). In addition, two sub-datasets involve steps of the pipeline that can affect its reproducibility, namely different field maps (ds001600) and non-structural images (ds001771). Table~\ref{table:dataset_info} lists the dimension, voxels resolution, age and sex of each subject in the dataset.
-
-\begin{table*}
-    \begin{center}
-        \begin{tabular}{c|c|l|c|c|c|c|c}
-            Index & Dataset  & Subject     & Dimension ($x,y,z$)         & Voxel resolution            & Data type & Age     & Sex \\
-                  &          &             &                             & $mm^3$ ($x,y,z$)            &           & (years) &     \\
-            \hline
-            1     & ds000256 & sub-CTS201  & $256 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & 8.68    & M   \\
-            2     & ds000256 & sub-CTS210  & $224 \times 256 \times 256$ & $0.8 \times 0.8 \times 0.8$ & int16     & 7.63    & F   \\
-            3     & ds001600 & sub-1       & $176 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & -       & -   \\
-            4     & ds001748 & sub-adult15 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & M   \\
-            5     & ds001748 & sub-adult16 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & F   \\
-            6     & ds001771 & sub-36      & $256 \times 320 \times 320$ & $0.8 \times 0.8 \times 0.8$ & int16     & 22      & F   \\
-            7     & ds002338 & sub-xp201   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 41      & F   \\
-            8     & ds002338 & sub-xp207   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 39      & M   \\
-        \end{tabular}
-    \end{center}
-    \caption{Dimension, voxels resolutions, age and sex of each subject in the dataset.}
-    \label{table:dataset_info}
-\end{table*}
 
 \subsection{Computing infrastructure}
 
@@ -312,14 +334,15 @@ We computed n=30 perturbed results for each of the 8 subjects and for the two ty
         subjects.}
     \label{fig:significant-digits}
 \end{figure}
-Overall, the two types of perturbations (RR and RS) resulted in numerical uncertainties of comparable magnitude (Figure~\ref{fig:significant-digits}). The measured uncertainty was high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data\footnote{The voxel intensity is encoded on 12 bits but is embedded in a 16 bits format.}. The application appears to be highly sensitive to numerical and random seed perturbations.
+Overall, the two types of perturbations (RR and RS) resulted in numerical uncertainties of comparable magnitude and behavior (Figure~\ref{fig:significant-digits}), which supports the validity of our results. The measured uncertainty was high, with mean significant bits ranging from 2 bits to 10 bits out of the 12 bits available in the data\footnote{The voxel intensity is encoded on 12 bits although it is embedded in a 16 bits format.}. The application appears to be highly sensitive to numerical and random seed perturbations.
 
-We noted substantial discrepancies in numerical uncertainty across subjects. For a given smoothing kernel size, the number of significant bits frequently varied in the ratio of 1 to 3 across subjects. Overall, smoothing tended to reduce numerical uncertainty, however, this behavior was in general not monotonous and impacted subjects differently.
+We noted substantial discrepancies in numerical uncertainty across subjects. For a given smoothing kernel size, the number of significant bits frequently varied in the ratio of 1 to 3 across subjects. Overall, smoothing tended to reduce numerical uncertainty, however, this behavior was in general not monotonous and impacted subjects differently. The observed between-subject variability
+demonstrates the importance of evaluating such applications on a representative set of datasets.
 
 The uncertainty measured across perturbed samples showed regional variations compatible with anatomical features (Figure~\ref{fig:uncertainty-maps}). In particular, uncertainty was
 maximal at the border of the brain mask, and it was overall higher in the gray matter than in the white matter.
 This is consistent with previous observations of numerical uncertainty in structural brain image analysis~\cite{salari2021accurate}.
-In addition, uncertainty was also maximal in some focal regions \TG{indicated with arrows in Figure~\ref{fig:uncertainty-maps}}, suggesting that non-linear registration may be unstable in these regions. Our stability test will therefore be more tolerant in these regions.
+In addition, uncertainty was also maximal in some focal regions, suggesting that spatial normalization may be unstable in these regions. Our stability test will therefore be more tolerant in these regions.
 
 
 % \begin{figure*}
@@ -353,12 +376,13 @@ In addition, uncertainty was also maximal in some focal regions \TG{indicated wi
 \end{figure*}
 
 
-\subsection{Sanity checks}
+\subsection{The results stability test passed sanity checks but usable FWHM and $\alpha$ values were data-dependent}
 
 We implemented three different sanity checks to evaluate the relevance of the stability test.
-The leave-one-out and IEEE checks evaluate the specificity of the stability test, that is, its ability
+The leave-one-out check evaluate the specificity of the stability test, that is, its ability
 to accept results produced by the reference application $\Lambda$. The corrupted template check evaluates
-the sensitivity of the stability test, that is, its ability to reject results produced by a corrupted version of the reference application.
+the sensitivity of the stability test, that is, its ability to reject results produced by a corrupted version of the reference application. The IEEE check evaluates the specificity
+of the test by checking that it accepts the unperturbed application result, and its sensitivity through the rejection of results produced by a different subject than the original result.
 
 \paragraph{Leave-one-out checks} We implemented a ``leave-one-out" (LOO) evaluation by constructing the stability test $n$ times for $n-1$ perturbed results and applying it to the remaining perturbed result. By construction, the remaining perturbed result is sampled from the distribution of results produced by $\Lambda$ and should therefore be accepted by the stability test.
 To define a clear passing criterion for the LOO check, we modeled the LOO check using a binomial variable $B(n,1-\alpha)$ where $n$ is the number LOO iterations and $1-\alpha$ is the probability that a perturbed sample is accepted by the stability test. Under $H_0$ for all voxels, we expect the following bound to be verified:
@@ -369,7 +393,7 @@ where $F(x;n,p)$ is the cumulative distribution function of the Binomial law $B(
 
 We applied the LOO check for different confidence values ($1-\alpha$) and different FWHM  values for the RR and RS perturbations (Figure~\ref{fig:loo_bonferroni}). As expected, the stability test became increasingly permissive for increasing values of $\alpha$ (reduced confidence) and increasing values of FWHM. As previously observed, RR and RS behaved similarly overall. For each subject, there were values of $\alpha$ and FWHM such that the LOO check passed, which demonstrates the good specificity of the stability test.
 
-However, the values of $\alpha$ and FWHM for which the LOO check passed importantly varied across subjects, presumably due to between-subject variations in input data quality and instability modes of image registration. For instance, to pass the LOO check with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 required a smoothing size of FWHM=12mm and subjects 1 and 4 required FWHM=15mm. Subjects 2 and 3 required $\alpha=0.15$ to pass the LOO check. This is not surprising given the heterogeneity in numerical uncertainty previously observed across subjects. In practice, it suggests that different values of $\alpha$ and FWHM should be used for each subject in the test dataset.
+However, the values of $\alpha$ and FWHM for which the LOO check passed importantly varied across subjects, presumably due to between-subject variations in input data quality and instability modes of spatial normalization. For instance, to pass the LOO check with $\alpha=0.05$ for RR perturbations, subjects 5, 6, 7 and 8 required a smoothing size of FWHM=12mm and subjects 1 and 4 required FWHM=15mm. Subjects 2 and 3 required $\alpha=0.15$ to pass the LOO check. Such discrepancies are not surprising given the heterogeneity in numerical uncertainty previously observed across subjects. In practice, different values of $\alpha$ and FWHM must be used for each subject in the test dataset.
 
 \begin{figure}
     \centering
@@ -382,26 +406,27 @@ However, the values of $\alpha$ and FWHM for which the LOO check passed importan
 
 \paragraph{IEEE check} We constructed the stability test from the $n$ perturbed results for each subject and applied it to the IEEE results (one per subject). The purpose of this check was twofold: (intra-subject) to verify that IEEE results pass the stability test built from the reference distribution of their corresponding subject and (inter-subject) to verify that IEEE results fail the stability test built from the reference distribution of other subjects.
 
-For the intra-subject case, Figure~\ref{fig:ieee-check} shows the ratio of passed tests for increasing values of $\alpha$ and FWHM for RS and RR perturbations. For low FWHM sizes, the stability test rejects the IEEE sample of the reference subject, suggesting a lack of specificity in such cases. Most importantly, for each subject, there is an $\alpha$ and FWHM pair such that the IEEE check passes. In addition, the IEEE check passes with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations.
+For the intra-subject case, Figure~\ref{fig:ieee-check} shows the ratio of passed tests for increasing values of $\alpha$ and FWHM for RS and RR perturbations. For each subject, there was an $\alpha$ and FWHM pair such that all the intra-subject IEEE checks pass. In particular, the intra-subject IEEE check passes with FWHM=15~mm for all subjects and $\alpha$ values for RR perturbations.
+For low FWHM sizes, the stability test rejects the IEEE sample of the reference subject, suggesting a lack of specificity in such cases.  
 
-For the inter-subject case, the stability tests reject successfully the IEEE samples coming from other subjects, for all combinations of $\alpha$ and FWHM values, and consistently for both RR and RS perturbations. This means that our test is sufficiently sensitive to detect inter-subject variability even with a high smoothing kernel size.
+For the inter-subject case, the stability tests reject successfully all the IEEE samples coming from other subjects, for all combinations of $\alpha$ and FWHM values, and consistently for both RR and RS perturbations. This means that our test is sufficiently sensitive to detect inter-subject variability even with a high smoothing kernel size.
 
 We conclude from this experiment that the stability test is sensitive enough to reject results obtained from different subjects using the reference application and accept results obtained from the same subject using the reference application executed with random perturbations.
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/inter-subject/inter_mct_fwe_bonferroni.pdf}
-    \caption{Ratios of successful stability tests for the intra-subject IEEE check for RR (top) and RS (bottom). Low ratios for low FHWM sizes suggest a lack of specificity in these cases. The inter-subject tests (not displayed in the figure) consistently fail for all $\alpha$ and FWHM combinations, demonstrating excellent sensitivity.
+    \caption{Ratios of successful stability tests for the intra-subject IEEE check. The inter-subject tests (not displayed in the figure) consistently fail for all $\alpha$ and FWHM combinations, demonstrating excellent sensitivity.
     }
     \label{fig:ieee-check}
 \end{figure}
 
 \paragraph{Corrupted template check}
 
-Multiple brain templates exist to align subject data to a common space and template selection substantially impacts the results~\cite{li2021moving}. Hence, errors in the template should lead to substantial differences in the results. The purpose of this check was to verify that results obtained from corrupted templates are correctly rejected by the stability test.
-To do so, we generated noised versions of the MNI152NLin2009cAsym template used by \fmriprep where we zeroed the intensity of an increasing fraction of brain voxels selected uniformly. Zeros were introduced incrementally. We then executed \fmriprep in IEEE mode (without random perturbations) for each resulting corrupted template and each subject.
+Multiple brain templates exist to normalize subject data to a common space, and template selection substantially impacts the results~\cite{li2021moving}. Hence, errors in the template should lead to substantial differences in the results. The purpose of this check was to verify that results obtained from corrupted templates are correctly rejected by the stability test.
+To do so, we generated noised versions of the MNI152NLin2009cAsym template used by \fmriprep where we incrementally zeroed the intensity of an increasing fraction of brain voxels selected uniformly. We then executed \fmriprep in IEEE mode (without random perturbations) for each resulting corrupted template and each subject.
 
-Figure~\ref{fig:template_bonferroni} shows the results for increasing values of $\alpha$ and FWHM for RR and RS. The stability test correctly rejected results obtained with the corrupted template above a subject-dependent threshold of corrupted voxels. Smoothing had a measurable effect that did not manifest clearly across subjects. We conclude that the stability test is sensitive to changes in the brain template which are a common source of variability in neuroimaging.
+The stability test correctly rejected results obtained with the corrupted template above a subject-dependent threshold of corrupted voxels (Figure~\ref{fig:template_bonferroni}). Smoothing had a measurable effect that did not manifest clearly across subjects. We conclude that the stability test is sensitive to changes in the brain template which are a common source of variability in neuroimaging.
 
 % First, the sensitivity of the test to the "dead voxels" is not the same for each subject. On one hand, the test rejects subjects 3, 4, 5 and 6 for small percentages of noise ($\leq 1\%$) even for high FMWH levels. On the other hand, subjects 1, 2, 7 and 8 require a high percentage of noise (80\% for the highest level of smoothing) to be rejected by the test. This distinction between the two groups of subjects is correlated to the average number of significant bits (Figure~\ref{fig:significant-digits}), the first group being the one with the highest average number of significant bits. \TG{revise this parapgraph}
 % This distinction is also clearly visible when we look at the uncertainty maps at FMWH=5mm (Figure~\ref{fig:uncertainty-maps-5mm}). This correlation may mean that the test is more permissive to a high percentage of "dead voxels" for subjects having the highest uncertainty (or lowest number of significant bits).
@@ -454,7 +479,7 @@ The assumption of normality simplifies calculations. The issue with non-parametr
 
 The solutions obtained for the smoothing kernel size may not be anatomically satisfactory for neuroimaging researchers (FWHM $\geq 15$) in terms of anatomical accuracy, but they are valid from a software engineering perspective, as they allow for the detection of significant changes between different versions of \fmriprep. Although our methods may not be currently applicable for neuroimaging research stricto sensu, they serve as a stability test for identifying noticeable differences between computed outputs.
 
-The Bonferroni correction, although conservative, fails to capture observations from reference distributions, as demonstrated by LOO (Figure~\ref{fig:loo_bonferroni}) and IEEE (Figure~\ref{fig:ieee-check}) checks. This could be attributed to two factors. Firstly, voxels in neuroimaging data are not spatially independent, and secondly, perturbed samples used in the analysis are not independent due to the optimization problems involved in pre-processing, such as non-linear registration and bias field correction. These optimization problems do not have analytical solutions and require numerical methods for addressing them. However, due to the inherent complexity of these problems (\cite{clarenz2006computational}), even small perturbations in the input data can result in substantially different but equally valid computed solutions. As a consequence, minimal variations in calculations introduced by Fuzzy-libmath can lead to significantly different geometric solutions, resulting in regions of high instability within anatomical brain images, particularly at white/grey matter borders (Figure~\ref{fig:uncertainty-maps}). And so when working voxel-wise, the obtained brain geometries can differ significantly at the voxel level, transitioning from intensity levels characteristic of gray matter to white matter, and vice versa. Furthermore, subsampling the solution space of optimization problems may lead to the omission of possible white matter regions where only gray matter was observed, and vice versa.
+The Bonferroni correction, although conservative, fails to capture observations from reference distributions, as demonstrated by LOO (Figure~\ref{fig:loo_bonferroni}) and IEEE (Figure~\ref{fig:ieee-check}) checks. This could be attributed to two factors. Firstly, voxels in neuroimaging data are not spatially independent, and secondly, perturbed samples used in the analysis are not independent due to the optimization problems involved in pre-processing, such as spatial normalization and bias field correction. These optimization problems do not have analytical solutions and require numerical methods for addressing them. However, due to the inherent complexity of these problems (\cite{clarenz2006computational}), even small perturbations in the input data can result in substantially different but equally valid computed solutions. As a consequence, minimal variations in calculations introduced by Fuzzy-libmath can lead to significantly different geometric solutions, resulting in regions of high instability within anatomical brain images, particularly at white/grey matter borders (Figure~\ref{fig:uncertainty-maps}). And so when working voxel-wise, the obtained brain geometries can differ significantly at the voxel level, transitioning from intensity levels characteristic of gray matter to white matter, and vice versa. Furthermore, subsampling the solution space of optimization problems may lead to the omission of possible white matter regions where only gray matter was observed, and vice versa.
 
 Nevertheless, our method is sufficiently precise to detect inter-subject variability, even at higher levels of smoothing. The numerical perturbations introduced by Fuzzy-libmath only affect a small portion of the calculations performed in \fmriprep. Although it reproduces the measured variability by varying the random seed, it does not stimulate calculations performed elsewhere in advancing neuroimaging. Extending the test to other application domains where the libmath has little effect on stability~\cite{pepe2022numerical} will require perturbing other computation libraries.
 
@@ -471,7 +496,7 @@ From a neuroimaging perspective, our analyses revealed significant discrepancies
 Furthermore, we demonstrated that the Fuzzy-libmath perturbations type yielded comparable numerical quality results to those obtained with random seeds, highlighting the ability of the Monte Carlo arithmetic approach to accurately simulate numerical instabilities.
 % However, it should be noted that some specific random seeds resulted in considerably higher variability, as shown by the results from subject 7 in RR+RS modes (Figure~\ref{fig:uncertainty-maps}).
 
-Our results showed that our test is more sensitive (i.e., has a higher ability to correctly detect true positives) than specific (i.e., has a higher ability to correctly detect true negatives). Specifically, our method exhibited lower specificity for low FWHM values, likely due to the voxel-wise analysis that does not account for neighborhood effects and poor sampling space. This limitation arises from the computational cost of statistical analyses and the acquisition cost of perturbed results. However, our test demonstrated high sensitivity, as we were able to correctly reject target images from different subjects or with low to moderate levels of noise in the registration atlas, depending on the applied FWHM.
+Our results showed that our test is more sensitive (i.e., has a higher ability to correctly detect true positives) than specific (i.e., has a higher ability to correctly detect true negatives). Specifically, our method exhibited lower specificity for low FWHM values, likely due to the voxel-wise analysis that does not account for neighborhood effects and poor sampling space. This limitation arises from the computational cost of statistical analyses and the acquisition cost of perturbed results. However, our test demonstrated high sensitivity, as we were able to correctly reject target images from different subjects or with low to moderate levels of noise in the brain template, depending on the applied FWHM.
 
 In conclusion, our proposed stability test represents a novel and effective method for detecting code changes that result in substantial numerical variabilities within results represented as numerical structured grids. By providing a method that relies on a numerical values sample and does not require ad-hoc assumptions specific to a particular numerical scheme, our approach offers a flexible and widely applicable solution for stability testing in numerical analysis.
 Through our demonstrations on a large neuroimaging pipeline, such as \fmriprep, for the preprocessing step, we have shown the effectiveness of our approach under assumptions of independence and normality.
@@ -481,7 +506,7 @@ In future research, we plan to extend our methodology to other data types and in
 \section{Acknowledgments}
 
 Computations were made on the Narval supercomputer from \'Ecole de Technologie
-Sup\'erieure (ETS, Montr\'eal), managed by Calcul Québec and Compute Canada. The
+Sup\'erieure (ETS, Montr\'eal), managed by Calcul Québec and the Digital Research Alliance of Canada. The
 operation of this supercomputer is funded by the Canada Foundation for
 Innovation (CFI), Ministère de l’Économie, des Sciences et de l’Innovation du
 Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
