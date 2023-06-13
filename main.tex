@@ -169,7 +169,7 @@
 \maketitle
 
 \begin{abstract}
-    Ensuring the long-term reproducibility of data analyses requires results stability tests to ensure that analysis results remain within acceptable variation bounds despite inevitable software updates and hardware evolutions. This paper introduces a numerical variability approach for results stability tests, which determines acceptable variation bounds using random rounding of floating-point calculations. By applying the resulting stability test to \fmriprep, a widely-used neuroimaging tool, we show that the test is sensitive enough to detect subtle updates in image processing methods while remaining specific enough to be tolerant to numerical variations across hardware architectures. This result contributes to enhancing the reliability and reproducibility of data analyses by providing a robust and flexible method for stability testing.
+    Ensuring the long-term reproducibility of data analyses requires results stability tests to ensure that analysis results remain within acceptable variation bounds despite inevitable software updates and hardware evolutions. This paper introduces a numerical variability approach for results stability tests, which determines acceptable variation bounds using random rounding of floating-point calculations. By applying the resulting stability test to \fmriprep, a widely-used neuroimaging tool, we show that the test is sensitive enough to detect subtle updates in image processing methods while remaining specific enough to be tolerant to numerical variations within a reference version of the application. This result contributes to enhancing the reliability and reproducibility of data analyses by providing a robust and flexible method for stability testing.
 \end{abstract}
 
 \section{Introduction}
@@ -432,25 +432,25 @@ The stability test correctly rejected results obtained with the corrupted templa
     \label{fig:template_bonferroni}
 \end{figure}
 
-\subsection{The results stability test accepted CPU architecture variations}
+% \subsection{The results stability test accepted CPU architecture variations}
 
-The previous sanity checks demonstrated a satisfying level of sensitivity and specificity of our stability test for simple scenarios. Subsequently, we applied it to more realistic deployment situations in heterogeneous execution environments. The goal was to identify potential sources of variability in \fmriprep results more broadly. First, to test 
-variability across hardware architectures, we executed \fmriprep in IEEE mode in 6 different CPU architectures encountered in different computing clusters of the Digital Alliance of Canada \TG{right?}. The goal of this experiment was to explore whether hardware architecture has a measurable impact on \fmriprep results beyond numerical variability. \TG{Tristan to expand further depending on Yohan's current checks.}
+%  The goal was to identify potential sources of variability in \fmriprep results more broadly. First, to test 
+% variability across hardware architectures, we executed \fmriprep in IEEE mode in 6 different CPU architectures encountered in different computing clusters of the Digital Alliance of Canada \TG{right?}. The goal of this experiment was to explore whether hardware architecture has a measurable impact on \fmriprep results beyond numerical variability. \TG{Tristan to expand further depending on Yohan's current checks.}
 
 
-%  Figure~\ref{fig:arch_bonferroni} shows the results of the stability test for increasing $\alpha$ and FWHM values for RR and RS. We see that the architecture used has no impact on the stability test since results are identical across architecture for a subject and a perturbation mode given. For subject 1, we see that the variability of the stability test results is more important across perturbation modes.
-% In conclusion, the mode of perturbation used in constructing the test holds greater significance than the utilized architecture. This suggests that \fmriprep has low usage of specific hardware instructions, leading to a significant reduction in the variability generated across different architectures.
+% %  Figure~\ref{fig:arch_bonferroni} shows the results of the stability test for increasing $\alpha$ and FWHM values for RR and RS. We see that the architecture used has no impact on the stability test since results are identical across architecture for a subject and a perturbation mode given. For subject 1, we see that the variability of the stability test results is more important across perturbation modes.
+% % In conclusion, the mode of perturbation used in constructing the test holds greater significance than the utilized architecture. This suggests that \fmriprep has low usage of specific hardware instructions, leading to a significant reduction in the variability generated across different architectures.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/arch/arch_fwe_bonferroni.pdf}
-    \caption{Stability test application to different CPU architectures for subjects 1 to 8. \TG{Mention RR and RS in the figure.} \TG{Mention which architecture was used to build the test} A: AMD Rome 7532; B: Intel E5-2683 v4 Broadwell; C: Intel Silver 4216 Cascade Lake; D: Intel Platinum 8160F Skylake; E: Intel Gold 5120 Skylake; F: Intel Gold 6238 Cascade Lake.}
-    \label{fig:arch_bonferroni}
-\end{figure}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/arch/arch_fwe_bonferroni.pdf}
+%     \caption{Stability test application to different CPU architectures for subjects 1 to 8. \TG{Mention RR and RS in the figure.} \TG{Mention which architecture was used to build the test} A: AMD Rome 7532; B: Intel E5-2683 v4 Broadwell; C: Intel Silver 4216 Cascade Lake; D: Intel Platinum 8160F Skylake; E: Intel Gold 5120 Skylake; F: Intel Gold 6238 Cascade Lake.}
+%     \label{fig:arch_bonferroni}
+% \end{figure}
 
 \subsection{The results stability test detected subtle updates in \fmriprep image processing methods}
 
-We subsequently tested the results produced by different versions of \fmriprep, having built the results stability test for version \TG{x}. The goal of this experiment was to evaluate the ability of the stability test to detect significant software updates in \fmriprep. The stability test accepted results produced by versions 20.2.0 to 20.2.4 for all subjects (\ref{fig:version_bonferroni}). However, the test rejected results produced by versions 20.2.5 and onwards, suggesting a substantial change in the analysis methods from version 20.2.5. Investigations with the \fmriprep developers revealed that the interpolation scheme involved in the resampling of the segmented brain maps from MGZ format into NiFTI was changed in version \texttt{20.2.5} from trilinear interpolation to nearest neighbor (see PR \href{https://github.com/nipreps/smriprep/pull/268}{\url{github.com/nipreps/smriprep/pull/268}}). The ability of our results stability test to detect such subtle changes in the analysis supports its relevance fin the release process of long-term support data analysis software.
+The previous sanity checks demonstrated a satisfying level of sensitivity and specificity of our stability test for simple scenarios. Subsequently, we applied it to our main motivating use case: the detection of results differences in \fmriprep LTS versions. We tested the results produced by different versions of \fmriprep, having built the results stability test for version \TG{x}. The goal of this experiment was to evaluate the ability of the stability test to detect significant software updates in \fmriprep. The stability test accepted results produced by versions 20.2.0 to 20.2.4 for all subjects (Figure~\ref{fig:version_bonferroni}). However, the test rejected results produced by versions 20.2.5 and onwards, suggesting a substantial change in the analysis methods from version 20.2.5. Investigations with the \fmriprep developers revealed that the interpolation scheme involved in the resampling of the segmented brain maps from MGZ format into NiFTI was changed in version {20.2.5} from trilinear interpolation to nearest neighbor (see PR \href{https://github.com/nipreps/smriprep/pull/268}{\url{github.com/nipreps/smriprep/pull/268}}). The ability of our results stability test to detect such subtle changes in the analysis supports its relevance fin the release process of long-term support data analysis software.
 
 \begin{figure}
     \centering
