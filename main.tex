@@ -476,29 +476,58 @@ We have proposed the first approach to build results stability tests for data an
 
 \TG{The text below is WIP. The original discussion lacked structure. Could you revise it to comment on the choices made in each relevant sub-section of the design section? (1) statistical test, (2) perturbation method, (3) pre-processing (smoothing), (4) datasets, (5) multiple comparisons. Then finish with future work.}
 
-% statistical test
-Our stability test results from multiple design choices. The use of a parametric test in Equation~\ref{eq:pval} simplifies calculations compared to non-parametric methods that typically require large sample sizes---in our case, more than $100$ repetitions per subject---to achieve an acceptable confidence level ($>0.95$). However, the computational cost for real data analysis tools such as \fmriprep is prohibitively high in terms of time and storage space \TG{sure but this data is also not required to run the test}. Working on other output types, such as regions of interest with the produced segmentations, could reduce the volume of elements to be processed and enable more complex analyses \TG{this won't reduce compute time}.
+\TODO{Yohan: I added subsections to make reading easier. They would be removed then. News subsubsection indicate the rewrite}
 
+\subsection*{Statistical test}
+
+% statistical test 
+Our stability test results from multiple design choices.
+%   Parametric VS non-parametric
+%   non-parametric have better fitting
+%   
+The use of a parametric test in Equation~\ref{eq:pval} simplifies calculations compared to non-parametric methods that typically require large sample sizes --- in our case, more than $100$ repetitions per subject --- to achieve an acceptable confidence level ($>0.95$).
+%   Non-parametric tests require a larger sample size
+%   Perturbed sample acquisition is prohibitive (time and space)
+
+However, the computational cost for real data analysis tools such as \fmriprep is prohibitively high in terms of time and storage space \TG{sure but this data is also not required to run the test}.
+% Reducing the number of multiple tests (depending on the number of voxels) allows performing more complex statistical analyses such as correlations
+Working on other output types, such as regions of interest with the produced segmentations, could reduce the volume of elements to be processed and enable more complex analyses \TG{this won't reduce compute time}.
+
+
+
+\subsubsection*{New}
+
+Our stability test results from multiple design choices.
+We employed a parametric test to have a simpler calculation approach compared to non-parametric methods that typically demand larger sample sizes --- in our case, more than $100$ repetitions per subject --- to achieve acceptable confidence levels ($\geq 0.95$).
+Indeed, the computational cost to acquire data with tools like \fmriprep is high in time and storage space, although this cost needs to be paid once for collecting perturbed samples but not for conducting the stability test.
+Furthermore, by construction, our stability test rejects a target image without localizing the rejected voxels, which could be improved by performing the stability test by region of interest.
+
+\subsection*{Perturbation modes}
 % perturbation
 We used Random Rounding to sample the null distribution of the results as this method can be applied to data analyses regardless of the type of input and output data involved.
 
 %   RR comparable to RS
 %   RR made no assumptions on the underlying code (except using libm functions for fuzzy-libmath)
 This is an independent method to evaluate the numerical quality of neuroimaging pipelines since it generates variability comparable to random-seed.
-%   smoothing makes voxel distribution more normal
-The smoothing size tended to affect the performance of the stability test, as it rendered the distribution of voxels more normal.
-%   voxel-wise analysis does not take into account local information around each voxel.
-However, voxel-wise analysis prevented the prediction of excessively large non-local variations.
-Incorporating neighborhood information could improve learning, such as using more general deep learning methods like VoxelMorph~\cite{balakrishnan2019voxelmorph}. \TG{I don't understand this paragraph}.
-%   detect between-subject variability
-Nevertheless, our method is sufficiently precise to detect between-subject variability, even at higher levels of smoothing. The numerical perturbations introduced by Fuzzy-libmath only affect a small portion of the calculations performed in \fmriprep.
+
+The numerical perturbations introduced by Fuzzy-libmath only affect a small portion of the calculations performed in \fmriprep.
 %   RR could miss calculations not involving libm
 Although it reproduces the measured variability by varying the random seed, it does not stimulate calculations performed elsewhere in advancing neuroimaging.
-%   Extends instrumentation, explain benefits and challenges
+%   Extend instrumentation, explain benefits and challenges
 Extending the test to other application domains where the libmath has little effect on stability~\cite{pepe2022numerical} will require perturbing other computation libraries.
 %   RR gives similar results as RS (add boxplots + statistical tests?)
-Furthermore, we demonstrated that the Fuzzy-libmath perturbations type yielded comparable numerical quality results to those obtained with random seeds, highlighting the ability of the Monte Carlo arithmetic approach to accurately simulate numerical instabilities.
+Furthermore, we demonstrated that the Fuzzy-libmath perturbations type yielded comparable numerical quality results to those obtained with random seeds, highlighting the ability of the stochastic arithmetic approach to accurately simulate numerical instabilities.
 
+\subsubsection*{New}
+
+% Can be applied to any scientific software using libm functions
+% Generates variability comparable to Random Seed
+% True for neuroimaging but not necessarily for other application domains.
+% For those domains (where libm is not sufficient to explain variability) we need to instrument other computations regions.
+The Random Rounding method used for sampling the null distribution of the results holds universal applicability regardless of the type of input and output data involved. Indeed, it generates variability comparable to Random Seed without relying on mathematical specificity about the numerical algorithms used by the neuroimaging pipeline targeted. By extrapolating, RR can be applied to any scientific software where the libmath explains most of the numerical variability. However, this is not always the case for other application domains~\cite{pepe2022numerical} which would require to perturb other dependencies explaining the most the numerical variability. We acknowledge that the exploration of perturbations in other computational libraries beyond libmath is necessary for extending our test to other application domains.
+
+
+\subsection*{Pre-processing (smoothing)}
 % Specificity requires smoothing
 
 %   Tradeoff between anatomical VS pure numerical point of view
@@ -507,12 +536,25 @@ The solutions obtained for the smoothing kernel size may not be anatomically sat
 Although our methods may not be currently applicable for neuroimaging research stricto sensu, they serve as a stability test for identifying noticeable differences between computed outputs \TG{not sure about the point being made here}.
 % Our results showed that our test is more sensitive (i.e., has a higher ability to correctly detect true positives) than specific (i.e., has a higher ability to correctly detect true negatives). Specifically, our method exhibited lower specificity for low FWHM values, likely due to the voxel-wise analysis that does not account for neighborhood effects and poor sampling space. This limitation arises from the computational cost of statistical analyses and the acquisition cost of perturbed results. However, our test demonstrated high sensitivity, as we were able to correctly reject target images from different subjects or with low to moderate levels of noise in the brain template, depending on the applied FWHM.
 
+%   smoothing makes voxel distribution more normal
+The smoothing size tended to affect the performance of the stability test, as it rendered the distribution of voxels more normal.
+%   detect between-subject variability
+Nevertheless, our method is sufficiently specific to detect between-subject variability, even at higher levels of smoothing.
+
+
+\subsubsection*{New}
+
+
+The smoothing kernel size's influence on the performance of the stability test was notable as it made the distribution of voxels more normal.
+Even though valid FWHM configurations exist for any subjects as the LOO and IEEE checks have shown, they may not be anatomically satisfactory for neuroimaging researchers (FWHM $\geq 15$). However, our method is sufficiently specific to detect between-subject variability, even at higher levels of smoothing. They are valid from a software engineering perspective as they permit the detection of significant changes between \fmriprep versions.
+
+
+\subsection*{Dataset}
 % datasets
 
 %   Numerical variability varies across subjects
 The numerical stability of the results varied importantly across subjects.
 %   Explain data selection
-Subjects were chosen to reflect diverse acquisition qualities, resolutions, ages, and genders.
 %   Good hyperparameters are dataset dependent
 Although our analysis did not precisely determine which factors specifically influenced the stability test, we observed that certain smoothing sizes were more appropriate than others.
 %   Not sure about the logic of the sentence. What do we mean?
@@ -520,16 +562,83 @@ From a software engineering perspective, our stability test applies to a careful
 %   Valid configurations are dataset dependent but it exists at least one per dataset
 The identified configurations varied across subjects, depending on the quality of the acquisition data, indicating that our test is robust to heterogeneously quality data.
 
+\subsubsection*{New}
+
+
+We carefully selected subjects to reflect diverse acquisition qualities, resolutions, ages, and genders.
+The diversity is reflected in the numerical stability of the results that vary considerably from subject to subject.
+Despite these differences, our stability test demonstrated robustness across the heterogeneously quality data, exhibiting a wide range of valid configurations $\alpha$ and FWHM among subjects.
+
+
+\subsection*{Multiple comparisons}
 % multiple comparisons
 
 %   Bonferroni is conservative so it tends to be less sensitive (not detecting true positive (image outside of reference distribution))
 %   Since it is conservative, our test should be very permissive 
+%   But it is not the case. 
+%   So?
+%   
 The Bonferroni correction, although conservative, fails to capture observations from reference distributions, as demonstrated by LOO (Figure~\ref{fig:loo_bonferroni}) and IEEE (Figure~\ref{fig:ieee-check}) checks \TG{why is it a failure?}.
-This could be attributed to two factors. Firstly, voxels in neuroimaging data are not spatially independent, and secondly, perturbed samples used in the analysis are not independent due to the optimization problems involved in pre-processing, such as spatial normalization and bias field correction. These optimization problems do not have analytical solutions and require numerical methods for addressing them. However, due to the inherent complexity of these problems (\cite{clarenz2006computational}), even small perturbations in the input data can result in substantially different but equally valid computed solutions. As a consequence, minimal variations in calculations introduced by Fuzzy-libmath can lead to significantly different geometric solutions, resulting in regions of high instability within anatomical brain images, particularly at white/grey matter borders (Figure~\ref{fig:uncertainty-maps}). And so when working voxel-wise, the obtained brain geometries can differ significantly at the voxel level, transitioning from intensity levels characteristic of gray matter to white matter, and vice versa. Furthermore, subsampling the solution space of optimization problems may lead to the omission of possible white matter regions where only gray matter was observed, and vice versa.
+%   
+This could be attributed to two factors.
+%   limitation of Bonferroni for dependent tests.
+%   first sentence is a consequence of the second -> reformulate
+%   What do we want to say?
+Firstly, voxels in neuroimaging data are not spatially independent, and secondly, perturbed samples used in the analysis are not independent due to the optimization problems involved in pre-processing, such as spatial normalization and bias field correction.
+%   This is why we're doing this statistical test and numerical optimization more broadly
+These optimization problems do not have analytical solutions and require numerical methods for addressing them.
+%   These optimizations problems are sensitive to tiny perturbations
+%   Perturbations will produce different outputs
+%   Outputs are valid from a neuroimaging point of view (explain the valid term)
+However, due to the inherent complexity of these problems (\cite{clarenz2006computational}), even small perturbations in the input data can result in substantially different but equally valid computed solutions.
+%   Perturbations will produce different outputs
+%   Outputs are valid from a neuroimaging point of view
+As a consequence, minimal variations in calculations introduced by Fuzzy-libmath can lead to significantly different geometric solutions, resulting in regions of high instability within anatomical brain images, particularly at white/grey matter borders (Figure~\ref{fig:uncertainty-maps}).
+%   Limitation of the voxel-wise analysis.
+%   Do not take into account local information (voxel neighborhood)
+And so when working voxel-wise, the obtained brain geometries can differ significantly at the voxel level, transitioning from intensity levels characteristic of gray matter to white matter, and vice versa.
+%   Limitation of the sample size
+%   Explain that perturbed observation is costly to acquire
+%   We possibly sample a large space
+Furthermore, subsampling the solution space of optimization problems may lead to the omission of possible white matter regions where only gray matter was observed, and vice versa.
 
+%   voxel-wise analysis does not take into account local information around each voxel.
+However, voxel-wise analysis prevented the prediction of excessively large non-local variations.
+Incorporating neighborhood information could improve learning, such as using more general deep learning methods like VoxelMorph~\cite{balakrishnan2019voxelmorph}. \TG{I don't understand this paragraph}.
+
+
+\subsubsection*{New}
+
+\TODO{Not sure if we should keep this part in the discussion.}
+
+The Bonferroni correction is known to be conservative, meaning that it tends to be very sensitive and poorly specific.
+Hence, our test should be very permissive by failing to catch images falling outside of the reference distribution (true positive).
+However, this is not what we observed in practice as the LOO check demonstrated. We see two main reasons for that.
+First, Bonferroni correction assumes that the multiple tests are independent, which is not the case for the voxels that are spatially correlated.
+Second, neuroimaging pre-processing pipelines involve optimization steps for spatial normalization and bias field correction.
+These procedures are known to be highly sensitive to numerical perturbations~\cite{clarenz2006computational}, resulting in normalized images with
+different geometric solutions where white/grey matter borders are specifically unstable (Figure~\ref{fig:uncertainty-maps-0mm-disc}).
+Voxels at these borders have intensities transitioning from grey to white matter, making the voxel-wise analysis difficult. This requires a good sampling of the solution space which is difficult due to its high dimensionality. One way to mitigate this phenomenon is to take into account local information in the neighborhood of a voxel, by computing the covariance matrix for instance. This would however lead to change our statistical assumptions by working with multivariate Gaussian distributions.
+
+
+
+\subsection*{Future work}
 % future work
-In future research, we plan to extend our methodology to other data types and investigate its applicability under different statistical hypotheses. This work has the potential to contribute to the development of robust stability tests for numerical analysis in diverse scientific domains beyond neuroimaging, further enhancing the reliability and reproducibility of computational results.
-In future work, we plan to extend our test to other types of data, such as those used in functional neuroimaging. In functional neuroimaging, researchers analyze time series of neural activations and are primarily interested in activation potential rather than the absolute magnitude of voxel intensity. Additionally, the treatment of the time axis is different from that of the spatial axes. We will therefore have to take into account time dependencies.
+In future research, we plan to extend our methodology to other data types and investigate its applicability under different statistical hypotheses.
+%   The test can be applied broadly to any scientific results
+This work has the potential to contribute to the development of robust stability tests for numerical analysis in diverse scientific domains beyond neuroimaging, further enhancing the reliability and reproducibility of computational results.
+%   The case of functional neuroimaging.
+In future work, we plan to extend our test to other types of data, such as those used in functional neuroimaging.
+%   What about relative differences rather than absolute magnitudes
+In functional neuroimaging, researchers analyze time series of neural activations and are primarily interested in activation potential rather than the absolute magnitude of voxel intensity.
+%   Focus on specific axes rather than considering all axes with the same 
+Additionally, the treatment of the time axis is different from that of the spatial axes. We will therefore have to take into account time dependencies.
+
+\subsubsection*{New}
+
+The trade-off in our approach between the anatomical precision desired in neuroimaging research and the need to detect software changes from a software engineering perspective warrants further exploration. However, our approach's ability to identify noticeable differences in computed outputs does provide a valuable tool for stability testing in software engineering.
+
+Looking forward, we plan to expand our methodology to include other data types and test its performance under various statistical hypotheses. Specifically, we aim to extend our test to functional neuroimaging data, taking into account temporal dependencies and focusing on the relevance of activation potential rather than the absolute magnitude.
 
 \section{Acknowledgments}
 
