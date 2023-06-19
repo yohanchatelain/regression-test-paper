@@ -227,6 +227,8 @@ Sensitive to these computational challenges to the stability of results,
 \fmriprep's LTS program aims to guarantee results stability over multiple years, which is critical
   in longitudinal analysis spanning over years, and motivates
   the present work.
+% OE: I haven't worked the rest of the intro from here - possibly to consider on a different PR if you want me to
+%     propose something.
 The present paper focuses primarily on the \fmriprep as a pre-requisite of any further analysis. \fmriprep is an integrated data analysis pipeline for structural and functional MRI pre-processing. We focus on the pre-processing of structural MRI, which includes intensity non-uniformity correction, skull stripping, and spatial normalization to a brain template.
 %Spatial normalization is a critical step of MRI analysis whereby images acquired on individual subjects are mapped to a template brain through a process called image registration. 
 
@@ -234,8 +236,6 @@ The present paper focuses primarily on the \fmriprep as a pre-requisite of any f
 % is challenging due to inevitable security updates and bug fixes in the main software or in its dependencies.
 
 % numerical precision
-% OE: I haven't worked the rest of the intro from here - possibly to consider on a different PR if you want me to
-%     propose something.
 Our stability tests leverage the numerical variability resulting from the use of finite-precision arithmetic in calculations. This variability manifests primarily as a result of changes in computational environments, which includes hardware architecture, parallelization scheme, operating system, and software dependencies. To estimate numerical variability, we rely on random rounding~\cite{forsythe1959reprint}, a stochastic arithmetic technique that randomly rounds floating-point operation results to the previous or to the next floating-point number with equal probability. Stochastic arithmetic has been successfully applied to simulate numerical variability in various domains, including neuroimaging~\cite{salari2021accurate, kiar2021numerical}. Our approach is not specific to any particular numerical scheme and relies on a few statistical assumptions such as normality and independence, making it applicable to a wide range of scenarios.
 
 % summary of contributions
