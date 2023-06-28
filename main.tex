@@ -177,17 +177,61 @@
 
 \section{Introduction}
 
-% results stability tests
-Data analyses can produce different results depending on the hardware and software conditions in which they are executed~\cite{gronenschild2012effects}, which has important repercussions in several disciplines. This paper investigates results stability tests whereby the outcome of data analysis is asserted to remain within acceptable variation bounds of a reference result. The primary challenge in developing such stability tests lies in the determination of acceptable bounds of variation around the reference result. We define such bounds from the numerical variability of the results, that is, from the variability inherent to numerical computations.
-
+% context
+The ubiquitous application of computational approaches across disciplines
+  demands for the consideration of data processing as part of the measurement device
+  and sets computational stability as one of the preconditions or assumptions of the data analysis.
+Indeed, repeated computational processing and analyses on the same data can produce different results
+  depending on the hardware and software conditions in which they are executed~\cite{gronenschild2012effects}.
+Computational stability is particularly under the spotlight in neuroimaging,
+  a field where software tools (e.g., \emph{FSL}~\cite{jenkinson2012fsl},
+  \emph{FreeSurfer}\cite{fischl2012freesurfer}, or {\color{red} \emph{ANTs} [ref]}) % suggestion: cite also AFNI
+  have built up into sophisticated instruments enabling researchers 
+  to study the human brain with unprecedented detail and precision.
+Unsurprisingly, the reproducibility and repeatability of neuroimaging results have been a focus of research for decades,
+  yielding high-value recommendations and defining best-practices applicable across
+  computational sciences {\color{red} [CITE https://doi.org/10.3389/fnins.2013.00162]}.
+One thoroughly examined application is brain surface reconstruction and quantification of derived features such
+  as cortical thickness, which have been shown significantly different across
+  software packages ({\color{red} [CITE https://doi.org/10.1186/s12859-019-2609-8]})
+  executed on the same brains.
+Glatard et al. {\color{red} [Cite Tristan's paper https://doi.org/10.3389/fninf.2015.00012]}
+  demonstrated operative system effects on measured cortical thickness within several software packages
+  and package versions.
 % neuroimaging
-We focus on the use case of neuroimaging analyses, although our method applies to data analyses more broadly. For several decades, the neuroimaging community has developed advanced software tools enabling researchers to study the human brain with unprecedented detail and precision. Neuroimaging tools now underpin scientific findings in several disciplines, and must therefore be thoroughly tested. In particular, neuroimaging studies often follow subjects over multiple years, which requires data analyses to be consistent over substantial periods.
+% We focus on the use case of neuroimaging analyses, although our method applies to data analyses more broadly. For several decades, the neuroimaging community has developed advanced software tools enabling researchers to study the human brain with unprecedented detail and precision. Neuroimaging tools now underpin scientific findings in several disciplines, and must therefore be thoroughly tested. In particular, neuroimaging studies often follow subjects over multiple years, which requires data analyses to be consistent over substantial periods.
+%
 
+Previously, computational stability has been addressed by means of random rounding (RR).
+RR consists in rounding the exact result of a floating-point arithmetic operation toward the previous
+  or next floating-point number~\cite{forsythe1959reprint}.
+RR is equivalent to applying Monte-Carlo Arithmetic (MCA~\cite{parker1997monte}) to double-precision numbers
+  with a virtual precision of 53 bits and to single-precision numbers with a virtual precision of 24 bits,
+  which was shown to accurately simulate the effect of operating system updates on the structural
+  MRI preprocessing pipelines of the Human Connectome Project (HCP) when applied to 
+  \emph{GNU libmath}~\cite{salari2021accurate}.
+The \emph{HCP pipelines} consist of tools assembled from the \emph{FSL} and \emph{Freesurfer} toolboxes.
+RR is rigorously implemented in several tools including \emph{CADNA}~\cite{jezequel2008cadna},
+  \emph{Verrou}~\cite{fevotte2016verrou}, and \emph{Verificarlo}~\cite{denis2016verificarlo}.
+However, these tools incur substantial performance overhead that makes them hard to apply to
+  compute-intensive applications.
+In addition, only \emph{Verrou} supports RR instrumentation of \emph{GNU libmath}~\cite{fevotte2019debugging},
+  and it does so by relying on quadruple precision, which is not scalable to entire neuroimaging pipelines.
 
 % fmriprep
-The present paper focuses primarily on the \fmriprep software~\cite{esteban2019fmriprep}, a tool to pre-process Magnetic Resonance Imaging (MRI) data as a pre-requisite of any further analysis. \fmriprep is an integrated data analysis pipeline for structural and functional MRI pre-processing. We focus on the pre-processing of structural MRI, which includes intensity non-uniformity correction, skull stripping, and spatial normalization to a brain template.
+Sensitive to these computational challenges to the stability of results, 
+  the developers of the \fmriprep software~\cite{esteban2019fmriprep}, a preprocessing tool to
+  prepare magnetic resonance imaging (MRI) data for statistical modeling,
+  recently initiated a program of long-term support (LTS) releases akin to those of foundational
+  software such as Ubuntu Linux.
+\fmriprep's LTS program aims to guarantee results stability over multiple years, which is critical
+  in longitudinal analysis spanning over years, and motivates
+  the present work.
+% OE: I haven't worked the rest of the intro from here - possibly to consider on a different PR if you want me to
+%     propose something.
+The present paper focuses primarily on the \fmriprep as a pre-requisite of any further analysis. \fmriprep is an integrated data analysis pipeline for structural and functional MRI pre-processing. We focus on the pre-processing of structural MRI, which includes intensity non-uniformity correction, skull stripping, and spatial normalization to a brain template.
 %Spatial normalization is a critical step of MRI analysis whereby images acquired on individual subjects are mapped to a template brain through a process called image registration. 
-\fmriprep developers recently initiated long-term support (LTS) releases to guarantee results stability over multiple years, which motivated the development of the results stability tests presented in this paper.
+
 
 % is challenging due to inevitable security updates and bug fixes in the main software or in its dependencies.
 
@@ -195,6 +239,9 @@ The present paper focuses primarily on the \fmriprep software~\cite{esteban2019f
 Our stability tests leverage the numerical variability resulting from the use of finite-precision arithmetic in calculations. This variability manifests primarily as a result of changes in computational environments, which includes hardware architecture, parallelization scheme, operating system, and software dependencies. To estimate numerical variability, we rely on random rounding~\cite{forsythe1959reprint}, a stochastic arithmetic technique that randomly rounds floating-point operation results to the previous or to the next floating-point number with equal probability. Stochastic arithmetic has been successfully applied to simulate numerical variability in various domains, including neuroimaging~\cite{salari2021accurate, kiar2021numerical}. Our approach is not specific to any particular numerical scheme and relies on a few statistical assumptions such as normality and independence, making it applicable to a wide range of scenarios.
 
 % summary of contributions
+% I see this as the contribution (and moved here)
+This paper investigates results stability tests whereby the outcome of data analysis is asserted to remain within acceptable variation bounds of a reference result. The primary challenge in developing such stability tests lies in the determination of acceptable bounds of variation around the reference result. We define such bounds from the numerical variability of the results, that is, from the variability inherent to numerical computations.
+% The paragraph moved ends here
 In summary, the main contributions of this paper are the following:
 \begin{itemize}
     \item Define a numerical variability approach to results stability tests;
@@ -202,9 +249,43 @@ In summary, the main contributions of this paper are the following:
     \item Evaluate results of stability tests in several configurations.
 \end{itemize}
 
-\section{Results stability test design}
+%\section{Results stability test design}
+% If this is like TMI, then a more "traditional" sectioning will be appreciated
+\section{Methods}
 
-Considering a data processing application $\Lambda$, the objective of our stability test is to determine whether the results generated by a different application $\tilde \Lambda$ significantly differ from the reference results produced by $\Lambda$. In practice, we are particularly interested in the case where $\tilde \Lambda$ corresponds to a different version of $\Lambda$ or the same version executed in a different execution environment (operating system, parallelization or hardware). Given input data $I$, we assume that $\Lambda$ and $\tilde \Lambda$ produce images $X$ and $\tilde X$ with the same number $v$ of voxels. We model $X$ as a random variable and we sample its distribution by computing $n$ random numerical perturbations of $\Lambda$, resulting in $n$ images $X_k$. Conversely, we compute $\tilde X$ without random perturbation using the IEEE-754 norm, to avoid computational overheads at test time. To test if $\tilde X$ belongs to the distribution of $X$, we perform a z-test for each voxel $\tilde x_i$ ($i\leq v$), using the mean $\hat \mu_i$ and the standard deviation $\hat \sigma_i$ estimated from the $n$ perturbed results. The test computes a p-value $p_i$ under the null hypothesis $H_{0,i}$ that the tested voxel belongs to the reference distribution:
+\subsection{Data}
+
+We selected eight test subjects from sub-datasets in the OpenNeuro~\cite{markiewicz2021openneuro} data-sharing platform, representing a diversity of ages, sex, and study designs. The datasets include a motion study with children (ds000256), a long-term memory study with young adults (ds001748), and a motor process study with adults (ds002338). In addition, two sub-datasets involve steps of the pipeline that can affect its reproducibility, namely different field maps (ds001600) and non-structural images (ds001771). Table~\ref{table:dataset_info} lists the dimension, voxels resolution, age and sex of each subject in the dataset.
+
+\begin{table*}
+    \begin{center}
+        \begin{tabular}{c|c|l|c|c|c|c|c}
+            Index & Dataset  & Subject     & Dimension ($x,y,z$)         & Voxel resolution            & Data type & Age     & Sex \\
+                  &          &             &                             & $mm^3$ ($x,y,z$)            &           & (years) &     \\
+            \hline
+            1     & ds000256 & sub-CTS201  & $256 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & 8.68    & M   \\
+            2     & ds000256 & sub-CTS210  & $224 \times 256 \times 256$ & $0.8 \times 0.8 \times 0.8$ & int16     & 7.63    & F   \\
+            3     & ds001600 & sub-1       & $176 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & -       & -   \\
+            4     & ds001748 & sub-adult15 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & M   \\
+            5     & ds001748 & sub-adult16 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & F   \\
+            6     & ds001771 & sub-36      & $256 \times 320 \times 320$ & $0.8 \times 0.8 \times 0.8$ & int16     & 22      & F   \\
+            7     & ds002338 & sub-xp201   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 41      & F   \\
+            8     & ds002338 & sub-xp207   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 39      & M   \\
+        \end{tabular}
+    \end{center}
+    \caption{Dimension, voxels resolutions, age and sex of each subject in the dataset.}
+    \label{table:dataset_info}
+\end{table*}
+
+\subsection{Stability of computational results}
+
+Considering a data processing application $\Lambda$, the objective of our stability test is to determine whether the results generated by a different application $\tilde \Lambda$ significantly differ from the reference results produced by $\Lambda$. In practice, we are particularly interested in the case where $\tilde \Lambda$ corresponds to a different version of $\Lambda$ or the same version executed in a different execution environment (operating system, parallelization or hardware). Given input data $I$, we assume that $\Lambda$ and $\tilde \Lambda$ produce images $X$ and $\tilde X$ sampled on exactly the same imaging grid (i.e., they showcase the same number $v$ of voxels, and their orientation and resolution in physical coordinates do not differ by more than a very small error $\epsilon$).
+We model $X$ as a random variable and we sample its distribution by computing $n$ random numerical perturbations of $\Lambda$, resulting in $n$ images $X_k$. Conversely, we compute $\tilde X$ without random perturbation using the
+  IEEE-754 norm, %% Reference? More detail about what does IEEE-754 entail?
+  to avoid computational overheads at test time.
+To test if $\tilde X$ belongs to the distribution of $X$,
+  we perform a z-test {\color{red} for each voxel (see latex comment)} $\tilde x_i$ ($i\leq v$), % OE: each voxel inside a mask?
+  using the mean $\hat \mu_i$ and the standard deviation $\hat \sigma_i$ estimated from the $n$ perturbed results. The test computes a p-value $p_i$ under the null hypothesis $H_{0,i}$ that the tested voxel belongs to the reference distribution:
 \begin{equation} \label{eq:pval}
     p_i(z_i) = 2 \left(1-\Phi(z_i)\right),
 \end{equation}
@@ -253,46 +334,28 @@ where $\tilde x_i$ is the intensity of a voxel in $\tilde X$, $v$ is the number 
 \subsection{Numerical variability estimation}
 
 To estimate the distribution of reference results and compute $\hat \mu_i$ and $\hat \sigma_i$, we sample results distributions by applying two types of random numerical perturbations: (1) Random Rounding (RR), which randomly rounds function outputs in the GNU libmath mathematical library, and (2) Random Seed (RS), which varies the random seed used in the application. In neuroimaging, random seeds are typically employed to initialize optimization processes encountered in spatial normalization.
+Random Seed (RS) and RR trigger different types of variability.
+RR can be applied transparently to any application while RS is more specific to the type of analysis.
+Conversely, RR incurs a substantial performance overhead whereas RS does not.
 
-Random Rounding (RR) consists in rounding the exact result of a floating-point arithmetic operation toward the previous or next floating-point number~\cite{forsythe1959reprint}. RR is equivalent to applying Monte-Carlo Arithmetic (MCA~\cite{parker1997monte}) to double-precision numbers with a virtual precision of 53 bits and to single-precision numbers with a virtual precision of 24 bits, which was shown to accurately simulate the effect of operating system updates on the structural MRI pre-processing pipelines of the Human Connectome Project (HCP) when applied to GNU libmath~\cite{salari2021accurate}. Structural HCP pipelines consist of tools assembled from the FSL~\cite{jenkinson2012fsl} and Freesurfer~\cite{fischl2012freesurfer} toolboxes, which makes them conceptually very similar to the structural fMRIPrep pipeline targeted by our study.
+% OE: All these concepts and references should have been introduced in the intro.
+% Random Rounding (RR) consists in rounding the exact result of a floating-point arithmetic operation toward the previous or next floating-point number~\cite{forsythe1959reprint}. RR is equivalent to applying Monte-Carlo Arithmetic (MCA~\cite{parker1997monte}) to double-precision numbers with a virtual precision of 53 bits and to single-precision numbers with a virtual precision of 24 bits, which was shown to accurately simulate the effect of operating system updates on the structural MRI pre-processing pipelines of the Human Connectome Project (HCP) when applied to GNU libmath~\cite{salari2021accurate}. Structural HCP pipelines consist of tools assembled from the FSL~\cite{jenkinson2012fsl} and Freesurfer~\cite{fischl2012freesurfer} toolboxes, which makes them conceptually very similar to the structural fMRIPrep pipeline targeted by our study.
 
-RR is rigorously implemented in several tools including CADNA~\cite{jezequel2008cadna}, Verrou~\cite{fevotte2016verrou}, and Verificarlo~\cite{denis2016verificarlo}.
-However, these tools incur substantial performance overheads which makes them hard to apply to compute-intensive applications. In addition, only Verrou supports RR instrumentation of GNU libmath~\cite{fevotte2019debugging}, and it does so by relying on quadruple precision, which is not scalable to entire neuroimaging pipelines.
-Therefore, we implemented a fast, approximate RR method by randomly adding or removing 1 ulp (unit in the last place) to the outputs of GNU libmath functions.
+% RR is rigorously implemented in several tools including CADNA~\cite{jezequel2008cadna}, Verrou~\cite{fevotte2016verrou}, and Verificarlo~\cite{denis2016verificarlo}.
+% However, these tools incur substantial performance overheads which makes them hard to apply to compute-intensive applications. In addition, only Verrou supports RR instrumentation of GNU libmath~\cite{fevotte2019debugging}, and it does so by relying on quadruple precision, which is not scalable to entire neuroimaging pipelines.
+% Therefore, we implemented a fast, approximate RR method by randomly adding or removing 1 ulp (unit in the last place) to the outputs of GNU libmath functions.
+
+% OE: I personally dislike URLs buried in the text - separate to a data and code availability statement?
+% OE(2): Whenever you note the availability of software, please indicate the license.
 Our implementation, available on GitHub (\url{https://github.com/verificarlo/fuzzy/blob/master/docker/resources/libmath/fast/src/wrapping\_script.c}),  only approximates RR as it applies a random perturbation to an already rounded result instead of to the exact result as done in rigorous implementations. In practice, computing the exact result returned by GNU libmath functions, by using MPFR~\cite{fousse2007mpfr} for instance, is too expensive for our use case.
 
-Random Seed (RS) and RR trigger different types of variability. RR can be applied transparently to any application while RS is more specific to the type of analysis. Conversely, RR incurs a substantial performance overhead whereas RS does not.
 
-\subsection{fMRIprep results preprocessing}
+\subsection{Preprocessing of \fmriprep's outputs}
 
-For the \fmriprep application, $X_k$ is the main structural derivative produced by \fmriprep, that is, the T1-weighted MRI image corrected for intensity non-uniformity using \texttt{N4BiasFieldCorrection} from \texttt{ANTS} and transformed to template space using \texttt{antsRegistration}. This file is named \texttt{desc-preproc\_T1w} in the \fmriprep outputs. In addition to $X_k$, \fmriprep produces a brain mask $B_k$, a segmentation into grey matter, white matter and cerebrospinal fluid tissues, as well as probability maps for each of these tissues.
+For the \fmriprep application, $X_k$ is the main structural derivative produced by \fmriprep, that is, the T1-weighted MRI image corrected for intensity non-uniformity using \texttt{N4BiasFieldCorrection} from \emph{ANTS} and transformed to template space using \texttt{antsRegistration}. This file is named \texttt{desc-preproc\_T1w} in the \fmriprep outputs. In addition to $X_k$, \fmriprep produces a brain mask $B_k$, a segmentation into grey matter, white matter and cerebrospinal fluid tissues, as well as probability maps for each of these tissues.
 
 Before computing the p-values in Equation~\ref{eq:pval}, we apply brain masking, smoothing, and intensity normalization to $X_k$. For brain masking, we mask $X_k$ with the union of the brain masks produced across all perturbed results. We use the union of the brain masks rather than their intersection to capture variability across $B_k$ masks. For smoothing, we apply a spatial 3D Gaussian smoothing kernel with Full-Width at Half Maximum (\fwhm) ranging from 0mm to 20mm. For intensity normalization, we apply a min-max scaling to the smoothed intensities to scale them to [0,1].
 The resulting pre-processed image $X_k^\perp$ is used as input for the stability test.
-
-\subsection{Datasets}
-
-We selected eight test subjects from sub-datasets in the OpenNeuro~\cite{markiewicz2021openneuro} data-sharing platform, representing a diversity of ages, sex, and study designs. The datasets include a motion study with children (ds000256), a long-term memory study with young adults (ds001748), and a motor process study with adults (ds002338). In addition, two sub-datasets involve steps of the pipeline that can affect its reproducibility, namely different field maps (ds001600) and non-structural images (ds001771). Table~\ref{table:dataset_info} lists the dimension, voxels resolution, age and sex of each subject in the dataset.
-
-\begin{table*}
-    \begin{center}
-        \begin{tabular}{c|c|l|c|c|c|c|c}
-            Index & Dataset  & Subject     & Dimension ($x,y,z$)         & Voxel resolution            & Data type & Age     & Sex \\
-                  &          &             &                             & $mm^3$ ($x,y,z$)            &           & (years) &     \\
-            \hline
-            1     & ds000256 & sub-CTS201  & $256 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & 8.68    & M   \\
-            2     & ds000256 & sub-CTS210  & $224 \times 256 \times 256$ & $0.8 \times 0.8 \times 0.8$ & int16     & 7.63    & F   \\
-            3     & ds001600 & sub-1       & $176 \times 256 \times 256$ & $1.0 \times 1.0 \times 1.0$ & int16     & -       & -   \\
-            4     & ds001748 & sub-adult15 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & M   \\
-            5     & ds001748 & sub-adult16 & $176 \times 240 \times 256$ & $1.0 \times 1.0 \times 1.0$ & float32   & 21      & F   \\
-            6     & ds001771 & sub-36      & $256 \times 320 \times 320$ & $0.8 \times 0.8 \times 0.8$ & int16     & 22      & F   \\
-            7     & ds002338 & sub-xp201   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 41      & F   \\
-            8     & ds002338 & sub-xp207   & $176 \times 512 \times 512$ & $1.0 \times 0.5 \times 0.5$ & int16     & 39      & M   \\
-        \end{tabular}
-    \end{center}
-    \caption{Dimension, voxels resolutions, age and sex of each subject in the dataset.}
-    \label{table:dataset_info}
-\end{table*}
 
 \subsection{Handling multiple comparisons}
 
