@@ -1,20 +1,30 @@
 \documentclass[lettersize,journal]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{cite}
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+% updated with editorial comments 8/9/2021
 
 % Language setting Replace `english' with e.g. `spanish' to change the document
 % language
 \usepackage[english]{babel}
 \usepackage{caption}
-\usepackage{subcaption}
+% \usepackage{subcaption}
 \usepackage{makecell}
 % \usepackage[toc,page]{appendix}
-\setlength{\marginparwidth}{2cm}
 \usepackage{todonotes}
 \usepackage{soul}
 \usepackage{pdflscape}
-
 % Set page size and margins Replace `letterpaper' with `a4paper' for UK/EU
 % standard size
-\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
 
 % Useful packages
 \usepackage{amsmath}
@@ -27,7 +37,6 @@
 \usepackage{colortbl}
 \usepackage{dsfont}
 
-\setlength{\marginparwidth}{2cm}
 \usepackage{todonotes}
 \usepackage{etoolbox}
 \usepackage{xargs}
@@ -67,6 +76,7 @@
 
 \newlength{\figureWidthUM}
 \newlength{\vspaceIndex}
+\newlength{\rowSpace}
 
 \newcommandx{\uncertaintyMap}[5][5=false]{%
   % arguments:
@@ -78,33 +88,31 @@
 %   \iftoggle{RRandRS}{\setlength{\figureWidthUM}{0.2\paperheight}}{\setlength{\figureWidthUM}{0.27\paperheight}}
   \setlength{\figureWidthUM}{0.15\paperheight}
   \ifstrequal{#5}{true}{\setlength{\vspaceIndex}{-45pt}}{\setlength{\vspaceIndex}{25pt}}
-  \begin{subfigure}[b]{0.01\paperwidth}
-    \centering
+  \begin{tabular}[b]{@{}c@{}}
     #2\vspace*{\vspaceIndex}
-  \end{subfigure}
-  \begin{subfigure}[t]{\figureWidthUM}
-    \centering
-    \ifstrequal{#5}{true}{IEEE (T1 intensity)}{}
-    \includegraphics[width=\textwidth]{figures/sig/#1mm/ieee_#3_#4.pdf}
-  \end{subfigure}
-  \begin{subfigure}[t]{\figureWidthUM}
-    \centering
-    \ifstrequal{#5}{true}{RR (significant bits)}{}
-    \includegraphics[width=\textwidth]{figures/sig/#1mm/rr_#3_#4_sig.pdf}
-  \end{subfigure}
-  \begin{subfigure}[t]{\figureWidthUM}
-    \centering
-    \ifstrequal{#5}{true}{RS (significant bits)}{}
-    \includegraphics[width=\textwidth]{figures/sig/#1mm/rs_#3_#4_sig.pdf}
-  \end{subfigure}
+  \end{tabular}
+  \begin{tabular}[t]{@{}c@{}}
+    \ifstrequal{#5}{true}{IEEE (T1 intensity)}{} \\
+    \includegraphics[width=\figureWidthUM]{figures/sig/#1mm/ieee_#3_#4.pdf}
+  \end{tabular}
+  \begin{tabular}[t]{@{}c@{}}
+    \ifstrequal{#5}{true}{RR (significant bits)}{} \\
+    \includegraphics[width=\figureWidthUM]{figures/sig/#1mm/rr_#3_#4_sig.pdf}
+  \end{tabular}
+  \begin{tabular}[t]{@{}c@{}}
+    \ifstrequal{#5}{true}{RS (significant bits)}{} \\
+    \includegraphics[width=\figureWidthUM]{figures/sig/#1mm/rs_#3_#4_sig.pdf}
+  \end{tabular}
   \iftoggle{RRandRS}{%
-    \begin{subfigure}[t]{\figureWidthUM}
-      \centering
-      \ifstrequal{#5}{true}{RR+RS (significant bits)}{}
-      \includegraphics[width=\textwidth]{figures/sig/#1mm/rr.rs_#3_#4_sig.pdf}
-    \end{subfigure}
+    \begin{tabular}[t]{@{}c@{}}
+      \ifstrequal{#5}{true}{RR+RS (significant bits)}{} \\
+      \includegraphics[width=\figureWidthUM]{figures/sig/#1mm/rr.rs_#3_#4_sig.pdf}
+    \end{tabular}
   }{}
 }
+
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
 
 \newcommandx{\uncertaintyMapDiscrete}[5][5=false]{%
   % arguments:
@@ -114,42 +122,54 @@
   % 4: subject
   % 5: add columns title
 %   \iftoggle{RRandRS}{\setlength{\figureWidthUM}{0.2\paperheight}}{\setlength{\figureWidthUM}{0.27\paperheight}}
-  \setlength{\figureWidthUM}{0.15\paperheight}
-  \ifstrequal{#5}{true}{\setlength{\vspaceIndex}{-45pt}}{\setlength{\vspaceIndex}{25pt}}
-  \begin{subfigure}[b]{0.01\paperwidth}
-    \centering
-    #2\vspace*{\vspaceIndex}
-  \end{subfigure}
-  \begin{subfigure}[t]{\figureWidthUM}
-    \centering
-    \ifstrequal{#5}{true}{IEEE (T1 intensity)}{}
-    \includegraphics[width=\textwidth]{figures/sig/#1mm/ieee_#3_#4.pdf}
-  \end{subfigure}
-  \begin{subfigure}[t]{\figureWidthUM}
-    \centering
-    \ifstrequal{#5}{true}{RR (significant bits)}{}
-    \includegraphics[width=\textwidth]{figures/sig/discrete/#1mm/rr_#3_#4_sig_discrete.pdf}
-  \end{subfigure}
-  \begin{subfigure}[t]{\figureWidthUM}
-    \centering
-    \ifstrequal{#5}{true}{RS (significant bits)}{}
-    \includegraphics[width=\textwidth]{figures/sig/discrete/#1mm/rs_#3_#4_sig_discrete.pdf}
-  \end{subfigure}
+  \setlength{\figureWidthUM}{0.16\paperheight}
+  \ifstrequal{#5}{true}{\setlength{\vspaceIndex}{-45pt}}{\setlength{\vspaceIndex}{15pt}}
+  % \begin{tabular}[b]{@{}c@{}}
+  %   #2\vspace*{\vspaceIndex}
+  % \end{tabular}
+  \ifstrequal{#5}{true}{
+    \begin{tabular}[t]{@{}P{\figureWidthUM}@{}P{\figureWidthUM}@{}P{\figureWidthUM}@{}}
+      IEEE (T1 intensity) & RR (significant bits) & RS (significant bits) 
+    \end{tabular}
+  }{}
+  \begin{tabular}[t]{m{3pt}P{\figureWidthUM}@{}P{\figureWidthUM}@{}P{\figureWidthUM}@{}}
+    {#2 \vspace*{0.25\figureWidthUM}} & \includegraphics[width=\figureWidthUM]{figures/sig/#1mm/ieee_#3_#4.pdf} &
+    \includegraphics[width=\figureWidthUM]{figures/sig/discrete/#1mm/rr_#3_#4_sig_discrete.pdf} &
+    \includegraphics[width=\figureWidthUM]{figures/sig/discrete/#1mm/rs_#3_#4_sig_discrete.pdf}
+  \end{tabular}
   \iftoggle{RRandRS}{%
-    \begin{subfigure}[t]{\figureWidthUM}
-      \centering
-      \ifstrequal{#5}{true}{RR+RS (significant bits)}{}
-      \includegraphics[width=\textwidth]{figures/sig/discrete/#1mm/rr.rs_#3_#4_sig_discrete.pdf}
-    \end{subfigure}
+    \begin{tabular}[t]{@{}c@{}}
+      \ifstrequal{#5}{true}{RR+RS (significant bits)}{} \\
+      \includegraphics[width=\figureWidthUM]{figures/sig/discrete/#1mm/rr.rs_#3_#4_sig_discrete.pdf}
+    \end{tabular}
   }{}
 }
-
+    
+\newcommandx{\uncertaintyMapDiscreteAll}[1]{%
+  \centering
+  \setlength{\rowSpace}{-24pt}
+  \uncertaintyMapDiscrete{#1}{1}{ds000256}{sub-CTS201}[true] \\
+  \vspace*{\rowSpace}
+  \uncertaintyMapDiscrete{#1}{2}{ds000256}{sub-CTS210} \\
+  \vspace*{\rowSpace}
+  \uncertaintyMapDiscrete{#1}{3}{ds001600}{sub-1} \\
+  \vspace*{\rowSpace}
+  \uncertaintyMapDiscrete{#1}{4}{ds001748}{sub-adult15} \\
+  \vspace*{\rowSpace}
+  \uncertaintyMapDiscrete{#1}{5}{ds001748}{sub-adult16} \\
+  \vspace*{\rowSpace}
+  \uncertaintyMapDiscrete{#1}{6}{ds001771}{sub-36} \\
+  \vspace*{\rowSpace}
+  \uncertaintyMapDiscrete{#1}{7}{ds002338}{sub-xp201} \\
+  \vspace*{\rowSpace}
+  \uncertaintyMapDiscrete{#1}{8}{ds002338}{sub-xp207} \\
+}
 
 % Cluster failure: Why fMRI inferences for spatial extent lhave inflated
 % false-positive https://www.pnas.org/doi/pdf/10.1073/pnas.1602413113
 
 \title{A numerical variability approach to results stability tests and its application to neuroimaging}
-\author{\IEEEauthorblockN{Yohan Chatelain\IEEEauthorrefmark{1}, Loic Tetrel\IEEEauthorrefmark{2}, Christopher J. Markiewicz\IEEEauthorrefmark{3}, Mathias Goncalves\IEEEauthorrefmark{3}, Gregory Kiar\IEEEauthorrefmark{6},\\ Oscar Esteban\IEEEauthorrefmark{3}\IEEEauthorrefmark{5},  Pierre Bellec\IEEEauthorrefmark{2}\IEEEauthorrefmark{4}\IEEEauthorrefmark{7}, Tristan Glatard\IEEEauthorrefmark{1}\IEEEauthorrefmark{7}\vspace*{0.2cm}}
+\author{\IEEEauthorblockN{Yohan Chatelain\IEEEauthorrefmark{1}, Loic Tetrel\IEEEauthorrefmark{2}, Christopher J. Markiewicz\IEEEauthorrefmark{3}, Gregory Kiar\IEEEauthorrefmark{6},\\ Oscar Esteban\IEEEauthorrefmark{3}\IEEEauthorrefmark{5},  Pierre Bellec\IEEEauthorrefmark{2}\IEEEauthorrefmark{4}\IEEEauthorrefmark{7}, Tristan Glatard\IEEEauthorrefmark{1}\IEEEauthorrefmark{7}\vspace*{0.2cm}}
 
 \IEEEauthorblockA{\IEEEauthorrefmark{1}Department of Computer Science and Software Engineering\\ Concordia University, Montreal, Quebec, Canada.}
 
@@ -178,17 +198,19 @@
 
 \section{Introduction}
 
+
+
 % context
 The ubiquitous application of computational approaches across disciplines demands the consideration of data processing as part of the measurement device and sets computational stability as one of the preconditions or assumptions of the data analysis.
 Indeed, repeated computational processing and analyses of the same data can produce different results depending on the hardware and software conditions in which they are executed~\cite{gronenschild2012effects}.
-Computational stability is particularly under the spotlight in neuroimaging, a field where software tools (e.g., \emph{FSL}~\cite{jenkinson2012fsl},\emph{FreeSurfer}~\cite{fischl2012freesurfer}, or {\emph{ANTs}~\cite{avants2009advanced}) % suggestion: cite also AFNI
+Computational stability is particularly under the spotlight in neuroimaging, a field where software tools (e.g., \emph{FSL}~\cite{jenkinson2012fsl}, \emph{FreeSurfer}~\cite{fischl2012freesurfer}, or {\emph{ANTs}~\cite{avants2009advanced}) % suggestion: cite also AFNI
 have built up into sophisticated instruments enabling researchers to study the human brain with unprecedented detail and precision.
-Unsurprisingly, the reproducibility and repeatability of neuroimaging results have been a focus of research for decades, yielding high-value recommendations and defining best practices applicable across computational sciences {\color{red} [CITE https://doi.org/10.3389/fnins.2013.00162]}. One thoroughly examined application is brain surface reconstruction and quantification of derived features such as cortical thickness, which have been shown significantly different across software packages ({\color{red} [CITE https://doi.org/10.1186/s12859-019-2609-8]}) executed on the same brains. Glatard et al. {\color{red} [Cite Tristan's paper https://doi.org/10.3389/fninf.2015.00012]} demonstrated operative system effects on measured cortical thickness within several software packages and package versions.
+Unsurprisingly, the reproducibility and repeatability of neuroimaging results have been a focus of research for decades, yielding high-value recommendations and defining best practices applicable across computational sciences~\cite{tustison2013instrumentation}. One thoroughly examined application is brain surface reconstruction and quantification of derived features such as cortical thickness, which have been shown significantly different across software packages~\cite{mikhael2019controlled} executed on the same brains. Glatard et al.~\cite{glatard2015reproducibility} demonstrated operative system effects on measured cortical thickness within several software packages and package versions.
 % neuroimaging
 % We focus on the use case of neuroimaging analyses, although our method applies to data analyses more broadly. For several decades, the neuroimaging community has developed advanced software tools enabling researchers to study the human brain with unprecedented detail and precision. Neuroimaging tools now underpin scientific findings in several disciplines, and must therefore be thoroughly tested. In particular, neuroimaging studies often follow subjects over multiple years, which requires data analyses to be consistent over substantial periods.
 %
 
-Previously, computational stability has been addressed by means of random rounding (RR).
+Previously, computational stability has been addressed through random rounding (RR).
 RR consists in rounding the exact result of a floating-point arithmetic operation toward the previous
 or next floating-point number~\cite{forsythe1959reprint}.
 RR is equivalent to applying Monte-Carlo Arithmetic (MCA~\cite{parker1997monte}) to double-precision numbers
@@ -229,6 +251,26 @@ Our stability tests leverage the numerical variability resulting from the use of
 % I see this as the contribution (and moved here)
 This paper investigates results stability tests whereby the outcome of data analysis is asserted to remain within acceptable variation bounds of a reference result. The primary challenge in developing such stability tests lies in the determination of acceptable bounds of variation around the reference result. We define such bounds from the numerical variability of the results, that is, from the variability inherent to numerical computations.
 % The paragraph moved ends here
+In summary, the main contributions of this paper are the following:
+\begin{itemize}
+  \item Define a numerical variability approach to results stability tests;
+  \item Build results stability tests for structural pre-processing in \fmriprep;
+  \item Evaluate results of stability tests in several configurations.
+\end{itemize}
+
+
+Data analyses can produce different results depending on the hardware and software conditions in which they are executed~\cite{gronenschild2012effects}, which has important repercussions in several disciplines. This paper investigates results stability tests whereby the outcome of data analysis is asserted to remain within acceptable variation bounds of a reference result. The primary challenge in developing such stability tests lies in the determination of acceptable bounds of variation around the reference result. We define such bounds from the numerical variability of the results, that is, from the variability inherent to numerical computations.
+
+We focus on the use case of neuroimaging analyses, although our method applies to data analyses more broadly. For several decades, the neuroimaging community has developed advanced software tools (e.g., \emph{FSL}~\cite{jenkinson2012fsl}, \emph{FreeSurfer}~\cite{fischl2012freesurfer}, {\emph{ANTs}~\cite{avants2009advanced}, or \emph{AFNI}~\cite{COX1996162}) enabling researchers to study the human brain with unprecedented detail and precision. Neuroimaging tools now underpin scientific findings in several disciplines, and must therefore be thoroughly tested. In particular, neuroimaging studies often follow subjects over multiple years, which requires data analyses to be consistent over substantial periods.
+
+Over the years, extensive research has focused on ensuring consistency and accuracy of neuroimaging results, leading to best practices recommendations~\cite{tustison2013instrumentation}. However, 
+
+A key area of study is brain surface reconstruction, specifically analyzing attributes like cortical thickness. Interestingly, the results vary significantly across different software, even when they're working with the same brain data. Evidence of this is highlighted in the work of Glatard and colleagues, who showed how different operating systems can influence the measurements of cortical thickness using various software packages.
+
+The present paper focuses primarily on the fMRIPrep software~\cite{esteban2019fmriprep}, a tool to pre-process Magnetic Resonance Imaging (MRI) data as a pre-requisite of any further analysis. fMRIPrep is an integrated data analysis pipeline for structural and functional MRI pre-processing. We focus on the pre-processing of structural MRI, which includes intensity non-uniformity correction, skull stripping, and spatial normalization to a brain template. fMRIPrep developers recently initiated long-term support (LTS) releases to guarantee results stability over multiple years, which motivated the development of the results stability tests presented in this paper.
+
+Our stability tests leverage the numerical variability resulting from the use of finite-precision arithmetic in calculations. This variability manifests primarily as a result of changes in computational environments, which includes hardware architecture, parallelization scheme, operating system, and software dependencies. To estimate numerical variability, we rely on random rounding~\cite{forsythe1959reprint}, a stochastic arithmetic technique that randomly rounds floating-point operation results to the previous or to the next floating-point number with equal probability. Stochastic arithmetic has been successfully applied to simulate numerical variability in various domains, including neuroimaging~\cite{salari2021accurate,kiar2021numerical}. Our approach is not specific to any particular numerical scheme and relies on a few statistical assumptions such as normality and independence, making it applicable to a wide range of scenarios.
+
 In summary, the main contributions of this paper are the following:
 \begin{itemize}
   \item Define a numerical variability approach to results stability tests;
@@ -283,26 +325,26 @@ linear algebra libraries that parallelize across CPUs.
 \begin{table}
   \centering
   \begin{tabular}{r|l}
-    $\Lambda$          & reference application                                     \\
-    $\tilde \Lambda$   & tested application                                        \\
-    $i$                & index of a voxel in the brain mask                        \\
-    $v$                & number of voxels in the brain mask                        \\
-    $k$                & index of a perturbed sample                               \\
-    $n$                & number of perturbed samples                               \\
-    $\tilde x_i$       & voxel intensity in image $\tilde X$                       \\
-    $z_i$              & z-score of voxel i                                        \\
-    $p_i$              & p-value of voxel i                                        \\
-    $\hat{\mu_i}$      & average voxel intensity across perturbed samples          \\
-    $\hat{\sigma_i}$   & standard deviation of voxel intensity                     \\ & across perturbed samples       \\
-    $B_k$              & brain masks produced by random numerical                  \\ & perturbations of $\Lambda$  \\
-    $B$                & union of $B_k$ masks                                      \\
-    $\tilde X$         & image produced by unperturbed $\tilde \Lambda$ using IEEE \\ & convention \\
-    $X_k$              & images produced by random numerical                       \\ &  perturbations of $\Lambda$       \\
-    $X_k^{\perp}$      & $X_k$ masked with $B$, min-max scaled                     \\ &  and spatially smoothed         \\
-    $\hat{s}$          & average number of significant bits                        \\ & across the image \\
-    $\mathcal{N}(0,1)$ & standard Gaussian distribution                            \\
-    $\Phi$             & cumulative distribution function of $\mathcal{N}(0,1)$    \\
-    $\chi^2_{n-1}$     & Chi-2 distribution with n-1 degrees of freedom            \\
+    $\Lambda$          & reference application                                                \\
+    $\tilde \Lambda$   & tested application                                                   \\
+    $i$                & index of a voxel in the brain mask                                   \\
+    $v$                & number of voxels in the brain mask                                   \\
+    $k$                & index of a perturbed sample                                          \\
+    $n$                & number of perturbed samples                                          \\
+    $\tilde x_i$       & voxel intensity in image $\tilde X$                                  \\
+    $z_i$              & z-score of voxel i                                                   \\
+    $p_i$              & p-value of voxel i                                                   \\
+    $\hat{\mu_i}$      & average voxel intensity across perturbed samples                     \\
+    $\hat{\sigma_i}$   & standard deviation of voxel intensity across perturbed samples       \\
+    $B_k$              & brain masks produced by random numerical perturbations of $\Lambda$  \\
+    $B$                & union of $B_k$ masks                                                 \\
+    $\tilde X$         & image produced by unperturbed $\tilde \Lambda$ using IEEE convention \\
+    $X_k$              & images produced by random numerical perturbations of $\Lambda$       \\
+    $X_k^{\perp}$      & $X_k$ masked with $B$, min-max scaled and spatially smoothed         \\
+    $\hat{s}$          & average number of significant bits across the image                  \\
+    $\mathcal{N}(0,1)$ & standard Gaussian distribution                                       \\
+    $\Phi$             & cumulative distribution function of $\mathcal{N}(0,1)$               \\
+    $\chi^2_{n-1}$     & Chi-2 distribution with n-1 degrees of freedom                       \\
   \end{tabular}
   \caption{Notations}
   \label{tab:notations}
@@ -357,8 +399,8 @@ We quantify numerical stability for each voxel using the number of significant b
 where $\hat{\sigma_i}$ and $\hat{\mu_i}$ are the voxelwise average and standard deviation over the $X_k^\perp$ perturbed results ($k \leq n$), and
 \begin{equation}
   \begin{split}
-    \delta(n, \alpha_s, p_s) =& \frac{1}{2} \left[ \log_2 \left( \frac{n-1}{\chi^2_{1-\alpha_s/2}} \right) + \right. \\
-      &  \left. \log_2 \left( \Phi^{-1} \left( \frac{p_s+1}{2} \right) \right) \right]
+    \delta(n, \alpha_s, p_s) =& \frac{1}{2} \log_2 \left( \frac{n-1}{\chi^2_{1-\alpha_s/2}} \right) +
+    \log_2 \left( \Phi^{-1} \left( \frac{p_s+1}{2} \right) \right)
   \end{split}
 \end{equation}
 is a penalty term to estimate $\hat{s_i}$ with probability $p_s$ and confidence level $1-\alpha_s$ for a sample size $n$.
@@ -438,37 +480,13 @@ In addition, numerical variability was also maximal in some focal regions, sugge
 \oesteban{what does the next sentence mean?}
 Our stability test will therefore be more tolerant in these regions.
 
-
-% \begin{figure*}
-%     \centering
-%     \uncertaintyMap{15}{1}{ds000256}{sub-CTS201}[true] \\
-%     \uncertaintyMap{15}{2}{ds000256}{sub-CTS210} \\
-%     \uncertaintyMap{15}{3}{ds001600}{sub-1} \\
-%     \uncertaintyMap{15}{4}{ds001748}{sub-adult15} \\
-%     \uncertaintyMap{15}{5}{ds001748}{sub-adult16} \\
-%     \uncertaintyMap{15}{6}{ds001771}{sub-36} \\
-%     \uncertaintyMap{15}{7}{ds002338}{sub-xp201} \\
-%     \uncertaintyMap{15}{8}{ds002338}{sub-xp207} \\
-%     \includegraphics*[width=.6\linewidth]{figures/colorbar_sigbit.pdf}
-%     \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=15mm. Uncertainty maps for other smoothing kernel sizes are available in Appendix~\ref{appendix:numerical_uncertainty}.}
-%     \label{fig:uncertainty-maps}
-% \end{figure*}
-
 \begin{figure*}
-  \centering
-  \uncertaintyMapDiscrete{15}{1}{ds000256}{sub-CTS201}[true] \\
-  \uncertaintyMapDiscrete{15}{2}{ds000256}{sub-CTS210} \\
-  \uncertaintyMapDiscrete{15}{3}{ds001600}{sub-1} \\
-  \uncertaintyMapDiscrete{15}{4}{ds001748}{sub-adult15} \\
-  \uncertaintyMapDiscrete{15}{5}{ds001748}{sub-adult16} \\
-  \uncertaintyMapDiscrete{15}{6}{ds001771}{sub-36} \\
-  \uncertaintyMapDiscrete{15}{7}{ds002338}{sub-xp201} \\
-  \uncertaintyMapDiscrete{15}{8}{ds002338}{sub-xp207} \\
+  \uncertaintyMapDiscreteAll{15}
+  \vspace*{-20pt}\hspace{15pt}
   \includegraphics*[width=.6\linewidth]{figures/colorbar_sigbit_discrete.pdf}
   \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=15mm. Uncertainty maps for other smoothing kernel sizes are available in Appendix~\ref{appendix:numerical_uncertainty}.}
   \label{fig:uncertainty-maps}
 \end{figure*}
-
 
 \subsection{The results stability test passed sanity checks but usable FWHM and $\alpha$ values were data-dependent}
 \oesteban{This result is really difficult to track. The three different `checks' (?), i.e., LOO, IEEE, and template, should have been introduced in methods. Here, only the outcomes of the checks should be summarized.}
@@ -643,155 +661,80 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 \bibliographystyle{IEEEtran}
 \bibliography{main}
 
+
+\newpage
+
+\section{Biography Section}
+If you have an EPS/PDF photo (graphicx package needed), extra braces are
+needed around the contents of the optional argument to biography to prevent
+the LaTeX parser from getting confused when it sees the complicated
+$\backslash${\tt{includegraphics}} command within an optional argument. (You can create
+your own custom macro containing the $\backslash${\tt{includegraphics}} command to make things
+simpler here.)
+
+\vspace{11pt}
+
+\bf{If you include a photo:}\vspace{-33pt}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig1}}]{Michael Shell}
+  Use $\backslash${\tt{begin\{IEEEbiography\}}} and then for the 1st argument use $\backslash${\tt{includegraphics}} to declare and link the author photo.
+  Use the author name as the 3rd argument followed by the biography text.
+\end{IEEEbiography}
+
+\vspace{11pt}
+
+\bf{If you will not include a photo:}\vspace{-33pt}
+\begin{IEEEbiographynophoto}{John Doe}
+  Use $\backslash${\tt{begin\{IEEEbiographynophoto\}}} and the author name as the argument followed by the biography text.
+\end{IEEEbiographynophoto}
+
+
+
+
+\vfill
+
+
 \appendix
 
 \section*{Numerical variability results for different smoothing kernel sizes}
 \label{appendix:numerical_uncertainty}
 
-% \begin{landscape}
-%     \begin{figure}
-%         \vspace*{-2cm}
-%         \centering
-%         \uncertaintyMap{0}{1}{ds000256}{sub-CTS201}[true] \\
-%         \uncertaintyMap{0}{2}{ds000256}{sub-CTS210} \\
-%         \uncertaintyMap{0}{3}{ds001600}{sub-1} \\
-%         \uncertaintyMap{0}{4}{ds001748}{sub-adult15} \\
-%         \uncertaintyMap{0}{5}{ds001748}{sub-adult16} \\
-%         \uncertaintyMap{0}{6}{ds001771}{sub-36} \\
-%         \uncertaintyMap{0}{7}{ds002338}{sub-xp201} \\
-%         \uncertaintyMap{0}{8}{ds002338}{sub-xp207} \\
-%         \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
-%         \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=0mm. }
-%         \label{fig:uncertainty-maps-0mm}
-%     \end{figure}
-% \end{landscape}
+\begin{figure*}
+  \centering
+  \uncertaintyMapDiscreteAll{0}
+  \vspace*{-20pt}\hspace{15pt}
+  \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
+  \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=0mm. }
+  \label{fig:uncertainty-maps-0mm-disc}
+\end{figure*}
 
-% \begin{landscape}
-%     \begin{figure}
-%         \vspace*{-2cm}
-%         \centering
-%         \uncertaintyMap{5}{1}{ds000256}{sub-CTS201}[true] \\
-%         \uncertaintyMap{5}{2}{ds000256}{sub-CTS210} \\
-%         \uncertaintyMap{5}{3}{ds001600}{sub-1} \\
-%         \uncertaintyMap{5}{4}{ds001748}{sub-adult15} \\
-%         \uncertaintyMap{5}{5}{ds001748}{sub-adult16} \\
-%         \uncertaintyMap{5}{6}{ds001771}{sub-36} \\
-%         \uncertaintyMap{5}{7}{ds002338}{sub-xp201} \\
-%         \uncertaintyMap{5}{8}{ds002338}{sub-xp207} \\
-%         \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
-%         \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=5mm. }
-%         \label{fig:uncertainty-maps-5mm}
-%     \end{figure}
-% \end{landscape}
+\begin{figure*}
+  \centering
+  \uncertaintyMapDiscreteAll{5}
+  \vspace*{-20pt}\hspace{15pt}
+  \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
+  \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=5mm. }
+  \label{fig:uncertainty-maps-5mm-disc}
+\end{figure*}
 
-% \begin{landscape}
-%     \begin{figure}
-%         \vspace*{-2cm}
-%         \centering
-%         \uncertaintyMap{10}{1}{ds000256}{sub-CTS201}[true] \\
-%         \uncertaintyMap{10}{2}{ds000256}{sub-CTS210} \\
-%         \uncertaintyMap{10}{3}{ds001600}{sub-1} \\
-%         \uncertaintyMap{10}{4}{ds001748}{sub-adult15} \\
-%         \uncertaintyMap{10}{5}{ds001748}{sub-adult16} \\
-%         \uncertaintyMap{10}{6}{ds001771}{sub-36} \\
-%         \uncertaintyMap{10}{7}{ds002338}{sub-xp201} \\
-%         \uncertaintyMap{10}{8}{ds002338}{sub-xp207} \\
-%         \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
-%         \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=10mm. }
-%         \label{fig:uncertainty-maps-10mm}
-%     \end{figure}
-% \end{landscape}
+\begin{figure*}
+  \vspace*{-2cm}
+  \centering
+  \uncertaintyMapDiscreteAll{10}
+  \vspace*{-20pt}\hspace{15pt}
+  \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
+  \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=10mm. }
+  \label{fig:uncertainty-maps-10mm-disc}
+\end{figure*}
 
-% \begin{landscape}
-%     \begin{figure}
-%         \vspace*{-2cm}
-%         \centering
-%         \uncertaintyMap{20}{1}{ds000256}{sub-CTS201}[true] \\
-%         \uncertaintyMap{20}{2}{ds000256}{sub-CTS210} \\
-%         \uncertaintyMap{20}{3}{ds001600}{sub-1} \\
-%         \uncertaintyMap{20}{4}{ds001748}{sub-adult15} \\
-%         \uncertaintyMap{20}{5}{ds001748}{sub-adult16} \\
-%         \uncertaintyMap{20}{6}{ds001771}{sub-36} \\
-%         \uncertaintyMap{20}{7}{ds002338}{sub-xp201} \\
-%         \uncertaintyMap{20}{8}{ds002338}{sub-xp207} \\
-%         \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit.pdf}
-%         \caption{Uncertainty measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=20mm. }
-%         \label{fig:uncertainty-maps-20mm}
-%     \end{figure}
-% \end{landscape}
-
-
-\begin{landscape}
-  \begin{figure}
-    \vspace*{-2cm}
-    \centering
-    \uncertaintyMapDiscrete{0}{1}{ds000256}{sub-CTS201}[true] \\
-    \uncertaintyMapDiscrete{0}{2}{ds000256}{sub-CTS210} \\
-    \uncertaintyMapDiscrete{0}{3}{ds001600}{sub-1} \\
-    \uncertaintyMapDiscrete{0}{4}{ds001748}{sub-adult15} \\
-    \uncertaintyMapDiscrete{0}{5}{ds001748}{sub-adult16} \\
-    \uncertaintyMapDiscrete{0}{6}{ds001771}{sub-36} \\
-    \uncertaintyMapDiscrete{0}{7}{ds002338}{sub-xp201} \\
-    \uncertaintyMapDiscrete{0}{8}{ds002338}{sub-xp207} \\
-    \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
-    \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=0mm. }
-    \label{fig:uncertainty-maps-0mm-disc}
-  \end{figure}
-\end{landscape}
-
-\begin{landscape}
-  \begin{figure}
-    \vspace*{-2cm}
-    \centering
-    \uncertaintyMapDiscrete{5}{1}{ds000256}{sub-CTS201}[true] \\
-    \uncertaintyMapDiscrete{5}{2}{ds000256}{sub-CTS210} \\
-    \uncertaintyMapDiscrete{5}{3}{ds001600}{sub-1} \\
-    \uncertaintyMapDiscrete{5}{4}{ds001748}{sub-adult15} \\
-    \uncertaintyMapDiscrete{5}{5}{ds001748}{sub-adult16} \\
-    \uncertaintyMapDiscrete{5}{6}{ds001771}{sub-36} \\
-    \uncertaintyMapDiscrete{5}{7}{ds002338}{sub-xp201} \\
-    \uncertaintyMapDiscrete{5}{8}{ds002338}{sub-xp207} \\
-    \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
-    \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=5mm. }
-    \label{fig:uncertainty-maps-5mm-disc}
-  \end{figure}
-\end{landscape}
-
-\begin{landscape}
-  \begin{figure}
-    \vspace*{-2cm}
-    \centering
-    \uncertaintyMapDiscrete{10}{1}{ds000256}{sub-CTS201}[true] \\
-    \uncertaintyMapDiscrete{10}{2}{ds000256}{sub-CTS210} \\
-    \uncertaintyMapDiscrete{10}{3}{ds001600}{sub-1} \\
-    \uncertaintyMapDiscrete{10}{4}{ds001748}{sub-adult15} \\
-    \uncertaintyMapDiscrete{10}{5}{ds001748}{sub-adult16} \\
-    \uncertaintyMapDiscrete{10}{6}{ds001771}{sub-36} \\
-    \uncertaintyMapDiscrete{10}{7}{ds002338}{sub-xp201} \\
-    \uncertaintyMapDiscrete{10}{8}{ds002338}{sub-xp207} \\
-    \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
-    \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=10mm. }
-    \label{fig:uncertainty-maps-10mm-disc}
-  \end{figure}
-\end{landscape}
-
-\begin{landscape}
-  \begin{figure}
-    \vspace*{-2cm}
-    \centering
-    \uncertaintyMapDiscrete{20}{1}{ds000256}{sub-CTS201}[true] \\
-    \uncertaintyMapDiscrete{20}{2}{ds000256}{sub-CTS210} \\
-    \uncertaintyMapDiscrete{20}{3}{ds001600}{sub-1} \\
-    \uncertaintyMapDiscrete{20}{4}{ds001748}{sub-adult15} \\
-    \uncertaintyMapDiscrete{20}{5}{ds001748}{sub-adult16} \\
-    \uncertaintyMapDiscrete{20}{6}{ds001771}{sub-36} \\
-    \uncertaintyMapDiscrete{20}{7}{ds002338}{sub-xp201} \\
-    \uncertaintyMapDiscrete{20}{8}{ds002338}{sub-xp207} \\
-    \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
-    \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=20mm. }
-    \label{fig:uncertainty-maps-20mm-disc}
-  \end{figure}
-\end{landscape}
+\begin{figure*}
+  \vspace*{-2cm}
+  \centering
+  \uncertaintyMapDiscreteAll{20}
+  \vspace*{-20pt}\hspace{15pt}
+  \includegraphics*[width=.7\linewidth]{figures/colorbar_sigbit_discrete.pdf}
+  \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM=20mm. }
+  \label{fig:uncertainty-maps-20mm-disc}
+\end{figure*}
 
 
 % \section{Colors Palette}
@@ -890,5 +833,7 @@ Québec (MESI) and le Fonds de recherche du Québec – Nature et technologies
 % \end{figure}
 
 
+
 \end{document}
+
 
