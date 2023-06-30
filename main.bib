@@ -12,34 +12,40 @@
   author    = {Tom Nichols}
 }
 @article{gronenschild2012effects,
-  title={The effects of FreeSurfer version, workstation type, and Macintosh operating system version on anatomical volume and cortical thickness measurements},
-  author={Gronenschild, Ed HBM and Habets, Petra and Jacobs, Heidi IL and Mengelers, Ron and Rozendaal, Nico and Van Os, Jim and Marcelis, Machteld},
-  journal={PloS one},
-  volume={7},
-  number={6},
-  pages={e38234},
-  year={2012},
-  publisher={Public Library of Science San Francisco, USA}
+  title     = {The effects of FreeSurfer version, workstation type, and Macintosh operating system version on anatomical volume and cortical thickness measurements},
+  author    = {Gronenschild, Ed HBM and Habets, Petra and Jacobs, Heidi IL and Mengelers, Ron and Rozendaal, Nico and Van Os, Jim and Marcelis, Machteld},
+  journal   = {PloS one},
+  volume    = {7},
+  number    = {6},
+  pages     = {e38234},
+  year      = {2012},
+  publisher = {Public Library of Science San Francisco, USA}
 }
 
 @inproceedings{salari2021accurate,
-  title        = {Accurate simulation of operating system updates in neuroimaging using Monte-Carlo arithmetic},
-  author       = {Salari, Ali and Chatelain, Yohan and Kiar, Gregory and Glatard, Tristan},
-  booktitle    = {Uncertainty for Safe Utilization of Machine Learning in Medical Imaging, and Perinatal Imaging, Placental and Preterm Image Analysis: 3rd International Workshop, UNSURE 2021, and 6th International Workshop, PIPPI 2021, Held in Conjunction with MICCAI 2021, Strasbourg, France, October 1, 2021, Proceedings 3},
-  pages        = {14--23},
-  year         = {2021},
-  organization = {Springer}
+  author    = {Salari, Ali
+               and Chatelain, Yohan
+               and Kiar, Gregory
+               and Glatard, Tristan},
+  title     = {Accurate Simulation of Operating System Updates in Neuroimaging Using Monte-Carlo Arithmetic},
+  booktitle = {Uncertainty for Safe Utilization of Machine Learning in Medical Imaging, and Perinatal Imaging, Placental and Preterm Image Analysis},
+  year      = {2021},
+  publisher = {Springer International Publishing},
+  address   = {Cham},
+  pages     = {14--23},
+  abstract  = {Operating system (OS) updates introduce numerical perturbations that impact the reproducibility of computational pipelines. In neuroimaging, this has important practical implications on the validity of computational results, particularly when obtained in systems such as high-performance computing clusters where the experimenter does not control software updates. We present a framework to reproduce the variability induced by OS updates in controlled conditions. We hypothesize that OS updates impact computational pipelines mainly through numerical perturbations originating in mathematical libraries, which we simulate using Monte-Carlo arithmetic in a framework called ``fuzzy libmath'' (FL). We applied this methodology to pre-processing pipelines of the Human Connectome Project, a flagship open-data project in neuroimaging. We found that FL-perturbed pipelines accurately reproduce the variability induced by OS updates and that this similarity is only mildly dependent on simulation parameters. Importantly, we also found between-subject differences were preserved in both cases, though the between-run variability was of comparable magnitude for both FL and OS perturbations. We found the numerical precision in the HCP pre-processed images to be relatively low, with less than 8 significant bits among the 24 available, which motivates further investigation of the numerical stability of components in the tested pipeline. Overall, our results establish that FL accurately simulates results variability due to OS updates, and is a practical framework to quantify numerical uncertainty in neuroimaging.},
+  isbn      = {978-3-030-87735-4}
 }
 
 @article{esteban2019fmriprep,
-  title={fMRIPrep: a robust preprocessing pipeline for functional MRI},
-  author={Esteban, Oscar and Markiewicz, Christopher J and Blair, Ross W and Moodie, Craig A and Isik, A Ilkay and Erramuzpe, Asier and Kent, James D and Goncalves, Mathias and DuPre, Elizabeth and Snyder, Madeleine and others},
-  journal={Nature methods},
-  volume={16},
-  number={1},
-  pages={111--116},
-  year={2019},
-  publisher={Nature Publishing Group US New York}
+  title     = {fMRIPrep: a robust preprocessing pipeline for functional MRI},
+  author    = {Esteban, Oscar and Markiewicz, Christopher J and Blair, Ross W and Moodie, Craig A and Isik, A Ilkay and Erramuzpe, Asier and Kent, James D and Goncalves, Mathias and DuPre, Elizabeth and Snyder, Madeleine and others},
+  journal   = {Nature methods},
+  volume    = {16},
+  number    = {1},
+  pages     = {111--116},
+  year      = {2019},
+  publisher = {Nature Publishing Group US New York}
 }
 
 @article{sohier2021confidence,
@@ -246,4 +252,61 @@
   pages     = {81--101},
   year      = {2006},
   publisher = {Springer}
+}
+
+@misc{tustison2013instrumentation,
+  title     = {Instrumentation bias in the use and evaluation of scientific software: recommendations for reproducible practices in the computational sciences},
+  author    = {Tustison, Nicholas J and Johnson, Hans J and Rohlfing, Torsten and Klein, Arno and Ghosh, Satrajit S and Ibanez, Luis and Avants, Brian B},
+  journal   = {Frontiers in neuroscience},
+  volume    = {7},
+  pages     = {162},
+  year      = {2013},
+  publisher = {Frontiers Media SA}
+}
+
+@article{mikhael2019controlled,
+  title     = {A controlled comparison of thickness, volume and surface areas from multiple cortical parcellation packages},
+  author    = {Mikhael, Shadia S and Pernet, Cyril},
+  journal   = {BMC bioinformatics},
+  volume    = {20},
+  number    = {1},
+  pages     = {1--12},
+  year      = {2019},
+  publisher = {BioMed Central}
+}
+
+@article{COX1996162,
+  title    = {AFNI: Software for Analysis and Visualization of Functional Magnetic Resonance Neuroimages},
+  journal  = {Computers and Biomedical Research},
+  volume   = {29},
+  number   = {3},
+  pages    = {162-173},
+  year     = {1996},
+  issn     = {0010-4809},
+  doi      = {https://doi.org/10.1006/cbmr.1996.0014},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0010480996900142},
+  author   = {Robert W. Cox},
+  abstract = {A package of computer programs for analysis and visualization of three-dimensional human brain functional magnetic resonance imaging (FMRI) results is described. The software can color overlay neural activation maps onto higher resolution anatomical scans. Slices in each cardinal plane can be viewed simultaneously. Manual placement of markers on anatomical landmarks allows transformation of anatomical and functional scans into stereotaxic (Talairach–Tournoux) coordinates. The techniques for automatically generating transformed functional data sets from manually labeled anatomical data sets are described. Facilities are provided for several types of statistical analyses of multiple 3D functional data sets. The programs are written in ANSI C and Motif 1.2 to run on Unix workstations.}
+}
+
+@article{ieee754,
+  title   = {{IEEE} Standard for Floating-Point Arithmetic},
+  author  = {Microprocessor Standards Committee},
+  journal = {IEEE Std 754-2019 (Revision of IEEE 754-2008)},
+  year    = {2019},
+  volume  = {},
+  number  = {},
+  pages   = {1-84},
+  doi     = {10.1109/IEEESTD.2019.8766229}
+}
+
+@article{farcomeni2008review,
+  title     = {A review of modern multiple hypothesis testing, with particular attention to the false discovery proportion},
+  author    = {Farcomeni, Alessio},
+  journal   = {Statistical methods in medical research},
+  volume    = {17},
+  number    = {4},
+  pages     = {347--388},
+  year      = {2008},
+  publisher = {SAGE Publications Sage UK: London, England}
 }
