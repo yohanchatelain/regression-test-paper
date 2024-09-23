@@ -188,12 +188,12 @@
 }
 
 % Define the macros for added and removed text with line-break handling
-\newcommand{\add}[1]{\textcolor{green!60!black}{#1}} % Add text in green
+\newcommand{\add}[1]{{#1}} % Add text in green
 \newcommand{\remove}[1]{\leavevmode\noindent\textcolor{red}{#1}}         % Remove text in red
 
 
 \begin{document}
-\linenumbers
+% \linenumbers
 \maketitle
 
 \begin{abstract}
@@ -946,99 +946,6 @@ Québec – Nature et technologies (FRQ-NT).
   \caption{Numerical variability measured for subjects 1 to 8 (from top to bottom) across n=30 perturbed samples, with FWHM\,=\,20\,mm. }
   \label{fig:uncertainty-maps-20mm-disc}
 \end{figure*}
-
-% \section{Colors Palette}
-% Fail: \texttt{\#D55E00}
-% Pass: \texttt{\#009E73}
-
-% \section{Results for uncorrected tests}
-% \label{appendix:multiple-comparison-tests}
-
-% In the absence of multiple comparison corrections, we expect
-% by construction to incorrectly reject each $H_{0,i}$ with probability $\alpha$ a.k.a
-% the per-comparison error rate (PCER). To account for the PCER, we measure the
-% fraction of positive z-tests $V_P$ among the $v$ voxels in the image and the
-% tested \fmriprep result is considered part of the reference distribution iif:
-% \begin{equation}
-%     V_{P} \leq \alpha.
-%     \label{eqn:pce}
-% \end{equation}
-
-% For each of the $n$ repetitions,
-% we measured $V_P$, the fraction of
-% positive z-tests among the $v$ voxels as well as $\mathds{1}_n$, the number of repetitions
-% that passed the test with Bonferroni correction.
-
-% For the uncorrected tests (Equation~\ref{eqn:pce}), we expect $\overline{V_P}$ to have
-% the following upper bound:
-% \[
-%     \overline{V_P} \leq
-%     \alpha  + t_{29,0.05} \frac{\tilde{\sigma}_{V_P}}{\sqrt{30}}
-% \]
-% with
-% $t_{k,\gamma}$ the $(1-\gamma)$quantile of the Student distribution with $k$ degrees of freedom,
-% and $\overline{V_P}$ and $\tilde{\sigma}_{V_P}$ the mean and standard-deviation estimated from
-% $n$ $V_P$ measures.
-% This confidence interval is obtained from a two-tailed one-sample
-% t-test with $n-1$ degrees of freedom at a level of significance $\alpha_0=0.05$:
-% \[
-%     \mathbb{P}
-%     \left(
-%     -t_{n-1,\alpha_0/2}
-%     <
-%     \dfrac{\overline{V_p} - \alpha}{\tilde{\sigma}_{V_P} / \sqrt{n}}
-%     <
-%     t_{n-1,\alpha_0/2}
-%     \right)
-%     = 1 - \alpha_0
-% \]
-
-% fraction of positive
-% z-tests $V_P$ among the $v$ voxels should be close to the nomimal value $\alpha$
-% on average. To assess the validity of our LOO test, we test that the average
-% of the $n$ $V_P$ fractions measured belongs to a confidence interval
-% around the nomimal value $\alpha$. To do so, we use  resulting in the
-% following confidence interval for $V_P$:
-
-% obtained from:
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{figures/inter-subject/inter_pce.pdf}
-%     \caption{Inter-subject check for the uncorrected test for RR (top) and RS (bottom) modes. We expect that the tests would pass along the diagonals and be rejected otherwise.
-%         Out of a total of 17,472 individual assessments, we reported 791 failures in the RR mode, representing a failure rate of 0.05\%, and 685 failures in the RS mode, corresponding to a failure rate of 0.04\%. These data corroborate our test's capacity to discern inter-subject variability.
-%     }
-%     \label{fig:ieee-check-pce}
-% \end{figure}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{figures/fmriprep-versions/versions_pce.pdf}
-%     \caption{Uncorrected test applications on different \fmriprep versions.}
-%     \label{fig:versions_pce}
-% \end{figure}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{figures/arch/arch_pce.pdf}
-%     \caption{Uncorrected test applications on CPU architectures.}
-%     \label{fig:arch_pce}
-% \end{figure}
-
-% \section{Uncertainty maps for others FWHM}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{figures/loo_pce.pdf}
-%     \caption{PCE}
-%     \label{fig:loo_pce}
-% \end{figure}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\linewidth]{figures/template/template_pce.pdf}
-%     \caption{Corrupted template check for RR and RS modes (pce)}
-% \end{figure}
 
 \end{document}
 
